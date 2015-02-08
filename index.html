@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Test Page</title>
+        <script src="build/gobo.debug.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+
+    <body>
+        <ul>
+            <li>
+                <span>Name:</span>
+                <span g-class-highlight="active" g-text="name"></span>
+            </li>
+            <li><span>Age:</span> <span g-text="age" class='bold'></span></li>
+        </ul>
+    </body>
+    <script>
+        var gobo = new Gobo();
+        gobo.bind( document.body );
+    </script>
+</html>
+
