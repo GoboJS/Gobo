@@ -10,7 +10,7 @@ module.exports = function(grunt) {
         typescript: {
             base: {
                 src: ['src/**/*.ts'],
-                dest: 'build/private',
+                dest: 'build/private/gobo.js',
                 options: {
                     module: 'commonjs',
                     target: 'es5',

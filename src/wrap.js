@@ -27,7 +27,6 @@
     }
 
 }(this, function () {
-    var exports = {};
     @import "../build/private/gobo.js";
-    return exports.Gobo;
+    return Gobo;
 }));
