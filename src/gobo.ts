@@ -3,11 +3,17 @@
 
 /** A parsed expression */
 class Expression {
-    constructor( public expr: string ) {}
+
+    /** The path of keys to fetch when resolving values */
+    private keypath: string[]
+
+    constructor( expr: string ) {
+        this.keypath = expr.split(".");
+    }
 
     /** Returns the value of this expression */
     resolve ( data: Data ): string {
-        var value = data.get( this.expr );
+        var value = data.get( this.keypath );
 
         if ( typeof value === 'function' ) {
             return value();
@@ -48,9 +54,13 @@ class Subsection {
 class Data {
     constructor( private data: any = {} ) {}
 
-    /** Returns the value of this expression */
-    get ( key: string ): any {
-        return this.data[key];
+    /** Returns the value given a path of keys */
+    get ( keypath: string[] ): any {
+        return keypath.reduce((obj, key) => {
+            if ( obj !== null && obj !== undefined ) {
+                return obj[key];
+            }
+        }, this.data);
     }
 }
 

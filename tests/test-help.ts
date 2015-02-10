@@ -22,6 +22,11 @@ export module Tester {
             }
             return elem.textContent;
         }
+
+        /** Removes dirty whitespace from a string */
+        public cleanup( str: string ): string {
+            return str.trim().replace(/\s\s+/, " ");
+        }
     }
 
     /** Executes a test on a thunk of HTML */

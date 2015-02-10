@@ -40,5 +40,32 @@ describe('Gobo', function () {
         done();
     });
 
+    Test.should('return nested data').using(
+        `<ul>
+            <li id='name'>
+                <span g-text="person.name.first"></span>
+                <span g-text="person.name.last"></span>
+            </li>
+            <li g-text="person.age" id='age'></li>
+            <li g-text="person.hair.color" id='hair-color'></li>
+            <li g-text="person.shoesize" id='shoes'></li>
+        </ul>`
+    ).in((done, $) => {
+        new Gobo({ document: $.document }).bind( $.body, {
+            person: {
+                name: {
+                    first: "Veal",
+                    last: "Steakface"
+                },
+                age: 43
+            }
+        });
+        assert.equal( $.cleanup($.textById('name')), "Veal Steakface" );
+        assert.equal( $.textById('age'), "43" );
+        assert.equal( $.textById('hair-color'), "" );
+        assert.equal( $.textById('shoes'), "" );
+        done();
+    });
+
 });
 
