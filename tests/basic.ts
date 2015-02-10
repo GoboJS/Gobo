@@ -28,5 +28,17 @@ describe('Gobo', function () {
         done();
     });
 
+    Test.should('call functions to resolve values').using(
+        `<ul>
+            <li g-text="name" id='name' class='bold'></li>
+        </ul>`
+    ).in((done, $) => {
+        new Gobo({ document: $.document }).bind( $.body, {
+            name: () => { return "Jack" }
+        });
+        assert.equal( $.textById('name'), "Jack" );
+        done();
+    });
+
 });
 

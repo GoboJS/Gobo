@@ -1,14 +1,24 @@
 /// <reference path="browser.d.ts"/>
 /// <reference path="wildcard.ts"/>
 
-/** Convert a value to a string */
-function asString ( value: any ): string {
-    return value === undefined || value === null ? "" : String(value);
-}
-
 /** A parsed expression */
 class Expression {
     constructor( public expr: string ) {}
+
+    /** Returns the value of this expression */
+    resolve ( data: Data ): string {
+        var value = data.get( this.expr );
+
+        if ( typeof value === 'function' ) {
+            return value();
+        }
+        else if (value === undefined || value === null) {
+            return "";
+        }
+        else {
+            return String(value);
+        }
+    }
 }
 
 /** A subsection of the view */
@@ -26,7 +36,7 @@ class Subsection {
 
                 if ( directive ) {
                     var expr = new Expression(attr.value);
-                    directive.execute(elem, asString(data.get(expr)));
+                    directive.execute(elem, expr.resolve(data));
                 }
             });
 
@@ -38,9 +48,9 @@ class Subsection {
 class Data {
     constructor( private data: any = {} ) {}
 
-    /** Returns the value of an expression */
-    get ( expr: Expression ): any {
-        return this.data[expr.expr];
+    /** Returns the value of this expression */
+    get ( key: string ): any {
+        return this.data[key];
     }
 }
 
