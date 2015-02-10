@@ -16,6 +16,15 @@ module.exports = function(grunt) {
                     target: 'es5',
                     basePath: 'src'
                 }
+            },
+            tests: {
+                src: ['tests/**/*.ts'],
+                dest: 'build/private/tests',
+                options: {
+                    module: 'commonjs',
+                    target: 'es5',
+                    basePath: 'tests'
+                }
             }
         },
 
@@ -34,13 +43,19 @@ module.exports = function(grunt) {
         },
 
         watch: {
-            files: ['src/**/*', 'Gruntfile.js'],
+            files: ['src/**/*', 'Gruntfile.js', 'tests/**/*'],
             tasks: ['default']
         },
 
         bytesize: {
             all: {
                 src: ['build/gobo-*.min.js']
+            }
+        },
+
+        mochaTest: {
+            test: {
+                src: ['tests/**/*.js', 'build/private/tests/**/*.js']
             }
         },
 
@@ -61,10 +76,11 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-import');
+    grunt.loadNpmTasks('grunt-mocha-test');
 
     // Default task(s).
     grunt.registerTask('default',
-        ['typescript', 'import', 'uglify', 'bytesize']);
+        ['typescript', 'import', 'mochaTest', 'uglify', 'bytesize']);
 
     grunt.registerTask('dev', ['default', 'connect', 'watch']);
 };

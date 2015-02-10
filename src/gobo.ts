@@ -47,6 +47,9 @@ class Data {
 /** An interface into the gobo configuration */
 class Config {
 
+    /** The document being operated on */
+    public document: Document;
+
     /** The start of each directive */
     public prefix: string;
 
@@ -55,6 +58,7 @@ class Config {
 
     /** Constructor */
     constructor ( gobo: Gobo ) {
+        this.document = gobo.document;
         this.prefix = gobo.prefix;
         this.getDirective = Wildcard.createLookup(gobo.directives);
     }
@@ -66,7 +70,7 @@ class Config {
 
     /** Invokes a callback for each element with a directive */
     eachDirectedElem(root: Node, callback: (Node) => void, that: any) {
-        var elems = document.evaluate(
+        var elems = this.document.evaluate(
             ".//*[@*[starts-with(name(), '" + this.prefix + "')]]",
             root, null, 0, null
         );
@@ -116,11 +120,18 @@ class DefaultDirectives {
 /** Configures the view */
 class Gobo {
 
+    /** The document to operate on */
+    public document: Document;
+
     /** The start of each directive */
     public prefix: string = 'g-';
 
     /** The start of each directive */
     public directives: { [key: string]: Directive } = new DefaultDirectives();
+
+    constructor ( options: { document?: Document } = {} ) {
+        this.document = options.document || window.document;
+    }
 
     /** Attaches this configuration to a DOM element */
     bind ( root: Node, data: any ): void {
