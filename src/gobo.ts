@@ -1,11 +1,18 @@
 /// <reference path="browser.d.ts"/>
 /// <reference path="wildcard.ts"/>
 
+/** A mechanism for observing a value on an object */
+interface Watch {
+
+    /** Sets up a watch on a key */
+    watch( obj: any, key: string, callback: () => void, depth: number ): void;
+}
+
 /** A parsed expression */
 class Expression {
 
     /** The path of keys to fetch when resolving values */
-    private keypath: string[]
+    public keypath: string[]
 
     constructor( expr: string ) {
         this.keypath = expr.split(".");
@@ -42,7 +49,11 @@ class Subsection {
 
                 if ( directive ) {
                     var expr = new Expression(attr.value);
-                    directive.execute(elem, expr.resolve(data));
+                    function hookup() {
+                        directive.execute(elem, expr.resolve(data));
+                        data.watch( expr.keypath, config.watch, hookup);
+                    }
+                    hookup();
                 }
             });
 
@@ -62,6 +73,18 @@ class Data {
             }
         }, this.data);
     }
+
+    /** Sets up observation for a specific keypath */
+    watch( keypath: string[], watch: Watch, fn: () => void ): void {
+        if ( watch ) {
+            keypath.reduce((obj, key) => {
+                if ( obj !== null && obj !== undefined ) {
+                    watch.watch(obj, key, fn, 0);
+                    return obj[key];
+                }
+            }, this.data);
+        }
+    }
 }
 
 /** An interface into the gobo configuration */
@@ -69,6 +92,9 @@ class Config {
 
     /** The document being operated on */
     public document: Document;
+
+    /** The observation module to use for watching values */
+    public watch: Watch;
 
     /** The start of each directive */
     public prefix: string;
@@ -79,6 +105,7 @@ class Config {
     /** Constructor */
     constructor ( gobo: Gobo ) {
         this.document = gobo.document;
+        this.watch = gobo.watch;
         this.prefix = gobo.prefix;
         this.getDirective = Wildcard.createLookup(gobo.directives);
     }
@@ -137,6 +164,17 @@ class DefaultDirectives {
     });
 }
 
+
+/** The options that can be passed to Gobo on instantiation */
+interface Options {
+
+    /** The document being operated on */
+    document?: Document;
+
+    /** The observation module to use for watching values */
+    watch: Watch;
+}
+
 /** Configures the view */
 class Gobo {
 
@@ -149,8 +187,12 @@ class Gobo {
     /** The start of each directive */
     public directives: { [key: string]: Directive } = new DefaultDirectives();
 
-    constructor ( options: { document?: Document } = {} ) {
+    /** The observation module to use for watching values */
+    public watch: Watch;
+
+    constructor ( options: Options ) {
         this.document = options.document || window.document;
+        this.watch = options.watch;
     }
 
     /** Attaches this configuration to a DOM element */

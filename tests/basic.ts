@@ -4,6 +4,7 @@ declare var describe: (string, any) => void;
 var assert = require('assert');
 var Gobo = require("../../gobo.debug.js").Gobo;
 var Test = require("./test-help.js").Tester;
+var watch = require("watchjs");
 
 describe('Gobo', function () {
 
@@ -64,6 +65,32 @@ describe('Gobo', function () {
         assert.equal( $.textById('age'), "43" );
         assert.equal( $.textById('hair-color'), "" );
         assert.equal( $.textById('shoes'), "" );
+        done();
+    });
+
+    Test.should('update the dom when a value changes').using(
+        `<ul>
+            <li id='name'>
+                <span g-text="firstname"></span>
+                <span g-text="person.name.last"></span>
+            </li>
+        </ul>`
+    ).in((done, $) => {
+        var data = {
+            firstname: "Veal",
+            person: { name: { last: "Steakface" } }
+        };
+
+        new Gobo({ document: $.document, watch: watch }).bind($.body, data);
+        assert.equal( $.cleanup($.textById('name')), "Veal Steakface" );
+
+        data.firstname = "Big";
+        data.person = { name: { last: "McLargeHuge" } };
+        assert.equal( $.cleanup($.textById('name')), "Big McLargeHuge" );
+
+        data.person.name.last = "LugWrench";
+        assert.equal( $.cleanup($.textById('name')), "Big LugWrench" );
+
         done();
     });
 
