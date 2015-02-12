@@ -6,6 +6,29 @@ interface Watch {
 
     /** Sets up a watch on a key */
     watch( obj: any, key: string, callback: () => void, depth: number ): void;
+
+    /** Removes a watch */
+    unwatch( obj: any, key: string, callback: () => void ): void;
+}
+
+/** A group of functions that need to be unwatched all at once */
+class UnwatchGroup {
+
+    /** The list of watchers to unbind */
+    private watches: Array<{ obj: any; key: string; fn: () => void; }> = [];
+
+    /** Adds a new pairing to this function */
+    add( obj: any, key: string, fn: () => void ): void {
+        this.watches.push({ obj: obj, key: key, fn: fn });
+    }
+
+    /** Unwatches all the values in this watch group */
+    unwatch ( watch: Watch ): void {
+        this.watches.forEach((entry) => {
+            watch.unwatch( entry.obj, entry.key, entry.fn );
+        });
+        this.watches = null;
+    }
 }
 
 /** A parsed expression */
@@ -49,9 +72,16 @@ class Subsection {
 
                 if ( directive ) {
                     var expr = new Expression(attr.value);
+
+                    var unwatch;
                     function hookup() {
+                        if ( unwatch ) {
+                            unwatch.unwatch(config.watch);
+                        }
+
                         directive.execute(elem, expr.resolve(data));
-                        data.watch( expr.keypath, config.watch, hookup);
+                        unwatch = data.watch(
+                            expr.keypath, config.watch, hookup);
                     }
                     hookup();
                 }
@@ -75,15 +105,18 @@ class Data {
     }
 
     /** Sets up observation for a specific keypath */
-    watch( keypath: string[], watch: Watch, fn: () => void ): void {
+    watch( keypath: string[], watch: Watch, fn: () => void ): UnwatchGroup {
+        var unwatch = new UnwatchGroup();
         if ( watch ) {
             keypath.reduce((obj, key) => {
                 if ( obj !== null && obj !== undefined ) {
                     watch.watch(obj, key, fn, 0);
+                    unwatch.add(obj, key, fn);
                     return obj[key];
                 }
             }, this.data);
         }
+        return unwatch;
     }
 }
 
