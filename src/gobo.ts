@@ -1,35 +1,6 @@
 /// <reference path="browser.d.ts"/>
 /// <reference path="wildcard.ts"/>
-
-/** A mechanism for observing a value on an object */
-interface Watch {
-
-    /** Sets up a watch on a key */
-    watch( obj: any, key: string, callback: () => void, depth: number ): void;
-
-    /** Removes a watch */
-    unwatch( obj: any, key: string, callback: () => void ): void;
-}
-
-/** A group of functions that need to be unwatched all at once */
-class UnwatchGroup {
-
-    /** The list of watchers to unbind */
-    private watches: Array<{ obj: any; key: string; fn: () => void; }> = [];
-
-    /** Adds a new pairing to this function */
-    add( obj: any, key: string, fn: () => void ): void {
-        this.watches.push({ obj: obj, key: key, fn: fn });
-    }
-
-    /** Unwatches all the values in this watch group */
-    unwatch ( watch: Watch ): void {
-        this.watches.forEach((entry) => {
-            watch.unwatch( entry.obj, entry.key, entry.fn );
-        });
-        this.watches = null;
-    }
-}
+/// <reference path="watchchain.ts"/>
 
 /** A parsed expression */
 class Expression {
@@ -73,17 +44,13 @@ class Subsection {
                 if ( directive ) {
                     var expr = new Expression(attr.value);
 
-                    var unwatch;
-                    function hookup() {
-                        if ( unwatch ) {
-                            unwatch.unwatch(config.watch);
-                        }
+                    var observation = new Watch.PathBinding(
+                        config.watch,
+                        (callback) => { data.eachKey(expr.keypath, callback); },
+                        () => { directive.execute(elem, expr.resolve(data)); }
+                    );
 
-                        directive.execute(elem, expr.resolve(data));
-                        unwatch = data.watch(
-                            expr.keypath, config.watch, hookup);
-                    }
-                    hookup();
+                    observation.trigger();
                 }
             });
 
@@ -93,7 +60,21 @@ class Subsection {
 
 /** Data being bound to the html */
 class Data {
+
     constructor( private data: any = {} ) {}
+
+    /** Applies a callback to each object/key in a chain */
+    eachKey (
+        keypath: string[],
+        callback: (obj: any, key: string) => void
+    ): void {
+        return keypath.reduce((obj, key) => {
+            callback(obj, key);
+            if ( obj !== null && obj !== undefined ) {
+                return obj[key];
+            }
+        }, this.data);
+    }
 
     /** Returns the value given a path of keys */
     get ( keypath: string[] ): any {
@@ -102,21 +83,6 @@ class Data {
                 return obj[key];
             }
         }, this.data);
-    }
-
-    /** Sets up observation for a specific keypath */
-    watch( keypath: string[], watch: Watch, fn: () => void ): UnwatchGroup {
-        var unwatch = new UnwatchGroup();
-        if ( watch ) {
-            keypath.reduce((obj, key) => {
-                if ( obj !== null && obj !== undefined ) {
-                    watch.watch(obj, key, fn, 0);
-                    unwatch.add(obj, key, fn);
-                    return obj[key];
-                }
-            }, this.data);
-        }
-        return unwatch;
     }
 }
 
@@ -127,7 +93,7 @@ class Config {
     public document: Document;
 
     /** The observation module to use for watching values */
-    public watch: Watch;
+    public watch: Watch.Watch;
 
     /** The start of each directive */
     public prefix: string;
@@ -205,7 +171,7 @@ interface Options {
     document?: Document;
 
     /** The observation module to use for watching values */
-    watch: Watch;
+    watch: Watch.Watch;
 }
 
 /** Configures the view */
@@ -221,7 +187,7 @@ class Gobo {
     public directives: { [key: string]: Directive } = new DefaultDirectives();
 
     /** The observation module to use for watching values */
-    public watch: Watch;
+    public watch: Watch.Watch;
 
     constructor ( options: Options ) {
         this.document = options.document || window.document;
