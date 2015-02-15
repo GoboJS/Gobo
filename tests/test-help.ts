@@ -18,7 +18,7 @@ export module Tester {
         public textById( id: string ): string {
             var elem = this.document.getElementById(id);
             if ( !elem ) {
-                throw new Error("Could not find #" + name);
+                throw new Error("Could not find #" + id);
             }
             return elem.textContent;
         }
