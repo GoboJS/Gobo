@@ -14,6 +14,11 @@ export module Tester {
             this.body = document.body;
         }
 
+        /** Returns whether an ID exists in the document */
+        public idExists( id: string ): boolean {
+            return this.document.getElementById(id) ? true : false;
+        }
+
         /** Returns text content of a node by id */
         public textById( id: string ): string {
             var elem = this.document.getElementById(id);

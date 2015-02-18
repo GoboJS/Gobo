@@ -1,4 +1,8 @@
 
+interface Node {
+    contains( other: Node ): boolean;
+}
+
 interface XPathResult {
     iterateNext(): Node;
 }

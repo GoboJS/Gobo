@@ -41,7 +41,7 @@ module Watch {
         }
 
         /** Hooks up watchers for objects that have changed */
-        private connect() {
+        public connect() {
             if ( !this.watch ) {
                 return;
             }
@@ -61,6 +61,22 @@ module Watch {
                     this.watches[i] = obj;
                 }
 
+                i++;
+            });
+        }
+
+        /** Detaches any watchers from this watch chain */
+        public disconnect() {
+            if ( !this.watch ) {
+                return;
+            }
+
+            var i = 0;
+            this.each((_, key) => {
+                if ( this.watches[i] ) {
+                    this.watch.unwatch(this.watches[i], key, this.handler);
+                    this.watches[i] = null;
+                }
                 i++;
             });
         }

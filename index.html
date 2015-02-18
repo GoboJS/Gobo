@@ -9,7 +9,7 @@
 
     <body>
         <ul>
-            <li>
+            <li g-if="active">
                 <span>Name:</span>
                 <span g-class-highlight="active" g-text="name"></span>
             </li>
@@ -18,10 +18,11 @@
     </body>
     <script>
         var gobo = new Gobo({ watch: WatchJS });
-        gobo.bind( document.body, {
+        var data = {
             name: "Jack",
             age: 31
-        });
+        };
+        gobo.bind( document.body, data );
     </script>
 </html>
 
