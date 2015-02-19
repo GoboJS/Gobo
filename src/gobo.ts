@@ -60,10 +60,12 @@ class Config {
     public prefix: string;
 
     /** A lookup for resolving directives */
-    public getDirective: (string) => Directives.DirectiveBuilder;
+    public getDirective:
+        (string) => Wildcard.Tuple<Directives.DirectiveBuilder>;
 
     /** A lookup for resolving blocks */
-    public getBlock: (string) => Block.BlockBuilder;
+    public getBlock:
+        (string) => Wildcard.Tuple<Block.BlockBuilder>;
 
     /** Constructor */
     constructor ( gobo: Gobo ) {

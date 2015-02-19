@@ -5,22 +5,29 @@
         <script src="build/gobo.debug.js"></script>
         <script src="/node_modules/watchjs/src/watch.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style type='text/css'>
+            .highlight {
+                background: yellow;
+            }
+        </style>
     </head>
 
     <body>
         <ul>
-            <li g-if="active">
+            <li g-if="active" g-class-highlight="selected">
                 <span>Name:</span>
-                <span g-class-highlight="active" g-text="name"></span>
+                <span g-text="name"></span>
             </li>
-            <li><span>Age:</span> <span g-text="age" class='bold'></span></li>
+            <li><span>Age:</span> <span g-text="age" g-class='bold'></span></li>
         </ul>
     </body>
     <script>
         var gobo = new Gobo({ watch: WatchJS });
         var data = {
             name: "Jack",
-            age: 31
+            age: 31,
+            active: true,
+            selected: true
         };
         gobo.bind( document.body, data );
     </script>

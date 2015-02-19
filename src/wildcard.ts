@@ -5,6 +5,16 @@ module Wildcard {
     // NOTE: This could more efficiently be implemented with a trie, but that
     // kind of optimization can come later.
 
+    /** A tuple describing a value and the wildcard portion of a string */
+    export interface Tuple<T> {
+
+        /** The matched value */
+        value: T;
+
+        /** The portion of the key that matched the wildcard */
+        tail?: string;
+    }
+
     /** Key value mapping of the input data */
     class KeyValue<T> {
 
@@ -31,13 +41,18 @@ module Wildcard {
             }
         }
 
-        /** Returns whether this key/value matches */
-        public matches ( against: string ): boolean {
+        /** Returns a tuple with the result and any extra key info */
+        public match ( against: string ): Tuple<T> {
             if ( this.wildcard ) {
-                return this.key === against;
+                if ( against.indexOf(this.key) === 0 ) {
+                    return {
+                        value: this.value,
+                        tail: against.substr(this.key.length)
+                    };
+                }
             }
-            else {
-                return against.indexOf(this.key) === 0;
+            else if ( this.key === against ) {
+                return { value: this.value };
             }
         }
     }
@@ -45,7 +60,7 @@ module Wildcard {
     /** Creates a lookup table from an object */
     export function createLookup<T>(
         obj: { [key: string]: T }
-    ): (string) => T {
+    ): (string) => Tuple<T> {
 
         var matchers: Array<KeyValue<T>> = [];
         for ( var key in obj ) {
@@ -55,11 +70,12 @@ module Wildcard {
         // Sort in length descending order to match the most specific
         matchers.sort((a, b) => { return b.key.length - a.key.length; });
 
-        return function lookup (key: string): T {
+        return function lookup (key: string): Tuple<T> {
             key = key.toLowerCase();
             for ( var i = 0; i < matchers.length; i++ ) {
-                if ( matchers[i].matches(key) ) {
-                    return matchers[i].value;
+                var result = matchers[i].match(key);
+                if ( result ) {
+                    return result;
                 }
             }
         };

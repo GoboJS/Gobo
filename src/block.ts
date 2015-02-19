@@ -35,7 +35,7 @@ module Block {
 
     /** Defines the interface for instantiating a Block */
     export interface BlockBuilder {
-        new( elem: Node ): Block
+        new( elem: Node, param?: string ): Block
     }
 
     /** Default list of blocks */

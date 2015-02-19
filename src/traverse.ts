@@ -9,7 +9,7 @@ module Traverse {
         private nodes: XPathResult;
 
         /** The next element being iterated over */
-        private nextElem: Element;
+        private nextElem: HTMLElement;
 
         /** Upcoming attributes */
         private nextAttrs: Attr[] = [];
@@ -28,7 +28,7 @@ module Traverse {
                 return true;
             }
 
-            this.nextElem = <Element> this.nodes.iterateNext();
+            this.nextElem = <HTMLElement> this.nodes.iterateNext();
             if ( !this.nextElem ) {
                 return false;
             }
@@ -41,14 +41,14 @@ module Traverse {
         }
 
         /** Increments to the next element */
-        public next(): { elem: Element; attr: Attr } {
+        public next(): { elem: HTMLElement; attr: Attr } {
             if ( this.hasNext() ) {
                 return { elem: this.nextElem, attr: this.nextAttrs.shift() };
             }
         }
 
         /** Return the next element without incrementing to it */
-        public peek(): { elem: Element; attr: Attr } {
+        public peek(): { elem: HTMLElement; attr: Attr } {
             if ( this.hasNext() ) {
                 return { elem: this.nextElem, attr: this.nextAttrs[0] };
             }
@@ -67,7 +67,7 @@ module Traverse {
         constructor ( private iter: XPathIterator, private within?: Node ) {}
 
         /** Executes a callback for each matching element */
-        each( callback: (elem: Element, attr: Attr) => void ): void {
+        each( callback: (elem: HTMLElement, attr: Attr) => void ): void {
             while ( this.iter.hasNext() ) {
 
                 // If we are only examining nodes within another node, apply

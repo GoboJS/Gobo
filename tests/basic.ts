@@ -123,5 +123,24 @@ describe('Gobo', function () {
         done();
     });
 
+    Test.should('add and remove classes').using(
+        `<ul>
+            <li id='elem' g-class-active='activated'></li>
+        </ul>`
+    ).in((done, $) => {
+        var data = { activated: true };
+
+        new Gobo({ document: $.document, watch: watch }).bind($.body, data);
+        assert.ok( $.hasClass($.byId('elem'), 'active') );
+
+        data.activated = false;
+        assert.equal( false, $.hasClass($.byId('elem'), 'active') );
+
+        data.activated = true;
+        assert.ok( $.hasClass($.byId('elem'), 'active') );
+
+        done();
+    });
+
 });
 

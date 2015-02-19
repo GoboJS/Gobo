@@ -14,6 +14,15 @@ export module Tester {
             this.body = document.body;
         }
 
+        /** Returns a node by ID */
+        public byId( id: string ): HTMLElement {
+            var elem = this.document.getElementById(id);
+            if ( !elem ) {
+                throw new Error("Could not find #" + id);
+            }
+            return elem;
+        }
+
         /** Returns whether an ID exists in the document */
         public idExists( id: string ): boolean {
             return this.document.getElementById(id) ? true : false;
@@ -21,16 +30,17 @@ export module Tester {
 
         /** Returns text content of a node by id */
         public textById( id: string ): string {
-            var elem = this.document.getElementById(id);
-            if ( !elem ) {
-                throw new Error("Could not find #" + id);
-            }
-            return elem.textContent;
+            return this.byId(id).textContent;
         }
 
         /** Removes dirty whitespace from a string */
         public cleanup( str: string ): string {
             return str.trim().replace(/\s\s+/, " ");
+        }
+
+        /** Returns whether an element has a class */
+        public hasClass( elem: HTMLElement, klass: string ): boolean {
+            return elem.className.split(" ").indexOf(klass) !== -1;
         }
     }
 

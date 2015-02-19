@@ -30,21 +30,24 @@ module Parse {
     /** Calls a function on an object based on a directive type */
     function dispatch( config: Config, actions: {
         directive: (
-            elem: Element, attr: Attr,
+            elem: HTMLElement, attr: Attr,
             directive: Directives.Directive) => void;
         block: (
-            elem: Element, attr: Attr,
+            elem: HTMLElement, attr: Attr,
             directive: Block.Block) => void;
-    }, elem: Element, attr: Attr ) {
+    }, elem: HTMLElement, attr: Attr ) {
         var name = config.stripPrefix(attr.name);
         var block = config.getBlock(name);
         if ( block ) {
-            actions.block( elem, attr, new block(elem) );
+            actions.block( elem, attr, new block.value(elem, block.tail) );
         }
         else {
             var directive = config.getDirective(name)
             if (directive) {
-                actions.directive( elem, attr, new directive(elem) );
+                actions.directive(
+                    elem, attr,
+                    new directive.value(elem, directive.tail)
+                );
             }
         }
     }

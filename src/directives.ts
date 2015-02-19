@@ -9,21 +9,22 @@ module Directives {
 
     /** Defines the interface for instantiating a Directive */
     export interface DirectiveBuilder {
-        new( elem: Element ): Directive
+        new( elem: HTMLElement, param?: string ): Directive
     }
 
 
     /** Creates a one-way directive from a function */
     function oneway(
-        fn: (elem: Element, value: any) => void
+        fn: (elem: HTMLElement, value: any) => void
     ): DirectiveBuilder {
 
-        function OneWay ( elem: Element ) {
+        function OneWay ( elem: HTMLElement, param?: string ) {
             this.elem = elem;
+            this.param = param;
         }
 
         OneWay.prototype.execute = function ( value: any ) {
-            fn( this.elem, value );
+            fn.call( this, this.elem, value );
         }
 
         return <any> OneWay;
@@ -38,7 +39,20 @@ module Directives {
     DefaultDirectives.prototype = {
 
         /** Sets the text content of an element */
-        text: oneway((elem, value) => { elem.textContent = value; }),
+        text: oneway(function textDirective (elem, value) {
+            elem.textContent = value;
+        }),
+
+        /** Adds a class name */
+        'class-*': oneway(function (elem, value) {
+            if ( value ) {
+                elem.className += " " + this.param;
+            }
+            else {
+                var reg = new RegExp('(\\s|^)' + this.param + '(\\s|$)');
+                this.elem.className = this.elem.className.replace(reg, ' ');
+            }
+        })
     }
 
 }
