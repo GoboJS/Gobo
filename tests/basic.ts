@@ -1,7 +1,7 @@
 declare var require: (string) => any;
 declare var describe: (string, any) => void;
 
-var assert = require('assert');
+var assert = require('chai').assert;
 var Gobo = require("../../gobo.debug.js").Gobo;
 var Test = require("./test-help.js").Tester;
 var watch = require("watchjs");
@@ -131,13 +131,13 @@ describe('Gobo', function () {
         var data = { activated: true };
 
         new Gobo({ document: $.document, watch: watch }).bind($.body, data);
-        assert.ok( $.hasClass($.byId('elem'), 'active') );
+        assert.isTrue( $.hasClass($.byId('elem'), 'active') );
 
         data.activated = false;
         assert.equal( false, $.hasClass($.byId('elem'), 'active') );
 
         data.activated = true;
-        assert.ok( $.hasClass($.byId('elem'), 'active') );
+        assert.isTrue( $.hasClass($.byId('elem'), 'active') );
 
         done();
     });
