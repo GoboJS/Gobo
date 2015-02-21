@@ -96,6 +96,9 @@ class Gobo {
     /** The observation module to use for watching values */
     public watch: Watch.Watch;
 
+    /** A helper for building simple directives */
+    static oneway = Directives.oneway;
+
     /** Constructor */
     constructor ( options: Options ) {
         this.watch = options.watch;
@@ -103,11 +106,13 @@ class Gobo {
 
     /** Attaches this configuration to a DOM element */
     bind ( root: Node, data: any ): void {
-        Parse.parse(
+        var section = Parse.parse(
             Traverse.Reader.search(this.prefix, root),
             new Config(this),
             new Data(data)
-        ).connect();
+        )
+        section.initialize();
+        section.connect();
     }
 }
 

@@ -8,22 +8,39 @@ module Parse {
         /** Directives nested within this block */
         public bindings: Array<Watch.PathBinding> = [];
 
-        /** Sections nested within this block */
-        public sections: Array<Section> = [];
+        /** Directives nested within this block */
+        public directives: Array<Directives.Directive> = [];
+
+        /** Finalize the construction of directives within this section */
+        initialize(): void {
+            this.directives.forEach((inner) => {
+                if ( inner.initialize ) {
+                    inner.initialize();
+                }
+            });
+        }
 
         /** Hooks up the behavior for this section */
         connect(): void {
-            this.bindings.forEach((inner) => {
+            this.bindings.forEach((inner: Watch.PathBinding) => {
                 inner.connect();
                 inner.trigger();
             });
-            this.sections.forEach((inner) => { inner.connect(); });
+            this.directives.forEach((inner) => {
+                if ( inner.connect ) {
+                    inner.connect();
+                }
+            });
         }
 
         /** Disconnects the behavior for this block */
         disconnect(): void {
             this.bindings.forEach((inner) => { inner.disconnect(); });
-            this.sections.forEach((inner) => { inner.disconnect(); });
+            this.directives.forEach((inner) => {
+                if ( inner.disconnect ) {
+                    inner.disconnect();
+                }
+            });
         }
     }
 
@@ -47,6 +64,8 @@ module Parse {
                     return parse(traverse.nested(elem), config, data);
                 }
             });
+
+            section.directives.push(instance);
 
             var expr = new Expression( attr.value );
 

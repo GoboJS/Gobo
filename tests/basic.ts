@@ -94,35 +94,6 @@ describe('Gobo', function () {
         done();
     });
 
-    Test.should('allow nodes to be detached via "if" directives').using(
-        `<ul>
-            <li id='name' g-if='activated'>
-                <span g-text="name.first"></span>
-                <span g-text="name.last"></span>
-            </li>
-        </ul>`
-    ).in((done, $) => {
-        var data = {
-            activated: true,
-            name: { first: "Veal", last: "Steakface" }
-        };
-
-        new Gobo({ document: $.document, watch: watch }).bind($.body, data);
-        assert.equal( $.cleanup($.textById('name')), "Veal Steakface" );
-
-        data.activated = false;
-        assert.equal( false, $.idExists('name') );
-
-        data.name.first = "Lug";
-        data.activated = true;
-        assert.equal( $.cleanup($.textById('name')), "Lug Steakface" );
-
-        data.name.last = "ThickNeck";
-        assert.equal( $.cleanup($.textById('name')), "Lug ThickNeck" );
-
-        done();
-    });
-
     Test.should('add and remove classes').using(
         `<ul>
             <li id='elem' g-class-active='activated'></li>

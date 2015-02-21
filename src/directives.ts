@@ -5,6 +5,15 @@ module Directives {
 
         /** Executes this directive against an element with a value */
         execute ( value: any ): void;
+
+        /** Called once when hooking up this directive */
+        initialize?: () => void;
+
+        /** Hooks up the behavior for this directive */
+        connect?: () => void;
+
+        /** Unhooks the behavior for this directive */
+        disconnect?: () => void;
     }
 
     /** Detailed info about how a directive is constructed */
@@ -29,24 +38,44 @@ module Directives {
         /** The fragment standing in for the element */
         private standin: Node;
 
-        /** @inheritdoc Block#constructor */
-        constructor( private elem: Node ) {
+        /** The directives nested within this If statement */
+        private section: Parse.Section;
+
+        /** @inheritdoc Directive#connect */
+        public connect: () => void;
+
+        /** @inheritdoc Directive#disconnect */
+        public disconnect: () => void;
+
+        /** @inheritdoc Directive#constructor */
+        constructor( private elem: Node, details: Details ) {
             this.standin = elem.ownerDocument.createComment("if");
+            this.section = details.parse();
+
+            this.connect = this.section.connect.bind(this.section);
+            this.disconnect = this.section.disconnect.bind(this.section);
         }
 
-        /** @inheritdoc Modifier#execute */
+        /** @inheritdoc Directive#execute */
         execute ( value: any ): void {
             if ( value && !this.elem.parentNode ) {
+                this.section.connect();
                 this.standin.parentNode.replaceChild(this.elem, this.standin);
             }
             else if ( !value && this.elem.parentNode ) {
+                this.section.disconnect();
                 this.elem.parentNode.replaceChild(this.standin, this.elem);
             }
+        }
+
+        /** @inheritdoc Directive#initialize */
+        initialize (): void {
+            this.section.initialize();
         }
     }
 
     /** Creates a one-way directive from a function */
-    function oneway(
+    export function oneway(
         fn: (elem: HTMLElement, value: any) => void
     ): DirectiveBuilder {
 
