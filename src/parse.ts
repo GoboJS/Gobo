@@ -27,65 +27,38 @@ module Parse {
         }
     }
 
-    /** Calls a function on an object based on a directive type */
-    function dispatch( config: Config, actions: {
-        directive: (
-            elem: HTMLElement, attr: Attr,
-            directive: Directives.Directive) => void;
-        block: (
-            elem: HTMLElement, attr: Attr,
-            directive: Block.Block) => void;
-    }, elem: HTMLElement, attr: Attr ) {
-        var name = config.stripPrefix(attr.name);
-        var block = config.getBlock(name);
-        if ( block ) {
-            actions.block( elem, attr, new block.value(elem, block.tail) );
-        }
-        else {
-            var directive = config.getDirective(name)
-            if (directive) {
-                actions.directive(
-                    elem, attr,
-                    new directive.value(elem, directive.tail)
-                );
-            }
-        }
-    }
-
     /** Parses the DOM for directives and blocks */
     export function parse(
         traverse: Traverse.Reader, config: Config, data: Data
     ): Section {
         var section = new Section();
 
-        traverse.each( dispatch.bind(null, config, {
-            directive: function (elem, attr, directive) {
+        traverse.each(function eachAttr(elem: HTMLElement, attr: Attr) {
 
-                var expr = new Expression( attr.value );
-
-                // Hook up an observer so that any change to the
-                // keypath causes the directive to be re-rendered
-                section.bindings.push(new Watch.PathBinding(
-                    config.watch,
-                    data.eachKey.bind(data, expr.keypath),
-                    () => { directive.execute(expr.resolve(data)); }
-                ));
-            },
-            block: function parseBlock(elem, attr, block) {
-
-                var expr = new Expression( attr.value );
-
-                section.bindings.push(new Watch.PathBinding(
-                    config.watch,
-                    data.eachKey.bind(data, expr.keypath),
-                    () => { block.execute(expr.resolve(data)); }
-                ));
-
-                section.sections.push(
-                    parse(traverse.nested(elem), config, data)
-                );
+            var name = config.stripPrefix(attr.name);
+            var directive = config.getDirective(name);
+            if ( !directive) {
+                return;
             }
-        }) );
+
+            var instance = new directive.value(elem, {
+                param: directive.tail,
+                parse: function parseNested(): Parse.Section {
+                    return parse(traverse.nested(elem), config, data);
+                }
+            });
+
+            var expr = new Expression( attr.value );
+
+            // Hook up an observer so that any change to the
+            // keypath causes the directive to be re-rendered
+            section.bindings.push(new Watch.PathBinding(
+                config.watch,
+                data.eachKey.bind(data, expr.keypath),
+                () => { instance.execute(expr.resolve(data)); }
+            ));
+
+        });
 
         return section;
     }

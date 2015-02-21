@@ -2,7 +2,6 @@
 /// <reference path="watchchain.ts"/>
 /// <reference path="directives.ts"/>
 /// <reference path="traverse.ts"/>
-/// <reference path="block.ts"/>
 /// <reference path="parse.ts"/>
 
 /** A parsed expression */
@@ -63,16 +62,11 @@ class Config {
     public getDirective:
         (string) => Wildcard.Tuple<Directives.DirectiveBuilder>;
 
-    /** A lookup for resolving blocks */
-    public getBlock:
-        (string) => Wildcard.Tuple<Block.BlockBuilder>;
-
     /** Constructor */
     constructor ( gobo: Gobo ) {
         this.watch = gobo.watch;
         this.prefix = gobo.prefix;
         this.getDirective = Wildcard.createLookup(gobo.directives);
-        this.getBlock = Wildcard.createLookup(gobo.blocks);
     }
 
     /** Strips the prefix off of a string */
@@ -98,10 +92,6 @@ class Gobo {
     /** The default directives */
     public directives: { [key: string]: Directives.DirectiveBuilder }
         = new Directives.DefaultDirectives();
-
-    /** The default blocks */
-    public blocks: { [key: string]: Block.BlockBuilder }
-        = new Block.DefaultBlocks();
 
     /** The observation module to use for watching values */
     public watch: Watch.Watch;
