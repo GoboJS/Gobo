@@ -24,6 +24,12 @@ module Directives {
 
         /** A function for parsing the nested values from a directive */
         parse: () => Parse.Section;
+
+        /** A function for parsing the nested values from a directive */
+        cloneable: () => Parse.Cloneable;
+
+        /** Access to the data */
+        data: Data;
     }
 
     /** Defines the interface for instantiating a Directive */
@@ -74,6 +80,51 @@ module Directives {
         }
     }
 
+    /** Loops over a value */
+    class EachStatement implements Directive {
+
+        /**
+         * Marks the final position of the list so new elements can quickly
+         * be appended using 'insertBefore'
+         */
+        private end: Node;
+
+        /** The section to clone for each sub-element */
+        private template: Parse.Cloneable;
+
+        /** Creates a scoped data object */
+        private scope: (value: any) => Data;
+
+        /** @inheritdoc Directive#constructor */
+        constructor( elem: Node, details: Details ) {
+            this.end = elem.ownerDocument.createTextNode("");
+            this.template = details.cloneable();
+
+            this.scope = (value) => {
+                return details.data.scope(details.param, value);
+            };
+        }
+
+        /** @inheritdoc Directive#initialize */
+        initialize (): void {
+            // Replace the root DOM element with the placeholder
+            this.template.root.parentNode.replaceChild(
+                this.end, this.template.root );
+        }
+
+        /** @inheritdoc Directive#execute */
+        execute ( value: any ): void {
+            value.forEach((value: any) => {
+
+                var newSection = this.template.cloneBefore(
+                    this.end, this.scope(value));
+
+                newSection.initialize();
+                newSection.connect();
+            });
+        }
+    }
+
     /** Creates a one-way directive from a function */
     export function oneway(
         fn: (elem: HTMLElement, value: any) => void
@@ -101,6 +152,9 @@ module Directives {
 
         /** Conditionally include an element */
         if: IfStatement,
+
+        /** Loop over the values in an iterable */
+        'each-*': EachStatement,
 
         /** Sets the text content of an element */
         text: oneway(function textDirective (elem, value) {

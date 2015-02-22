@@ -44,10 +44,29 @@ module Parse {
         }
     }
 
+    /** A node that can be cloned to create new sections */
+    export class Cloneable {
+        constructor (
+            public root: HTMLElement,
+            private attrs: Array<Attr>,
+            private config: Config
+        ) {}
+
+        /** Creates a new section and adds it before the given node */
+        cloneBefore( before: Node, data: Data ): Section {
+            var cloned = <HTMLElement> this.root.cloneNode(true);
+            before.parentNode.insertBefore(cloned, before);
+            var traverse = Traverse.search(this.config, cloned);
+            return parse(traverse, this.config, data);
+        }
+    }
+
+
     /** Parses the DOM for directives and blocks */
     export function parse(
         traverse: Traverse.Reader, config: Config, data: Data
     ): Section {
+
         var section = new Section();
 
         traverse.each(function eachAttr(elem: HTMLElement, attr: Attr) {
@@ -60,8 +79,12 @@ module Parse {
 
             var instance = new directive.value(elem, {
                 param: directive.tail,
-                parse: function parseNested(): Parse.Section {
+                data: data,
+                parse: function parseNested(): Section {
                     return parse(traverse.nested(elem), config, data);
+                },
+                cloneable: function parseCloneable(): Cloneable {
+                    return cloneable(traverse.nested(elem), config);
                 }
             });
 
@@ -76,10 +99,24 @@ module Parse {
                 data.eachKey.bind(data, expr.keypath),
                 () => { instance.execute(expr.resolve(data)); }
             ));
-
         });
 
         return section;
+    }
+
+    /** Parses a section to create a cloneable block */
+    export function cloneable(
+        traverse: Traverse.Reader, config: Config
+    ): Cloneable {
+
+        var attrs: Array<Attr> = [];
+        traverse.each(function eachAttr(elem: HTMLElement, attr: Attr) {
+            if ( elem === traverse.root ) {
+                attrs.push(attr);
+            }
+        });
+
+        return new Cloneable(traverse.root, attrs, config);
     }
 
 }

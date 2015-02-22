@@ -35,7 +35,7 @@ export module Tester {
 
         /** Removes dirty whitespace from a string */
         public cleanup( str: string ): string {
-            return str.trim().replace(/\s\s+/, " ");
+            return str.trim().replace(/\s\s+/g, " ");
         }
 
         /** Returns whether an element has a class */

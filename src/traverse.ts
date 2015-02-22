@@ -2,8 +2,20 @@
 
 module Traverse {
 
+    interface DirectiveIterator {
+
+        /** Whether there is another attribute */
+        hasNext(): boolean;
+
+        /** Increments to the next element */
+        next(): { elem: HTMLElement; attr: Attr };
+
+        /** Return the next element without incrementing to it */
+        peek(): { elem: HTMLElement; attr: Attr };
+    }
+
     /** Iterates over the values in an xpath result */
-    class XPathIterator {
+    class XPathIterator implements DirectiveIterator {
 
         /** The XPath result object being iterated over */
         private nodes: XPathResult;
@@ -22,7 +34,7 @@ module Traverse {
             );
         }
 
-        /** Whether there is another attribute */
+        /** @inheritdoc DirectiveIterator#hasNext */
         public hasNext(): boolean {
             if ( this.nextAttrs.length > 0 ) {
                 return true;
@@ -40,14 +52,14 @@ module Traverse {
             return true;
         }
 
-        /** Increments to the next element */
+        /** @inheritdoc DirectiveIterator#next */
         public next(): { elem: HTMLElement; attr: Attr } {
             if ( this.hasNext() ) {
                 return { elem: this.nextElem, attr: this.nextAttrs.shift() };
             }
         }
 
-        /** Return the next element without incrementing to it */
+        /** @inheritdoc DirectiveIterator#peek */
         public peek(): { elem: HTMLElement; attr: Attr } {
             if ( this.hasNext() ) {
                 return { elem: this.nextElem, attr: this.nextAttrs[0] };
@@ -59,24 +71,17 @@ module Traverse {
     export class Reader {
 
         /** Searches for the given prefix on the given node */
-        static search ( prefix: string, root: Node ) {
-            return new Reader( new XPathIterator(prefix, root) );
-        }
-
-        /** Searches for the given prefix on the given node */
-        constructor ( private iter: XPathIterator, private within?: Node ) {}
+        constructor (
+            private iter: DirectiveIterator,
+            public root: HTMLElement
+        ) {}
 
         /** Executes a callback for each matching element */
         each( callback: (elem: HTMLElement, attr: Attr) => void ): void {
             while ( this.iter.hasNext() ) {
 
-                // If we are only examining nodes within another node, apply
-                // that constraint and bail
-                if ( this.within ) {
-                    var peek = this.iter.peek();
-                    if ( !this.within.contains(peek.elem) ) {
-                        return;
-                    }
+                if ( !this.root.contains(this.iter.peek().elem) ) {
+                    return;
                 }
 
                 var next = this.iter.next();
@@ -85,9 +90,15 @@ module Traverse {
         }
 
         /** Returns an iterator for elements within a node */
-        nested( elem: Node ): Reader {
+        nested( elem: HTMLElement ): Reader {
             return new Reader(this.iter, elem);
         }
     }
+
+    /** Searches for the given prefix on the given node */
+    export function search ( config: Config, root: HTMLElement ) {
+        return new Reader( new XPathIterator(config.prefix, root), root );
+    }
+
 }
 

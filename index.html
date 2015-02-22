@@ -20,6 +20,10 @@
             </li>
             <li><span>Age:</span> <span g-text="age" g-class='bold'></span></li>
         </ul>
+        <ul>
+            <li>Likes:</li>
+            <li g-each-like="likes"><span g-text="like"></span></li>
+        </ul>
     </body>
     <script>
         var gobo = new Gobo({ watch: WatchJS });
@@ -27,7 +31,8 @@
             name: "Jack",
             age: 31,
             active: true,
-            selected: true
+            selected: true,
+            likes: [ "Cheese", "Terriers" ]
         };
         gobo.bind( document.body, data );
     </script>
