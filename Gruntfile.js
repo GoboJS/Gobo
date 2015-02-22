@@ -82,6 +82,6 @@ module.exports = function(grunt) {
     grunt.registerTask('default',
         ['typescript', 'import', 'mochaTest', 'uglify', 'bytesize']);
 
-    grunt.registerTask('dev', ['default', 'connect', 'watch']);
+    grunt.registerTask('dev', ['typescript', 'connect', 'watch']);
 };
 
