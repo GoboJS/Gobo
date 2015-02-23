@@ -28,6 +28,24 @@ describe('Each blocks', function () {
         done();
     });
 
+    Test.should('Allow directives directly on a looped node').using(
+        `<ul id='names'>
+            <li g-each-name='names' g-text="name"></li>
+        </ul>`
+    ).in((done, $) => {
+        var data = {
+            names: [ "Veal Steakface ", "Lug ThickNeck ", "Big McLargeHuge " ]
+        };
+
+        new Gobo({ document: $.document, watch: watch }).bind($.body, data);
+        assert.equal(
+            $.cleanup($.textById('names')),
+            "Veal Steakface Lug ThickNeck Big McLargeHuge"
+        );
+
+        done();
+    });
+
 });
 
 

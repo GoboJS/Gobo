@@ -15,7 +15,7 @@ module Traverse {
     }
 
     /** Iterates over the values in an xpath result */
-    class XPathIterator implements DirectiveIterator {
+    export class XPathIterator implements DirectiveIterator {
 
         /** The XPath result object being iterated over */
         private nodes: XPathResult;
@@ -67,6 +67,53 @@ module Traverse {
         }
     }
 
+    /** Iterates over the exact values given */
+    export class ExactIterator implements DirectiveIterator {
+
+        /** The current offset of the iteration */
+        private i = 0;
+
+        constructor( private elem: HTMLElement, private attrs: Attr[] ) {}
+
+        /** @inheritdoc DirectiveIterator#hasNext */
+        public hasNext(): boolean {
+            return this.i < this.attrs.length;
+        }
+
+        /** @inheritdoc DirectiveIterator#next */
+        public next(): { elem: HTMLElement; attr: Attr } {
+            return { elem: this.elem, attr: this.attrs[this.i++] };
+        }
+
+        /** @inheritdoc DirectiveIterator#peek */
+        public peek(): { elem: HTMLElement; attr: Attr } {
+            return { elem: this.elem, attr: this.attrs[this.i] };
+        }
+    }
+
+    /** Iterates over two other iterators */
+    export class JoinIterator implements DirectiveIterator {
+        constructor(
+            private one: DirectiveIterator,
+            private two: DirectiveIterator
+        ) {}
+
+        /** @inheritdoc DirectiveIterator#hasNext */
+        public hasNext(): boolean {
+            return this.one.hasNext() || this.two.hasNext();
+        }
+
+        /** @inheritdoc DirectiveIterator#next */
+        public next(): { elem: HTMLElement; attr: Attr } {
+            return this.one.hasNext() ? this.one.next() : this.two.next();
+        }
+
+        /** @inheritdoc DirectiveIterator#peek */
+        public peek(): { elem: HTMLElement; attr: Attr } {
+            return this.one.hasNext() ? this.one.peek() : this.two.peek();
+        }
+    }
+
     /** Reads elements from the DOM with matching attributes */
     export class Reader {
 
@@ -80,7 +127,8 @@ module Traverse {
         each( callback: (elem: HTMLElement, attr: Attr) => void ): void {
             while ( this.iter.hasNext() ) {
 
-                if ( !this.root.contains(this.iter.peek().elem) ) {
+                var peek = this.iter.peek().elem;
+                if ( this.root !== peek && !this.root.contains(peek) ) {
                     return;
                 }
 

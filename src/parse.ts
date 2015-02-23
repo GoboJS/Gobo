@@ -55,8 +55,17 @@ module Parse {
         /** Creates a new section and adds it before the given node */
         cloneBefore( before: Node, data: Data ): Section {
             var cloned = <HTMLElement> this.root.cloneNode(true);
+
             before.parentNode.insertBefore(cloned, before);
-            var traverse = Traverse.search(this.config, cloned);
+
+            var traverse = new Traverse.Reader(
+                new Traverse.JoinIterator(
+                    new Traverse.ExactIterator(cloned, this.attrs),
+                    new Traverse.XPathIterator(this.config.prefix, cloned)
+                ),
+                cloned
+            );
+
             return parse(traverse, this.config, data);
         }
     }
