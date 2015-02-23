@@ -11,6 +11,8 @@ module Parse {
         /** Directives nested within this block */
         public directives: Array<Directives.Directive> = [];
 
+        constructor( public root: HTMLElement ) {}
+
         /** Finalize the construction of directives within this section */
         initialize(): void {
             this.directives.forEach((inner) => {
@@ -42,6 +44,14 @@ module Parse {
                 }
             });
         }
+
+        /** Disconnects this section and removes it */
+        destroy(): void {
+            this.disconnect();
+            this.root.parentNode.removeChild(this.root);
+            this.bindings = null;
+            this.directives = null;
+        }
     }
 
     /** A node that can be cloned to create new sections */
@@ -52,11 +62,8 @@ module Parse {
             private config: Config
         ) {}
 
-        /** Creates a new section and adds it before the given node */
-        cloneBefore( before: Node, data: Data ): Section {
-            var cloned = <HTMLElement> this.root.cloneNode(true);
-
-            before.parentNode.insertBefore(cloned, before);
+        /** Parses a cloned node and returns the parsed section */
+        private parse( cloned: HTMLElement, data: Data ): Section {
 
             var traverse = new Traverse.Reader(
                 new Traverse.JoinIterator(
@@ -68,6 +75,20 @@ module Parse {
 
             return parse(traverse, this.config, data);
         }
+
+        /** Creates a new section and adds it before the given node */
+        cloneBefore( before: Node, data: Data ): Section {
+            var cloned = <HTMLElement> this.root.cloneNode(true);
+            before.parentNode.insertBefore(cloned, before);
+            return this.parse(cloned, data);
+        }
+
+        /** Creates a new section replaces an existing section */
+        cloneReplace( replace: Section, data: Data ): Section {
+            var cloned = <HTMLElement> this.root.cloneNode(true);
+            replace.root.parentNode.replaceChild(cloned, replace.root);
+            return this.parse(cloned, data);
+        }
     }
 
 
@@ -76,7 +97,7 @@ module Parse {
         traverse: Traverse.Reader, config: Config, data: Data
     ): Section {
 
-        var section = new Section();
+        var section = new Section( traverse.root );
 
         traverse.each(function eachAttr(elem: HTMLElement, attr: Attr) {
 

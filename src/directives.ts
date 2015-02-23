@@ -95,6 +95,15 @@ module Directives {
         /** Creates a scoped data object */
         private scope: (value: any) => Data;
 
+        /** The list of currently active subsections */
+        private sections: Array<Parse.Section> = [];
+
+        /**
+         * The values current represented in the DOM. This is tracked to
+         * reduce the churn and recycle as many sections as possible
+         */
+        private values: Array<any> = [];
+
         /** @inheritdoc Directive#constructor */
         constructor( elem: Node, details: Details ) {
             this.end = elem.ownerDocument.createTextNode("");
@@ -114,14 +123,44 @@ module Directives {
 
         /** @inheritdoc Directive#execute */
         execute ( value: any ): void {
+            var i = 0;
             value.forEach((value: any) => {
 
-                var newSection = this.template.cloneBefore(
-                    this.end, this.scope(value));
+                // Only recreate this section if the value has changed
+                if ( this.values[i] === value ) {
+                    i++;
+                    return;
+                }
+
+                var newSection;
+
+                if ( this.sections[i] ) {
+                    // If there is already a section at this index,
+                    // then replacce it
+                    newSection = this.template.cloneReplace(
+                        this.sections[i], this.scope(value));
+                    this.sections[i].disconnect();
+                }
+                else {
+                    // Otherwise, add it to the end of the list
+                    newSection = this.template.cloneBefore(
+                        this.end, this.scope(value));
+                }
+
+                this.sections[i] = newSection;
+                this.values[i] = value;
 
                 newSection.initialize();
                 newSection.connect();
+
+                i++;
             });
+
+            // Remove any extra sections
+            for ( ; this.sections.length > i; i++ ) {
+                this.values.pop();
+                this.sections.pop().destroy();
+            }
         }
     }
 
