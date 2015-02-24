@@ -1,4 +1,7 @@
 /// <reference path="traverse.ts"/>
+/// <reference path="watch.ts"/>
+/// <reference path="data.ts"/>
+/// <reference path="expression.ts"/>
 
 module Parse {
 
@@ -63,7 +66,7 @@ module Parse {
         ) {}
 
         /** Parses a cloned node and returns the parsed section */
-        private parse( cloned: HTMLElement, data: Data ): Section {
+        private parse( cloned: HTMLElement, data: Data.Data ): Section {
 
             var traverse = new Traverse.Reader(
                 new Traverse.JoinIterator(
@@ -77,14 +80,14 @@ module Parse {
         }
 
         /** Creates a new section and adds it before the given node */
-        cloneBefore( before: Node, data: Data ): Section {
+        cloneBefore( before: Node, data: Data.Data ): Section {
             var cloned = <HTMLElement> this.root.cloneNode(true);
             before.parentNode.insertBefore(cloned, before);
             return this.parse(cloned, data);
         }
 
         /** Creates a new section replaces an existing section */
-        cloneReplace( replace: Section, data: Data ): Section {
+        cloneReplace( replace: Section, data: Data.Data ): Section {
             var cloned = <HTMLElement> this.root.cloneNode(true);
             replace.root.parentNode.replaceChild(cloned, replace.root);
             return this.parse(cloned, data);
@@ -94,7 +97,7 @@ module Parse {
 
     /** Parses the DOM for directives and blocks */
     export function parse(
-        traverse: Traverse.Reader, config: Config, data: Data
+        traverse: Traverse.Reader, config: Config, data: Data.Data
     ): Section {
 
         var section = new Section( traverse.root );
@@ -120,7 +123,7 @@ module Parse {
 
             section.directives.push(instance);
 
-            var expr = new Expression( attr.value );
+            var expr = new Expr.Expression( attr.value );
 
             // Hook up an observer so that any change to the
             // keypath causes the directive to be re-rendered
