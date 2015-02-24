@@ -45,6 +45,9 @@ module Directives {
          */
         private values: Array<any> = [];
 
+        /** Whether this statement is connected */
+        private connected = true;
+
         /** @inheritdoc Directive#constructor */
         constructor( elem: Node, details: Details ) {
             this.end = elem.ownerDocument.createTextNode("");
@@ -112,6 +115,22 @@ module Directives {
             for ( ; this.sections.length > i; i++ ) {
                 this.values.pop();
                 this.sections.pop().destroy();
+            }
+        }
+
+        /** @inheritdoc Directive#connect */
+        connect(): void {
+            if ( !this.connected ) {
+                this.sections.forEach((section) => { section.connect() });
+                this.connected = true;
+            }
+        }
+
+        /** @inheritdoc Directive#disconnect */
+        disconnect(): void {
+            if ( this.connected ) {
+                this.sections.forEach((section) => { section.disconnect() });
+                this.connected = false;
             }
         }
     }

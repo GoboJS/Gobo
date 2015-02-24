@@ -105,6 +105,38 @@ describe('Each blocks', function () {
         done();
     });
 
+    Test.should('Disable subsections when disabled').using(
+        `<div id='names'>
+            <ul g-if="active">
+                <li g-each-person='people'>
+                    <span g-text="person.name" g-check="person.name"></span>
+                </li>
+            </ul>
+        </div>`
+    ).in((done, $) => {
+        var data = {
+            active: true,
+            people: [ { name: "Veal" }, { name: "Lug" }, { name: "Big" } ]
+        };
+
+        var gobo = new Gobo({ watch: watch });
+        gobo.directives.check = Gobo.directive((elem, value) => {
+            assert.isTrue(data.active);
+        });
+
+        gobo.bind($.body, data);
+        assert.equal( $.cleanup($.textById('names')), "Veal Lug Big" );
+
+        data.active = false;
+        data.people[0].name = 'Wrench';
+        data.people.reverse();
+
+        data.active = true;
+        assert.equal( $.cleanup($.textById('names')), "Big Lug Wrench" );
+
+        done();
+    });
+
 });
 
 
