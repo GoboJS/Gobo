@@ -59,48 +59,48 @@ module Directives {
                 this.end, this.template.root );
         }
 
+        /** Creates a new section at the given index */
+        private createSectionAt (i: number, data: Data.Data): Parse.Section {
+
+            if ( this.sections[i] ) {
+                // If there is already a section at this index,
+                // then replacce it
+                var newSection = this.template.cloneReplace(
+                    this.sections[i], data);
+                this.sections[i].disconnect();
+                return newSection;
+            }
+            else {
+                // Otherwise, add it to the end of the list
+                return this.template.cloneBefore(this.end, data);
+            }
+        }
+
         /** @inheritdoc Directive#execute */
         execute ( value: any ): void {
             var i = 0;
             value.forEach((value: any) => {
 
-                // Only recreate this section if the value has changed
-                if ( this.values[i] === value ) {
-                    i++;
-                    return;
-                }
+                var found = this.values.indexOf(value, i);
 
                 // If this value exists in the list of values, we should
                 // repurpose the existing section rather than creating a new one
-                var found = this.values.indexOf(value, i + 1);
-                if ( found !== -1 ) {
+                if ( found > i ) {
                     domSwap(this.sections[i].root, this.sections[found].root);
                     indexSwap(this.sections, i, found);
                     indexSwap(this.values, i, found);
-                    i++;
-                    return;
                 }
 
-                var newSection;
+                // Only recreate this section if the value has changed
+                else if ( found !== i ) {
+                    var newSection = this.createSectionAt(i, this.scope(value));
 
-                if ( this.sections[i] ) {
-                    // If there is already a section at this index,
-                    // then replacce it
-                    newSection = this.template.cloneReplace(
-                        this.sections[i], this.scope(value));
-                    this.sections[i].disconnect();
+                    this.sections[i] = newSection;
+                    this.values[i] = value;
+
+                    newSection.initialize();
+                    newSection.connect();
                 }
-                else {
-                    // Otherwise, add it to the end of the list
-                    newSection = this.template.cloneBefore(
-                        this.end, this.scope(value));
-                }
-
-                this.sections[i] = newSection;
-                this.values[i] = value;
-
-                newSection.initialize();
-                newSection.connect();
 
                 i++;
             });
