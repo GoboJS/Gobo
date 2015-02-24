@@ -63,11 +63,44 @@ describe('Each blocks', function () {
         data.names.push("Blast ThickNeck");
         assert.equal( $.cleanup($.textById('names')), data.names.join(" ") );
 
+        data.names.reverse();
+        assert.equal( $.cleanup($.textById('names')), data.names.join(" ") );
+
         data.names.pop();
         assert.equal( $.cleanup($.textById('names')), data.names.join(" ") );
 
         data.names.shift();
         assert.equal( $.cleanup($.textById('names')), data.names.join(" ") );
+
+        done();
+    });
+
+    Test.should('Reuse nodes when possible').using(
+        `<ul id='names'>
+            <li g-each-person='people'>
+                <span g-text="person.name" g-counter="person"></span>
+            </li>
+        </ul>`
+    ).in((done, $) => {
+        var data = {
+            people: [ { name: "Veal" }, { name: "Lug" }, { name: "Big" } ]
+        };
+
+        var gobo = new Gobo({ document: $.document, watch: watch })
+
+        var calls = 0;
+        gobo.directives.counter = Gobo.oneway((elem, value) => {
+            calls++;
+            assert.isBelow(calls, 4, "Counter called too many times");
+        });
+
+        gobo.bind($.body, data);
+
+        assert.equal( $.cleanup($.textById('names')), "Veal Lug Big" );
+
+        data.people.reverse();
+
+        assert.equal( $.cleanup($.textById('names')), "Big Lug Veal" );
 
         done();
     });

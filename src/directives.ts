@@ -80,6 +80,21 @@ module Directives {
         }
     }
 
+    /** Swaps the position of two DOM nodes */
+    function domSwap(one: Node, two: Node): void {
+        var placeholder = one.ownerDocument.createComment("");
+        two.parentNode.replaceChild(placeholder, two);
+        one.parentNode.replaceChild(two, one);
+        placeholder.parentNode.replaceChild(one, placeholder);
+    }
+
+    /** Swaps the values of two array indexs */
+    function indexSwap<T>(values: T[], one: number, two: number): void {
+        var temp = values[one];
+        values[one] = values[two];
+        values[two] = temp;
+    }
+
     /** Loops over a value */
     class EachStatement implements Directive {
 
@@ -128,6 +143,17 @@ module Directives {
 
                 // Only recreate this section if the value has changed
                 if ( this.values[i] === value ) {
+                    i++;
+                    return;
+                }
+
+                // If this value exists in the list of values, we should
+                // repurpose the existing section rather than creating a new one
+                var found = this.values.indexOf(value, i + 1);
+                if ( found !== -1 ) {
+                    domSwap(this.sections[i].root, this.sections[found].root);
+                    indexSwap(this.sections, i, found);
+                    indexSwap(this.values, i, found);
                     i++;
                     return;
                 }
