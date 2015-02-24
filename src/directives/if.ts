@@ -5,6 +5,9 @@ module Directives {
     /** Adds and removes elements based on an expression */
     export class IfStatement implements Directive {
 
+        /** @inheritdoc DirectiveBuilder#priority */
+        public static priority = 100;
+
         /** The fragment standing in for the element */
         private standin: Node;
 

@@ -21,6 +21,9 @@ module Directives {
     /** Loops over a value */
     export class EachStatement implements Directive {
 
+        /** @inheritdoc DirectiveBuilder#priority */
+        public static priority = 200;
+
         /**
          * Marks the final position of the list so new elements can quickly
          * be appended using 'insertBefore'
@@ -112,5 +115,4 @@ module Directives {
             }
         }
     }
-
 }

@@ -113,5 +113,42 @@ describe('Gobo', function () {
         done();
     });
 
+
+    Test.should('sort directives by priority').using(
+        `<ul>
+            <li g-three='junk' g-one='junk' g-final='junk' g-two='junk'>
+            </li>
+        </ul>`
+    ).in((done, $) => {
+        var gobo = new Gobo({ document: $.document });
+
+        var count = 0;
+
+        gobo.directives.one = Gobo.directive({
+            priority: 500,
+            execute: ( value: any ) => { assert.equal(0, count++); }
+        });
+
+        gobo.directives.two = Gobo.directive({
+            priority: 250,
+            execute: ( value: any ) => { assert.equal(1, count++); }
+        });
+
+        gobo.directives.three = Gobo.directive({
+            priority: 50,
+            execute: ( value: any ) => { assert.equal(2, count++); }
+        });
+
+        gobo.directives.final = Gobo.directive({
+            execute: ( value: any ) => { assert.equal(3, count++); }
+        });
+
+        gobo.bind( $.body, { junk: "blah" });
+
+        assert.equal(4, count);
+
+        done();
+    });
+
 });
 

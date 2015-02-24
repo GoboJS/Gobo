@@ -2,6 +2,7 @@
 
 module Traverse {
 
+    /** Iterates over the nodes and attributes found from a search */
     interface DirectiveIterator {
 
         /** Whether there is another attribute */
@@ -27,9 +28,9 @@ module Traverse {
         private nextAttrs: Attr[] = [];
 
         /** Searches for the given prefix on the given node */
-        constructor ( private prefix: string, root: Node ) {
+        constructor (private config: Config, root: Node) {
             this.nodes = root.ownerDocument.evaluate(
-                ".//*[@*[starts-with(name(), '" + prefix + "')]]",
+                ".//*[@*[starts-with(name(), '" + config.prefix + "')]]",
                 root, null, 0, null
             );
         }
@@ -45,9 +46,14 @@ module Traverse {
                 return false;
             }
 
-            this.nextAttrs = [].slice.call(this.nextElem.attributes).filter(
-                (attr) => { return attr.name.indexOf(this.prefix) === 0; }
-            );
+            this.nextAttrs = [].slice.call(this.nextElem.attributes)
+                .filter((attr) => {
+                    return attr.name.indexOf(this.config.prefix) === 0;
+                })
+                .sort((a, b) => {
+                    return this.config.getPriority(b) -
+                        this.config.getPriority(a);
+                });
 
             return true;
         }
@@ -142,11 +148,5 @@ module Traverse {
             return new Reader(this.iter, elem);
         }
     }
-
-    /** Searches for the given prefix on the given node */
-    export function search ( config: Config, root: HTMLElement ) {
-        return new Reader( new XPathIterator(config.prefix, root), root );
-    }
-
 }
 

@@ -17,21 +17,29 @@ class Config {
     public prefix: string;
 
     /** A lookup for resolving directives */
-    public getDirective:
+    private getDirectiveByName:
         (string) => Wildcard.Tuple<Directives.DirectiveBuilder>;
 
     /** Constructor */
     constructor ( gobo: Gobo ) {
         this.watch = gobo.watch;
         this.prefix = gobo.prefix;
-        this.getDirective = Wildcard.createLookup(gobo.directives);
+        this.getDirectiveByName = Wildcard.createLookup(gobo.directives);
     }
 
     /** Strips the prefix off of a string */
-    stripPrefix ( str: string ): string {
-        return str.substr( this.prefix.length );
+    getDirective( attr: Attr ): Wildcard.Tuple<Directives.DirectiveBuilder> {
+        return this.getDirectiveByName( attr.name.substr(this.prefix.length) );
     }
 
+    /** Returns the priority of a directive */
+    getPriority( attr: Attr ): number {
+        var tuple = this.getDirective(attr);
+        if ( !tuple ) {
+            return 0;
+        }
+        return tuple.value.priority || 0;
+    }
 }
 
 /** The options that can be passed to Gobo on instantiation */
@@ -57,6 +65,9 @@ class Gobo {
     /** A helper for building simple directives */
     static oneway = Directives.oneway;
 
+    /** A helper for creating directives */
+    static directive = Directives.directive;
+
     /** Constructor */
     constructor ( options: Options ) {
         this.watch = options.watch;
@@ -66,7 +77,13 @@ class Gobo {
     bind ( root: HTMLElement, data: any ): void {
         var config = new Config(this);
         var section = Parse.parse(
-            Traverse.search(config, root), config, new Data.Root(data) );
+            new Traverse.Reader(
+                new Traverse.XPathIterator(config, root),
+                root
+            ),
+            config,
+            new Data.Root(data)
+        );
         section.initialize();
         section.connect();
     }

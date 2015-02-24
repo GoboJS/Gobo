@@ -4,6 +4,32 @@
 
 module Directives {
 
+    /** Creates a directive from an object */
+    export function directive( obj: {
+        priority?: number;
+        construct?: (elem: HTMLElement, details: Directives.Details) => void;
+        initialize?: () => void;
+        execute: (value: any) => void;
+        connect?: () => void;
+        disconnect?: () => void;
+    }): DirectiveBuilder {
+
+        /** Base function for a custom directive */
+        function Custom(elem: HTMLElement, details: Directives.Details) {
+            if ( obj.construct ) {
+                obj.construct.call(this, elem, details);
+            }
+        }
+
+        (<any> Custom).priority = obj.priority;
+
+        ['initialize', 'execute', 'construct', 'disconnect'].forEach((fn) => {
+            Custom.prototype[fn] = obj[fn];
+        });
+
+        return <any> Custom;
+    }
+
     /** Creates a one-way directive from a function */
     export function oneway(
         fn: (elem: HTMLElement, value: any) => void

@@ -2,6 +2,7 @@
 /// <reference path="watch.ts"/>
 /// <reference path="data.ts"/>
 /// <reference path="expression.ts"/>
+/// <reference path="directives/definition.ts"/>
 
 module Parse {
 
@@ -71,7 +72,7 @@ module Parse {
             var traverse = new Traverse.Reader(
                 new Traverse.JoinIterator(
                     new Traverse.ExactIterator(cloned, this.attrs),
-                    new Traverse.XPathIterator(this.config.prefix, cloned)
+                    new Traverse.XPathIterator(this.config, cloned)
                 ),
                 cloned
             );
@@ -102,10 +103,9 @@ module Parse {
 
         var section = new Section( traverse.root );
 
-        traverse.each(function eachAttr(elem: HTMLElement, attr: Attr) {
+        traverse.each((elem: HTMLElement, attr: Attr) => {
 
-            var name = config.stripPrefix(attr.name);
-            var directive = config.getDirective(name);
+            var directive = config.getDirective(attr);
             if ( !directive) {
                 return;
             }
