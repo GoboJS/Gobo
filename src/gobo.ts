@@ -62,9 +62,6 @@ class Gobo {
     /** The observation module to use for watching values */
     public watch: Watch.Watch;
 
-    /** A helper for building simple directives */
-    static oneway = Directives.oneway;
-
     /** A helper for creating directives */
     static directive = Directives.directive;
 

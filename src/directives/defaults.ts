@@ -4,49 +4,6 @@
 
 module Directives {
 
-    /** Creates a directive from an object */
-    export function directive( obj: {
-        priority?: number;
-        construct?: (elem: HTMLElement, details: Directives.Details) => void;
-        initialize?: () => void;
-        execute: (value: any) => void;
-        connect?: () => void;
-        disconnect?: () => void;
-    }): DirectiveBuilder {
-
-        /** Base function for a custom directive */
-        function Custom(elem: HTMLElement, details: Directives.Details) {
-            if ( obj.construct ) {
-                obj.construct.call(this, elem, details);
-            }
-        }
-
-        (<any> Custom).priority = obj.priority;
-
-        ['initialize', 'execute', 'construct', 'disconnect'].forEach((fn) => {
-            Custom.prototype[fn] = obj[fn];
-        });
-
-        return <any> Custom;
-    }
-
-    /** Creates a one-way directive from a function */
-    export function oneway(
-        fn: (elem: HTMLElement, value: any) => void
-    ): DirectiveBuilder {
-
-        function OneWay ( elem: HTMLElement, details: Directives.Details ) {
-            this.elem = elem;
-            this.param = details.param;
-        }
-
-        OneWay.prototype.execute = function ( value: any ) {
-            fn.call( this, this.elem, value );
-        }
-
-        return <any> OneWay;
-    }
-
     /** Default list of directives */
     export class DefaultDirectives {
         [key: string]: DirectiveBuilder;
@@ -61,12 +18,12 @@ module Directives {
         'each-*': Directives.EachStatement,
 
         /** Sets the text content of an element */
-        text: oneway(function textDirective (elem, value) {
+        text: Directives.directive(function text (elem, value) {
             elem.textContent = value;
         }),
 
         /** Adds a class name */
-        'class-*': oneway(function (elem, value) {
+        'class-*': Directives.directive(function klass (elem, value) {
             if ( value ) {
                 elem.className += " " + this.param;
             }

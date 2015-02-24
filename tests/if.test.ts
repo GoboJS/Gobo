@@ -52,7 +52,7 @@ describe('If blocks', function () {
         var calls = 0;
 
         var gobo = new Gobo({ watch: watch });
-        gobo.directives.custom = Gobo.oneway((elem, value) => {
+        gobo.directives.custom = Gobo.directive((elem, value) => {
             assert.include(value, 'valid');
             calls++;
         });

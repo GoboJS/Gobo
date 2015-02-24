@@ -89,7 +89,7 @@ describe('Each blocks', function () {
         var gobo = new Gobo({ watch: watch })
 
         var calls = 0;
-        gobo.directives.counter = Gobo.oneway((elem, value) => {
+        gobo.directives.counter = Gobo.directive((elem, value) => {
             calls++;
             assert.isBelow(calls, 4, "Counter called too many times");
         });
