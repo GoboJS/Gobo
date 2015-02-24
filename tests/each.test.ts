@@ -19,7 +19,7 @@ describe('Each blocks', function () {
             names: [ "Veal Steakface", "Lug ThickNeck", "Big McLargeHuge" ]
         };
 
-        new Gobo({ document: $.document, watch: watch }).bind($.body, data);
+        new Gobo({ watch: watch }).bind($.body, data);
         assert.equal(
             $.cleanup($.textById('names')),
             "Veal Steakface Lug ThickNeck Big McLargeHuge"
@@ -37,7 +37,7 @@ describe('Each blocks', function () {
             names: [ "Veal Steakface ", "Lug ThickNeck ", "Big McLargeHuge " ]
         };
 
-        new Gobo({ document: $.document, watch: watch }).bind($.body, data);
+        new Gobo({ watch: watch }).bind($.body, data);
         assert.equal(
             $.cleanup($.textById('names')),
             "Veal Steakface Lug ThickNeck Big McLargeHuge"
@@ -57,7 +57,7 @@ describe('Each blocks', function () {
             names: [ "Veal Steakface", "Lug ThickNeck", "Big McLargeHuge" ]
         };
 
-        new Gobo({ document: $.document, watch: watch }).bind($.body, data);
+        new Gobo({ watch: watch }).bind($.body, data);
         assert.equal( $.cleanup($.textById('names')), data.names.join(" ") );
 
         data.names.push("Blast ThickNeck");
@@ -86,7 +86,7 @@ describe('Each blocks', function () {
             people: [ { name: "Veal" }, { name: "Lug" }, { name: "Big" } ]
         };
 
-        var gobo = new Gobo({ document: $.document, watch: watch })
+        var gobo = new Gobo({ watch: watch })
 
         var calls = 0;
         gobo.directives.counter = Gobo.oneway((elem, value) => {

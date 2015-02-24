@@ -21,7 +21,7 @@ describe('If blocks', function () {
             name: { first: "Veal", last: "Steakface" }
         };
 
-        new Gobo({ document: $.document, watch: watch }).bind($.body, data);
+        new Gobo({ watch: watch }).bind($.body, data);
         assert.equal( $.cleanup($.textById('name')), "Veal Steakface" );
 
         data.activated = false;
@@ -51,7 +51,7 @@ describe('If blocks', function () {
 
         var calls = 0;
 
-        var gobo = new Gobo({ document: $.document, watch: watch });
+        var gobo = new Gobo({ watch: watch });
         gobo.directives.custom = Gobo.oneway((elem, value) => {
             assert.include(value, 'valid');
             calls++;
@@ -89,7 +89,7 @@ describe('If blocks', function () {
             name: { first: "Veal", last: "Steakface" }
         };
 
-        new Gobo({ document: $.document, watch: watch }).bind($.body, data);
+        new Gobo({ watch: watch }).bind($.body, data);
         assert.equal( $.cleanup($.textById('name')), "Veal Steakface" );
 
         data.reallyActivated = false;

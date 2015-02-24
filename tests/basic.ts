@@ -20,7 +20,7 @@ describe('Gobo', function () {
             </li>
         </ul>`
     ).in((done, $) => {
-        new Gobo({ document: $.document }).bind( $.body, {
+        new Gobo().bind( $.body, {
             name: "Jack",
             age: 31
         });
@@ -34,7 +34,7 @@ describe('Gobo', function () {
             <li g-text="name" id='name' class='bold'></li>
         </ul>`
     ).in((done, $) => {
-        new Gobo({ document: $.document }).bind( $.body, {
+        new Gobo().bind( $.body, {
             name: () => { return "Jack" }
         });
         assert.equal( $.textById('name'), "Jack" );
@@ -52,7 +52,7 @@ describe('Gobo', function () {
             <li g-text="person.shoesize" id='shoes'></li>
         </ul>`
     ).in((done, $) => {
-        new Gobo({ document: $.document }).bind( $.body, {
+        new Gobo().bind( $.body, {
             person: {
                 name: {
                     first: "Veal",
@@ -81,7 +81,7 @@ describe('Gobo', function () {
             person: { name: { last: "Steakface" } }
         };
 
-        new Gobo({ document: $.document, watch: watch }).bind($.body, data);
+        new Gobo({ watch: watch }).bind($.body, data);
         assert.equal( $.cleanup($.textById('name')), "Veal Steakface" );
 
         data.firstname = "Big";
@@ -101,7 +101,7 @@ describe('Gobo', function () {
     ).in((done, $) => {
         var data = { activated: true };
 
-        new Gobo({ document: $.document, watch: watch }).bind($.body, data);
+        new Gobo({ watch: watch }).bind($.body, data);
         assert.isTrue( $.hasClass($.byId('elem'), 'active') );
 
         data.activated = false;
@@ -120,7 +120,7 @@ describe('Gobo', function () {
             </li>
         </ul>`
     ).in((done, $) => {
-        var gobo = new Gobo({ document: $.document });
+        var gobo = new Gobo();
 
         var count = 0;
 

@@ -46,7 +46,7 @@ class Config {
 interface Options {
 
     /** The observation module to use for watching values */
-    watch: Watch.Watch;
+    watch?: Watch.Watch;
 }
 
 /** Configures the view */
@@ -69,7 +69,7 @@ class Gobo {
     static directive = Directives.directive;
 
     /** Constructor */
-    constructor ( options: Options ) {
+    constructor ( options: Options = {} ) {
         this.watch = options.watch;
     }
 

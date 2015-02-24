@@ -10,7 +10,7 @@ export module Tester {
         /** The document body */
         public body: Element;
 
-        constructor( public document: Document ) {
+        constructor( private document: Document ) {
             this.body = document.body;
         }
 
