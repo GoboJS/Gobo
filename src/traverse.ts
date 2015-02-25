@@ -15,6 +15,17 @@ module Traverse {
         peek(): { elem: HTMLElement; attr: Attr };
     }
 
+    /** Returns the attributes for a specific element */
+    function getAttrs( elem: HTMLElement, config: Config ): Attr[] {
+        return [].slice.call(elem.attributes)
+            .filter((attr) => {
+                return attr.name.indexOf(config.prefix) === 0;
+            })
+            .sort((a, b) => {
+                return config.getPriority(b) - config.getPriority(a);
+            });
+    }
+
     /** Iterates over the values in an xpath result */
     export class XPathIterator implements DirectiveIterator {
 
@@ -46,14 +57,7 @@ module Traverse {
                 return false;
             }
 
-            this.nextAttrs = [].slice.call(this.nextElem.attributes)
-                .filter((attr) => {
-                    return attr.name.indexOf(this.config.prefix) === 0;
-                })
-                .sort((a, b) => {
-                    return this.config.getPriority(b) -
-                        this.config.getPriority(a);
-                });
+            this.nextAttrs = getAttrs(this.nextElem, this.config);
 
             return true;
         }
@@ -95,6 +99,13 @@ module Traverse {
         public peek(): { elem: HTMLElement; attr: Attr } {
             return { elem: this.elem, attr: this.attrs[this.i] };
         }
+    }
+
+    /** Creates an iterator for the attributes on the given element */
+    export function element(
+        elem: HTMLElement, config: Config
+    ): DirectiveIterator {
+        return new ExactIterator(elem, getAttrs(elem, config));
     }
 
     /** Iterates over two other iterators */

@@ -150,5 +150,13 @@ describe('Gobo', function () {
         done();
     });
 
+    Test.should('allow bindings on the root element').using(
+        `<div id='name' g-text='name'></div>`
+    ).in((done, $) => {
+        new Gobo().bind( $.byId('name'), { name: "Jack" });
+        assert.equal( $.textById('name'), "Jack" );
+        done();
+    });
+
 });
 
