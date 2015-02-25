@@ -5,7 +5,7 @@ module Watch {
 
         /** Sets up a watch on a key */
         watch(
-            obj: any, key: string, callback: () => void, depth: number
+            obj: any, key: string, callback: () => void, depth?: number
         ): void;
 
         /** Removes a watch */
@@ -34,7 +34,7 @@ module Watch {
          */
         constructor(
             private watch: Watch,
-            private each: (callback: (obj: any, key: string) => void) => void,
+            private each: (callback: Data.EachKeyCallback) => void,
             public trigger: () => void
         ){
             this.connect();
@@ -56,6 +56,8 @@ module Watch {
                     this.watches[i] = null;
                 }
 
+                // If there is no watch at this level, or the watch was just
+                // cleared out, we need to add one
                 if ( !this.watches[i] && obj ) {
                     this.watch.watch(obj, key, this.handler, 0);
                     this.watches[i] = obj;

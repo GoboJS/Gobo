@@ -1,5 +1,8 @@
 module Data {
 
+    /** The callback used for iterating over the keys of a data chain */
+    export type EachKeyCallback = (obj: any, key: string) => void;
+
     /** Data being bound to the html */
     export class Data {
 
@@ -10,10 +13,7 @@ module Data {
         getRoot: ( key: string ) => any;
 
         /** Applies a callback to each object/key in a chain */
-        eachKey (
-            keypath: string[],
-            callback: (obj: any, key: string) => void
-        ): void {
+        eachKey ( keypath: string[], callback: EachKeyCallback ): void {
             return keypath.reduce((obj, key) => {
                 callback(obj, key);
                 if ( obj !== null && obj !== undefined ) {
@@ -48,10 +48,7 @@ module Data {
         }
 
         /** @inheritdoc Data#eachKey */
-        eachKey: (
-            keypath: string[],
-            callback: (obj: any, key: string) => void
-        ) => void;
+        eachKey: ( keypath: string[], callback: EachKeyCallback ) => void;
 
         /** @inheritdoc Data#get */
         get: ( keypath: string[] ) => any;
@@ -82,10 +79,7 @@ module Data {
         }
 
         /** @inheritdoc Data#eachKey */
-        eachKey: (
-            keypath: string[],
-            callback: (obj: any, key: string) => void
-        ) => void;
+        eachKey: ( keypath: string[], callback: EachKeyCallback ) => void;
 
         /** @inheritdoc Data#get */
         get: ( keypath: string[] ) => any;
