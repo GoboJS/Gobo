@@ -82,6 +82,11 @@ module Expr {
 
     DefaultFilters.prototype = {
 
+        /** Invert a value */
+        not: filter((value: any) => {
+            return !value;
+        }),
+
         /** Convert a value to uppercase */
         uppercase: filter((str: string) => {
             return str ? str.toUpperCase() : "";

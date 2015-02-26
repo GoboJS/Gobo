@@ -20,5 +20,21 @@ describe('Filters', function () {
         done();
     });
 
+    Test.should('Invert a truthy value').using(
+        `<div>
+            <span id='not' g-if='active | not'>VISIBLE</span>
+        </div>`
+    ).in((done, $) => {
+        var data = { active: false };
+        new Gobo({ watch: watch }).bind($.body, data);
+
+        assert.equal( $.cleanup($.textById('not')), "VISIBLE" );
+
+        data.active = true;
+        assert.isFalse( $.idExists('not') );
+
+        done();
+    });
+
 });
 
