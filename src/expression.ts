@@ -88,12 +88,12 @@ module Expr {
         }),
 
         /** Convert a value to uppercase */
-        uppercase: filter((str: string) => {
+        uppercase: filter((str: string): string => {
             return str ? str.toUpperCase() : "";
         }),
 
         /** Convert a value to lowercase */
-        lowercase: filter((str: string) => {
+        lowercase: filter((str: string): string => {
             return str ? str.toLowerCase() : "";
         })
     };
