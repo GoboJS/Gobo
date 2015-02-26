@@ -3,6 +3,9 @@
 
 module Directives {
 
+    /** A value that can be used in an 'each' directive */
+    export type Eachable = { forEach( callback: (value: any) => void ): void };
+
     /** Swaps the position of two DOM nodes */
     function domSwap(one: Node, two: Node): void {
         var placeholder = one.ownerDocument.createComment("");

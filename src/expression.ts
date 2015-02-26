@@ -124,6 +124,24 @@ module Expr {
     DefaultFilters.prototype = {
 
         /** Invert a value */
+        limit: filter(function limit (
+            value: Directives.Eachable,
+            limit: number
+        ): Directives.Eachable {
+            return {
+                forEach: function limitForEach ( fn: (value: any) => void ) {
+                    var calls = 0;
+                    value.forEach(value => {
+                        if ( calls < limit ) {
+                            fn(value);
+                            calls++;
+                        }
+                    });
+                }
+            };
+        }),
+
+        /** Invert a value */
         not: filter((value: any): boolean => {
             return !value;
         }),

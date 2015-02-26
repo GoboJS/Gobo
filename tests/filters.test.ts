@@ -36,5 +36,18 @@ describe('Filters', function () {
         done();
     });
 
+    Test.should('Limit the values of an array').using(
+        `<ul id='looped'>
+            <li g-each-name='names | limit 2' g-text='name'></li>
+        </li>`
+    ).in((done, $) => {
+        var data = { names: [ "Veal ", "Lug ", "Big " ] };
+        new Gobo({ watch: watch }).bind($.body, data);
+
+        assert.equal( $.cleanup($.textById('looped')), "Veal Lug" );
+
+        done();
+    });
+
 });
 
