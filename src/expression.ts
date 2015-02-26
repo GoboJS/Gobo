@@ -83,7 +83,7 @@ module Expr {
     DefaultFilters.prototype = {
 
         /** Invert a value */
-        not: filter((value: any) => {
+        not: filter((value: any): boolean => {
             return !value;
         }),
 
