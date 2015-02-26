@@ -16,6 +16,9 @@ class Config {
     /** The start of each directive */
     public prefix: string;
 
+    /** A lookup for resolving filters */
+    public filters: Expr.DefaultFilters;
+
     /** A lookup for resolving directives */
     private getDirectiveByName:
         (string) => Wildcard.Tuple<Directives.DirectiveBuilder>;
@@ -24,6 +27,7 @@ class Config {
     constructor ( gobo: Gobo ) {
         this.watch = gobo.watch;
         this.prefix = gobo.prefix;
+        this.filters = gobo.filters;
         this.getDirectiveByName = Wildcard.createLookup(gobo.directives);
     }
 
@@ -56,14 +60,19 @@ class Gobo {
     public prefix: string = 'g-';
 
     /** The default directives */
-    public directives: { [key: string]: Directives.DirectiveBuilder }
-        = new Directives.DefaultDirectives();
+    public directives = new Directives.DefaultDirectives();
+
+    /** The default filters */
+    public filters = new Expr.DefaultFilters();
 
     /** The observation module to use for watching values */
     public watch: Watch.Watch;
 
     /** A helper for creating directives */
     static directive = Directives.directive;
+
+    /** A helper for creating filters */
+    static filter = Expr.filter;
 
     /** Constructor */
     constructor ( options: Options = {} ) {

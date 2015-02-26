@@ -123,7 +123,7 @@ module Parse {
 
             section.directives.push(instance);
 
-            var expr = new Expr.Expression( attr.value );
+            var expr = new Expr.Expression( attr.value, config );
 
             // Hook up an observer so that any change to the
             // keypath causes the directive to be re-rendered
