@@ -69,4 +69,36 @@ describe('Expressions', function () {
         done();
     });
 
+    Test.should('pass arguments to filter').using(
+        `<div>
+            <span g-text='input | keywords true false null undefined'></span>
+            <span g-text='input | literals "some string" 10 4.5'></span>
+            <span g-text='input | variable input some.thing'></span>
+        </div>`
+    ).in((done, $) => {
+        var gobo = new Gobo({ watch: watch });
+
+        gobo.filters.keywords = Gobo.filter((value, t, f, n, u) => {
+            assert.isTrue(t);
+            assert.isFalse(f);
+            assert.isNull(n);
+            assert.isUndefined(u);
+        });
+
+        gobo.filters.literals = Gobo.filter((value, s, i, f) => {
+            assert.equal(s, "some string");
+            assert.equal(i, 10);
+            assert.equal(f, 4.5);
+        });
+
+        gobo.filters.variable = Gobo.filter((value, one, two) => {
+            assert.equal(one, "Veal");
+            assert.equal(two, "wakka wakka");
+        });
+
+        gobo.bind($.body, { input: "Veal", some: { thing: "wakka wakka" } });
+
+        done();
+    });
+
 });
