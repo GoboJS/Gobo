@@ -4,6 +4,10 @@
   "author": "James Frasca <james@roundeights.com>",
   "description": "Projects a model onto a view",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nycto/Gobo.git"
+  },
   "devDependencies": {
     "chai": "^2.0.0",
     "grunt": "~0.4.1",
