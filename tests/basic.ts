@@ -1,9 +1,10 @@
+/// <reference path="test-help.ts"/>
+
 declare var require: (string) => any;
 declare var describe: (string, any) => void;
 
 var assert = require('chai').assert;
-var Gobo = require("../../gobo.debug.js").Gobo;
-var Test = require("./test-help.js").Tester;
+var Gobo = require("../gobo.debug.js").Gobo;
 var watch = require("watchjs");
 
 describe('Gobo', function () {

@@ -1,7 +1,7 @@
 declare var it: (string, any) => void;
 declare var exports: any;
 
-export module Tester {
+module Test {
 
     var jsdom = require("jsdom");
 

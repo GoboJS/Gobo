@@ -19,7 +19,7 @@ module.exports = function(grunt) {
             },
             tests: {
                 src: ['tests/**/*.ts'],
-                dest: 'build/private/tests',
+                dest: 'build/private/test.js',
                 options: {
                     module: 'commonjs',
                     target: 'es5',
@@ -55,7 +55,7 @@ module.exports = function(grunt) {
 
         mochaTest: {
             test: {
-                src: ['tests/**/*.js', 'build/private/tests/**/*.js']
+                src: ['build/private/test.js']
             }
         },
 
