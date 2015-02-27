@@ -42,6 +42,18 @@ module Test {
         public hasClass( elem: HTMLElement, klass: string ): boolean {
             return elem.className.split(" ").indexOf(klass) !== -1;
         }
+
+        /** Triggers a click event */
+        public click ( elem: HTMLElement ): void {
+            var clickevent = this.document.createEvent("MouseEvents");
+            clickevent.initEvent("click", true, true);
+            elem.dispatchEvent(clickevent);
+        }
+
+        /** Triggers event an event on the given ID */
+        public clickById ( id: string ): void {
+            this.click( this.byId(id) );
+        }
     }
 
     /** Executes a test on a thunk of HTML */

@@ -130,7 +130,11 @@ module Parse {
             section.bindings.push(new Watch.PathBinding(
                 config.watch,
                 data.eachKey.bind(data, expr.keypath),
-                () => { instance.execute(expr.resolve(data)); }
+                () => {
+                    instance.execute(
+                        expr.resolve(data, directive.value.allowFuncs)
+                    );
+                }
             ));
         });
 

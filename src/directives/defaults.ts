@@ -1,6 +1,7 @@
 /// <reference path="definition.ts"/>
 /// <reference path="if.ts"/>
 /// <reference path="each.ts"/>
+/// <reference path="on.ts"/>
 
 module Directives {
 
@@ -16,6 +17,9 @@ module Directives {
 
         /** Loop over the values in an iterable */
         'each-*': Directives.EachStatement,
+
+        /** Attaches an event */
+        'on-*': Directives.OnStatement,
 
         /** Sets the text content of an element */
         text: Directives.directive(function text (elem, value) {

@@ -44,6 +44,9 @@ module Directives {
          * will be applied first.
          */
         priority?: number;
+
+        /** Whether this directive alllows functions to be passed to it */
+        allowFuncs?: boolean;
     }
 
 

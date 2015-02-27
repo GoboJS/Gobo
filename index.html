@@ -19,6 +19,7 @@
                 <span g-text="name"></span>
             </li>
             <li><span>Age:</span> <span g-text="age" g-class='bold'></span></li>
+            <li><a href='javascript:void(0);' g-on-click='select'>Toggle Selection</a></li>
         </ul>
         <ul>
             <li>Likes:</li>
@@ -31,8 +32,11 @@
             name: "Jack",
             age: 31,
             active: true,
-            selected: true,
-            likes: [ "Cheese", "Terriers" ]
+            selected: false,
+            likes: [ "Cheese", "Terriers" ],
+            select: function () {
+                data.selected = !data.selected;
+            }
         };
         gobo.bind( document.body, data );
     </script>

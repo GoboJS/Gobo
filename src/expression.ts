@@ -100,13 +100,13 @@ module Expr {
         }
 
         /** Returns the value of this expression */
-        resolve ( data: Data.Data ): any {
+        resolve ( data: Data.Data, allowFuncs: boolean ): any {
             var value = this.filters.reduce(
                 (value, filter) => { return filter(data, value); },
                 data.get(this.keypath)
             );
 
-            return typeof value === 'function' ? value() : value;
+            return !allowFuncs && typeof value === 'function' ? value() : value;
         }
     }
 
