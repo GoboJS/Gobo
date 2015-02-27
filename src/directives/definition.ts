@@ -32,6 +32,9 @@ module Directives {
 
         /** A function for parsing the nested values from a directive */
         cloneable(): Parse.Cloneable;
+
+        /** Sets the value of the expression that fed the directive */
+        publish( value: any ): void;
     }
 
     /** Defines the interface for instantiating a Directive */

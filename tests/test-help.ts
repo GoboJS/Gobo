@@ -54,6 +54,20 @@ module Test {
         public clickById ( id: string ): void {
             this.click( this.byId(id) );
         }
+
+        /** Returns a field  */
+        public fieldById ( id: string ): HTMLInputElement {
+            return <HTMLInputElement> this.byId(id);
+        }
+
+        /** Simulates typing into a field */
+        public typeInto ( id: string, value: string ): void {
+            var elem = this.fieldById(id)
+            elem.value = value;
+            var event = this.document.createEvent("InputEvent");
+            event.initEvent("input", true, true);
+            elem.dispatchEvent(event);
+        }
     }
 
     /** Executes a test on a thunk of HTML */

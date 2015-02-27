@@ -35,6 +35,18 @@ module Data {
         scope ( key: string, value: any ): Data {
             return new Scoped(this, key, value);
         }
+
+        /** Sets a value at the given keypath */
+        set ( keypath: string[], value: any ): void {
+            var obj;
+            if ( keypath.length === 1 ) {
+                obj = this.getRoot(keypath[0]);
+            }
+            else {
+                obj = this.get( keypath.slice(0, keypath.length - 1) );
+            }
+            obj[keypath[keypath.length - 1]] = value;
+        }
     }
 
     /** The root lookup table for data */
@@ -55,6 +67,9 @@ module Data {
 
         /** @inheritDoc Data#scope */
         scope: ( key: string, value: any ) => Data;
+
+        /** @inheritDoc Data#set */
+        set: ( keypath: string[], value: any ) => void;
     }
 
     /** Creates a new data scope with a specific key and value */
@@ -86,6 +101,9 @@ module Data {
 
         /** @inheritDoc Data#scope */
         scope: ( key: string, value: any ) => Data;
+
+        /** @inheritDoc Data#set */
+        set: ( keypath: string[], value: any ) => void;
     }
 
     // Apply the default data implementations to the child classes

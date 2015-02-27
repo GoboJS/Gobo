@@ -2,6 +2,7 @@
 /// <reference path="if.ts"/>
 /// <reference path="each.ts"/>
 /// <reference path="on.ts"/>
+/// <reference path="value.ts"/>
 
 module Directives {
 
@@ -20,6 +21,9 @@ module Directives {
 
         /** Attaches an event */
         "on-*": Directives.OnStatement,
+
+        /** Binds to a field value */
+        value: Directives.ValueStatement,
 
         /** Sets the text content of an element */
         text: Directives.directive(function text (elem, value) {

@@ -105,25 +105,29 @@ module Parse {
 
         traverse.each((elem: HTMLElement, attr: Attr) => {
 
-            var directive = config.getDirective(attr);
-            if ( !directive) {
+            var tuple = config.getDirective(attr);
+            if ( !tuple) {
                 return;
             }
 
-            var instance = new directive.value(elem, {
-                param: directive.tail,
+            var expr = new Expr.Expression( attr.value, config );
+
+            // Instantiate the directive itself
+            var directive = new tuple.value(elem, {
+                param: tuple.tail,
                 data: data,
                 parse: function parseNested(): Section {
                     return parse(traverse.nested(elem), config, data);
                 },
                 cloneable: function parseCloneable(): Cloneable {
                     return cloneable(traverse.nested(elem), config);
+                },
+                publish: function publish( value: any ) {
+                    data.set( expr.keypath, value );
                 }
             });
 
-            section.directives.push(instance);
-
-            var expr = new Expr.Expression( attr.value, config );
+            section.directives.push(directive);
 
             // Hook up an observer so that any change to the
             // keypath causes the directive to be re-rendered
@@ -131,8 +135,8 @@ module Parse {
                 config.watch,
                 data.eachKey.bind(data, expr.keypath),
                 () => {
-                    instance.execute(
-                        expr.resolve(data, directive.value.allowFuncs)
+                    directive.execute(
+                        expr.resolve(data, tuple.value.allowFuncs)
                     );
                 }
             ));
