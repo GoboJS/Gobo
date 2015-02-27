@@ -57,7 +57,7 @@ interface Options {
 class Gobo {
 
     /** The start of each directive */
-    public prefix: string = 'g-';
+    public prefix: string = "g-";
 
     /** The default directives */
     public directives = new Directives.DefaultDirectives();

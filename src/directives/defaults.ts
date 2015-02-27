@@ -13,13 +13,13 @@ module Directives {
     DefaultDirectives.prototype = {
 
         /** Conditionally include an element */
-        if: Directives.IfStatement,
+        "if": Directives.IfStatement,
 
         /** Loop over the values in an iterable */
-        'each-*': Directives.EachStatement,
+        "each-*": Directives.EachStatement,
 
         /** Attaches an event */
-        'on-*': Directives.OnStatement,
+        "on-*": Directives.OnStatement,
 
         /** Sets the text content of an element */
         text: Directives.directive(function text (elem, value) {
@@ -27,14 +27,14 @@ module Directives {
         }),
 
         /** Adds a class name */
-        'class-*': Directives.directive(function klass (elem, value) {
+        "class-*": Directives.directive(function klass (elem, value) {
             if ( value ) {
                 elem.className += " " + this.param;
             }
             else {
-                var reg = new RegExp('(\\s|^)' + this.param + '(\\s|$)');
-                this.elem.className = this.elem.className.replace(reg, ' ');
+                var reg = new RegExp("(\\s|^)" + this.param + "(\\s|$)");
+                this.elem.className = this.elem.className.replace(reg, " ");
             }
         })
-    }
+    };
 }

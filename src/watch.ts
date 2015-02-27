@@ -36,7 +36,7 @@ module Watch {
             private watch: Watch,
             private each: (callback: Data.EachKeyCallback) => void,
             public trigger: () => void
-        ){
+        ) {
             this.connect();
         }
 

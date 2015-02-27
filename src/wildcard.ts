@@ -26,7 +26,7 @@ module Wildcard {
 
         /** Constructor */
         constructor( key: string, public value: T ) {
-            var star = key.indexOf('*');
+            var star = key.indexOf("*");
             if ( star === -1 ) {
                 this.key = key.toLowerCase();
                 this.wildcard = false;
@@ -63,7 +63,7 @@ module Wildcard {
     ): (string) => Tuple<T> {
 
         var matchers: Array<KeyValue<T>> = [];
-        for ( var key in obj ) {
+        for (var key in obj) {
             matchers.push( new KeyValue(key, obj[key]) );
         }
 

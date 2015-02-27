@@ -78,7 +78,7 @@ module Directives {
 
         (<any> Custom).priority = obj.priority;
 
-        ['initialize', 'execute', 'construct', 'disconnect'].forEach((fn) => {
+        ["initialize", "execute", "construct", "disconnect"].forEach((fn) => {
             Custom.prototype[fn] = obj[fn];
         });
 
@@ -94,9 +94,9 @@ module Directives {
             this.param = details.param;
         }
 
-        Custom.prototype.execute = function ( value: any ) {
+        Custom.prototype.execute = function execute( value: any ) {
             fn.call( this, this.elem, value );
-        }
+        };
 
         return <any> Custom;
     }

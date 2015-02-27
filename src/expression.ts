@@ -15,15 +15,15 @@ module Expr {
     // Splits a string by unquoted characters
     // @see http://stackoverflow.com/questions/9609973
     var split = {
-        '.': splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^\.])+/g),
-        '|': splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^\|])+/g),
-        ' ': splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^ ])+/g)
+        ".": splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^\.])+/g),
+        "|": splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^\|])+/g),
+        " ": splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^ ])+/g)
     };
 
     /** Returns whether a value appears to contain quotes */
     function isQuoted(value: string): boolean {
         var char0 = value.charAt(0);
-        return (char0 === "'" || char0 === '"') &&
+        return (char0 === "'" || char0 === "\"") &&
             char0 === value.charAt(value.length - 1);
     }
 
@@ -53,7 +53,7 @@ module Expr {
                     return parseFloat(token);
                 }
                 else {
-                    return data.get( split['.'](token) );
+                    return data.get( split["."](token) );
                 }
         }
     }
@@ -63,11 +63,11 @@ module Expr {
 
     /** Parses a filter expression */
     function parseFilter( expr: string, config: Config ): FilterCall {
-        var tokens = split[' '](expr);
+        var tokens = split[" "](expr);
 
         var filterName = tokens.shift().trim();
         if ( !config.filters[filterName] ) {
-            throw new Error("Filter does not exist: '" + filterName + '"');
+            throw new Error("Filter does not exist: '" + filterName + "'");
         }
         var filter = config.filters[filterName];
 
@@ -77,7 +77,7 @@ module Expr {
             });
             args.unshift(value);
             return filter.apply(null, args);
-        }
+        };
     }
 
 
@@ -91,8 +91,8 @@ module Expr {
         public filters: FilterCall[]
 
         constructor( expr: string, config: Config ) {
-            var parts = split['|'](expr);
-            this.keypath = stripQuotes( split['.'](parts.shift().trim()) );
+            var parts = split["|"](expr);
+            this.keypath = stripQuotes( split["."](parts.shift().trim()) );
 
             this.filters = parts.map(filterExpr => {
                 return parseFilter(filterExpr, config);
@@ -106,7 +106,7 @@ module Expr {
                 data.get(this.keypath)
             );
 
-            return !allowFuncs && typeof value === 'function' ? value() : value;
+            return !allowFuncs && typeof value === "function" ? value() : value;
         }
     }
 

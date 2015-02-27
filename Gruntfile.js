@@ -28,6 +28,15 @@ module.exports = function(grunt) {
             }
         },
 
+        tslint: {
+            options: {
+                configuration: grunt.file.readJSON("tslint.json")
+            },
+            dist: {
+                src: ['src/**/*.ts']
+            }
+        },
+
         import: {
             dist: {
                 src: 'src/wrap.js',
@@ -77,10 +86,11 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-import');
     grunt.loadNpmTasks('grunt-mocha-test');
+    grunt.loadNpmTasks('grunt-tslint');
 
     // Default task(s).
     grunt.registerTask('default',
-        ['typescript', 'import', 'mochaTest', 'uglify', 'bytesize']);
+        ['typescript', 'tslint', 'import', 'mochaTest', 'uglify', 'bytesize']);
 
     grunt.registerTask('dev', ['typescript', 'connect', 'watch']);
 };

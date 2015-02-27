@@ -7,9 +7,9 @@ module Data {
     export class Data {
 
         /**
-        * Returns the root object on which a given key exists. Note that this
-        * isn't the value of that key, but where to find the key
-        */
+         * Returns the root object on which a given key exists. Note that this
+         * isn't the value of that key, but where to find the key
+         */
         getRoot: ( key: string ) => any;
 
         /** Applies a callback to each object/key in a chain */

@@ -124,7 +124,7 @@ module Directives {
         /** @inheritDoc Directive#connect */
         connect(): void {
             if ( !this.connected ) {
-                this.sections.forEach((section) => { section.connect() });
+                this.sections.forEach((section) => { section.connect(); });
                 this.connected = true;
             }
         }
@@ -132,7 +132,7 @@ module Directives {
         /** @inheritDoc Directive#disconnect */
         disconnect(): void {
             if ( this.connected ) {
-                this.sections.forEach((section) => { section.disconnect() });
+                this.sections.forEach((section) => { section.disconnect(); });
                 this.connected = false;
             }
         }
