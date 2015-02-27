@@ -42,18 +42,18 @@ module Data {
 
         constructor( private data: any ) {}
 
-        /** @inheritdoc Data#getRoot */
+        /** @inheritDoc Data#getRoot */
         getRoot ( key: string ): any {
             return this.data;
         }
 
-        /** @inheritdoc Data#eachKey */
+        /** @inheritDoc Data#eachKey */
         eachKey: ( keypath: string[], callback: EachKeyCallback ) => void;
 
-        /** @inheritdoc Data#get */
+        /** @inheritDoc Data#get */
         get: ( keypath: string[] ) => any;
 
-        /** @inheritdoc Data#scope */
+        /** @inheritDoc Data#scope */
         scope: ( key: string, value: any ) => Data;
     }
 
@@ -66,7 +66,7 @@ module Data {
             private value: any
         ) {}
 
-        /** @inheritdoc Data#getRoot */
+        /** @inheritDoc Data#getRoot */
         getRoot ( key: string ): any {
             if ( key === this.key ) {
                 var result = {};
@@ -78,13 +78,13 @@ module Data {
             }
         }
 
-        /** @inheritdoc Data#eachKey */
+        /** @inheritDoc Data#eachKey */
         eachKey: ( keypath: string[], callback: EachKeyCallback ) => void;
 
-        /** @inheritdoc Data#get */
+        /** @inheritDoc Data#get */
         get: ( keypath: string[] ) => any;
 
-        /** @inheritdoc Data#scope */
+        /** @inheritDoc Data#scope */
         scope: ( key: string, value: any ) => Data;
     }
 

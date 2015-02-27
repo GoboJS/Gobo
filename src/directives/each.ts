@@ -24,7 +24,7 @@ module Directives {
     /** Loops over a value */
     export class EachStatement implements Directive {
 
-        /** @inheritdoc DirectiveBuilder#priority */
+        /** @inheritDoc DirectiveBuilder#priority */
         public static priority = 200;
 
         /**
@@ -51,7 +51,7 @@ module Directives {
         /** Whether this statement is connected */
         private connected = true;
 
-        /** @inheritdoc Directive#constructor */
+        /** @inheritDoc Directive#constructor */
         constructor( elem: Node, details: Details ) {
             this.end = elem.ownerDocument.createTextNode("");
             this.template = details.cloneable();
@@ -61,7 +61,7 @@ module Directives {
             };
         }
 
-        /** @inheritdoc Directive#initialize */
+        /** @inheritDoc Directive#initialize */
         initialize (): void {
             // Replace the root DOM element with the placeholder
             this.template.root.parentNode.replaceChild(
@@ -85,7 +85,7 @@ module Directives {
             }
         }
 
-        /** @inheritdoc Directive#execute */
+        /** @inheritDoc Directive#execute */
         execute ( value: any ): void {
             var i = 0;
             value.forEach((value: any) => {
@@ -121,7 +121,7 @@ module Directives {
             }
         }
 
-        /** @inheritdoc Directive#connect */
+        /** @inheritDoc Directive#connect */
         connect(): void {
             if ( !this.connected ) {
                 this.sections.forEach((section) => { section.connect() });
@@ -129,7 +129,7 @@ module Directives {
             }
         }
 
-        /** @inheritdoc Directive#disconnect */
+        /** @inheritDoc Directive#disconnect */
         disconnect(): void {
             if ( this.connected ) {
                 this.sections.forEach((section) => { section.disconnect() });

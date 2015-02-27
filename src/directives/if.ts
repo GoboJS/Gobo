@@ -5,7 +5,7 @@ module Directives {
     /** Adds and removes elements based on an expression */
     export class IfStatement implements Directive {
 
-        /** @inheritdoc DirectiveBuilder#priority */
+        /** @inheritDoc DirectiveBuilder#priority */
         public static priority = 100;
 
         /** The fragment standing in for the element */
@@ -14,13 +14,13 @@ module Directives {
         /** The directives nested within this If statement */
         private section: Parse.Section;
 
-        /** @inheritdoc Directive#connect */
+        /** @inheritDoc Directive#connect */
         public connect: () => void;
 
-        /** @inheritdoc Directive#disconnect */
+        /** @inheritDoc Directive#disconnect */
         public disconnect: () => void;
 
-        /** @inheritdoc Directive#constructor */
+        /** @inheritDoc Directive#constructor */
         constructor( private elem: Node, details: Details ) {
             this.standin = elem.ownerDocument.createComment("if");
             this.section = details.parse();
@@ -29,7 +29,7 @@ module Directives {
             this.disconnect = this.section.disconnect.bind(this.section);
         }
 
-        /** @inheritdoc Directive#execute */
+        /** @inheritDoc Directive#execute */
         execute ( value: any ): void {
             if ( value && !this.elem.parentNode ) {
                 this.section.connect();
@@ -41,7 +41,7 @@ module Directives {
             }
         }
 
-        /** @inheritdoc Directive#initialize */
+        /** @inheritDoc Directive#initialize */
         initialize (): void {
             this.section.initialize();
         }

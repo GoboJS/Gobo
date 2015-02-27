@@ -6,7 +6,7 @@ module Directives {
     /** Attaches an observer */
     export class OnStatement implements Directive {
 
-        /** @inheritdoc DirectiveBuilder#allowFunction */
+        /** @inheritDoc DirectiveBuilder#allowFunction */
         public static allowFuncs = true;
 
         /** The event to listen to */
@@ -18,12 +18,12 @@ module Directives {
         /** Whether the handler is connected */
         private connected: boolean = false;
 
-        /** @inheritdoc Directive#constructor */
+        /** @inheritDoc Directive#constructor */
         constructor( private elem: Node, details: Details ) {
             this.event = details.param;
         }
 
-        /** @inheritdoc Directive#execute */
+        /** @inheritDoc Directive#execute */
         execute ( value: any ): void {
             this.disconnect();
 
@@ -35,7 +35,7 @@ module Directives {
             this.connect();
         }
 
-        /** @inheritdoc Directive#connect */
+        /** @inheritDoc Directive#connect */
         connect(): void {
             if ( this.handler && !this.connected ) {
                 this.connected = true;
@@ -43,7 +43,7 @@ module Directives {
             }
         }
 
-        /** @inheritdoc Directive#disconnect */
+        /** @inheritDoc Directive#disconnect */
         disconnect(): void {
             if ( this.handler ) {
                 this.connected = false;

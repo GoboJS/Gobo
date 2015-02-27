@@ -46,7 +46,7 @@ module Traverse {
             );
         }
 
-        /** @inheritdoc DirectiveIterator#hasNext */
+        /** @inheritDoc DirectiveIterator#hasNext */
         public hasNext(): boolean {
             if ( this.nextAttrs.length > 0 ) {
                 return true;
@@ -62,14 +62,14 @@ module Traverse {
             return true;
         }
 
-        /** @inheritdoc DirectiveIterator#next */
+        /** @inheritDoc DirectiveIterator#next */
         public next(): { elem: HTMLElement; attr: Attr } {
             if ( this.hasNext() ) {
                 return { elem: this.nextElem, attr: this.nextAttrs.shift() };
             }
         }
 
-        /** @inheritdoc DirectiveIterator#peek */
+        /** @inheritDoc DirectiveIterator#peek */
         public peek(): { elem: HTMLElement; attr: Attr } {
             if ( this.hasNext() ) {
                 return { elem: this.nextElem, attr: this.nextAttrs[0] };
@@ -85,17 +85,17 @@ module Traverse {
 
         constructor( private elem: HTMLElement, private attrs: Attr[] ) {}
 
-        /** @inheritdoc DirectiveIterator#hasNext */
+        /** @inheritDoc DirectiveIterator#hasNext */
         public hasNext(): boolean {
             return this.i < this.attrs.length;
         }
 
-        /** @inheritdoc DirectiveIterator#next */
+        /** @inheritDoc DirectiveIterator#next */
         public next(): { elem: HTMLElement; attr: Attr } {
             return { elem: this.elem, attr: this.attrs[this.i++] };
         }
 
-        /** @inheritdoc DirectiveIterator#peek */
+        /** @inheritDoc DirectiveIterator#peek */
         public peek(): { elem: HTMLElement; attr: Attr } {
             return { elem: this.elem, attr: this.attrs[this.i] };
         }
@@ -115,17 +115,17 @@ module Traverse {
             private two: DirectiveIterator
         ) {}
 
-        /** @inheritdoc DirectiveIterator#hasNext */
+        /** @inheritDoc DirectiveIterator#hasNext */
         public hasNext(): boolean {
             return this.one.hasNext() || this.two.hasNext();
         }
 
-        /** @inheritdoc DirectiveIterator#next */
+        /** @inheritDoc DirectiveIterator#next */
         public next(): { elem: HTMLElement; attr: Attr } {
             return this.one.hasNext() ? this.one.next() : this.two.next();
         }
 
-        /** @inheritdoc DirectiveIterator#peek */
+        /** @inheritDoc DirectiveIterator#peek */
         public peek(): { elem: HTMLElement; attr: Attr } {
             return this.one.hasNext() ? this.one.peek() : this.two.peek();
         }
