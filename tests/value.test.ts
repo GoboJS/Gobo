@@ -46,5 +46,17 @@ describe('Value directives', function () {
 
         done();
     });
+
+    Test.should('Set the value of a select field').using(
+        `<select id='field' g-value='name'>
+            <option>Lug</option>
+            <option>Veal</option>
+            <option>Big</option>
+        </select>`
+    ).in((done, $) => {
+        new Gobo({ watch: watch }).bind($.body, { name: "Veal" });
+        assert.equal( $.fieldById('field').value, "Veal" );
+        done();
+    });
 });
 

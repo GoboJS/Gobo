@@ -15,6 +15,9 @@ module Directives {
         /** Sets the value */
         private publish: (value: any) => void;
 
+        /** The event to monitor */
+        private event: string;
+
         /** Event handler for input events */
         private handler = () => {
             this.publish( this.elem.value );
@@ -24,6 +27,7 @@ module Directives {
         constructor( elem: HTMLElement, details: Details ) {
             this.elem = <HTMLInputElement> elem;
             this.publish = details.publish;
+            this.event = elem.tagName === "SELECT" ? "change" : "input";
         }
 
         /** @inheritDoc Directive#execute */
@@ -37,7 +41,7 @@ module Directives {
         connect(): void {
             if ( this.handler && !this.connected ) {
                 this.connected = true;
-                this.elem.addEventListener("input", this.handler);
+                this.elem.addEventListener(this.event, this.handler);
             }
         }
 
@@ -45,7 +49,7 @@ module Directives {
         disconnect(): void {
             if ( this.handler ) {
                 this.connected = false;
-                this.elem.removeEventListener("input", this.handler);
+                this.elem.removeEventListener(this.event, this.handler);
             }
         }
     }

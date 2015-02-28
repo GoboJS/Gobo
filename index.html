@@ -13,10 +13,20 @@
     </head>
 
     <body>
-        <input g-value="name">
+        <div>
+            <input g-value="name">
+            <select g-value="title">
+                <option>Mr.</option>
+                <option>Mrs.</option>
+                <option>Ms.</option>
+                <option>Dr.</option>
+                <option>Esq.</option>
+            </select>
+        </div>
         <ul>
             <li g-if="active" g-class-highlight="selected">
                 <span>Name:</span>
+                <span g-text="title"></span>
                 <span g-text="name"></span>
             </li>
             <li><span>Age:</span> <span g-text="age" g-class='bold'></span></li>
@@ -37,7 +47,8 @@
             likes: [ "Cheese", "Terriers" ],
             select: function () {
                 data.selected = !data.selected;
-            }
+            },
+            title: "Esq."
         };
         gobo.bind( document.body, data );
     </script>
