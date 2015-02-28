@@ -87,14 +87,19 @@ module Expr {
         /** The path of keys to fetch when resolving values */
         public keypath: string[]
 
+        /** Arguments to pass */
+        public args: string[];
+
         /** Filters to apply */
         public filters: FilterCall[]
 
         constructor( expr: string, config: Config ) {
-            var parts = split["|"](expr);
-            this.keypath = stripQuotes( split["."](parts.shift().trim()) );
+            var filterParts = split["|"](expr);
 
-            this.filters = parts.map(filterExpr => {
+            this.args = split[" "](filterParts.shift());
+            this.keypath = stripQuotes( split["."](this.args.shift().trim()) );
+
+            this.filters = filterParts.map(filterExpr => {
                 return parseFilter(filterExpr, config);
             });
         }
@@ -105,6 +110,15 @@ module Expr {
                 (value, filter) => { return filter(data, value); },
                 data.get(this.keypath)
             );
+
+            if ( this.args.length > 0 && typeof value === "function" ) {
+                var originalValue = value;
+                value = () => {
+                    return originalValue.apply(null, this.args.map(token => {
+                        return interpret(data, token);
+                    }));
+                };
+            }
 
             return !allowFuncs && typeof value === "function" ? value() : value;
         }

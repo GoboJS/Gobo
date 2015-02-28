@@ -102,4 +102,50 @@ describe('Expressions', function () {
         done();
     });
 
+    Test.should('pass arguments').using(
+        `<div id='values'>
+            <span g-text='keywords true false null undefined'></span>
+            <span g-text='literals "some string" 10 4.5'></span>
+            <span g-text='variable input some.thing'></span>
+        </div>`
+    ).in((done, $) => {
+        new Gobo().bind($.body, {
+            input:  "Veal",
+            some: { thing: "wakka wakka" },
+
+            keywords: (t, f, n, u) => {
+                assert.isTrue(t);
+                assert.isFalse(f);
+                assert.isNull(n);
+                assert.isUndefined(u);
+                return "one";
+            },
+
+            literals: (s, i, f) => {
+                assert.equal(s, "some string");
+                assert.equal(i, 10);
+                assert.equal(f, 4.5);
+                return "two";
+            },
+
+            variable: (one, two) => {
+                assert.equal(one, "Veal");
+                assert.equal(two, "wakka wakka");
+                return "three";
+            }
+        });
+
+        assert.equal( $.cleanup($.textById('values')), "one two three" );
+
+        done();
+    });
+
+    Test.should('not call values that arent functions').using(
+        `<div id='value' g-text='input true false'></div>`
+    ).in((done, $) => {
+        new Gobo().bind($.body, { input:  "Veal" });
+        assert.equal( $.cleanup($.textById('value')), "Veal" );
+        done();
+    });
+
 });
