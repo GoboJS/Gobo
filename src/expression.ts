@@ -218,6 +218,31 @@ module Expr {
         /** Convert a value to lowercase */
         lowercase: filter((str: string): string => {
             return str ? str.toLowerCase() : "";
+        }),
+
+        /** Assert that a value equals anoter value */
+        "eq": filter((value: any, other: any): boolean => {
+            return value === other;
+        }),
+
+        /** Assert that a value is less than another value */
+        "lt": filter((value: any, other: any): boolean => {
+            return value < other;
+        }),
+
+        /** Assert that a value is greater than another value */
+        "gt": filter((value: any, other: any): boolean => {
+            return value > other;
+        }),
+
+        /** Assert that a value is less than or equal to another value */
+        "lte": filter((value: any, other: any): boolean => {
+            return value <= other;
+        }),
+
+        /** Assert that a value is greater than or equal to another value */
+        "gte": filter((value: any, other: any): boolean => {
+            return value >= other;
         })
     };
 
