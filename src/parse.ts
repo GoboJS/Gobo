@@ -131,7 +131,7 @@ module Parse {
             // keypath causes the directive to be re-rendered
             section.bindings.push(new Watch.PathBinding(
                 config.watch,
-                data.eachKey.bind(data, expr.keypath),
+                data.eachKey.bind(data, expr.watch),
                 () => {
                     directive.execute(
                         expr.resolve(data, tuple.value.allowFuncs)

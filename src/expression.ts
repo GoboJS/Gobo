@@ -17,7 +17,8 @@ module Expr {
     var split = {
         ".": splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^\.])+/g),
         "|": splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^\|])+/g),
-        " ": splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^ ])+/g)
+        " ": splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^ ])+/g),
+        "<": splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^<])+/g)
     };
 
     /** Returns whether a value appears to contain quotes */
@@ -85,16 +86,21 @@ module Expr {
     export class Expression {
 
         /** The path of keys to fetch when resolving values */
-        public keypath: string[]
+        public keypath: string[];
+
+        /** The path to monitor for changes */
+        public watch: string[];
 
         /** Arguments to pass */
         public args: string[];
 
         /** Filters to apply */
-        public filters: FilterCall[]
+        public filters: FilterCall[];
 
         constructor( expr: string, config: Config ) {
-            var filterParts = split["|"](expr);
+            var watchParts = split["<"](expr);
+
+            var filterParts = split["|"](watchParts.shift());
 
             this.args = split[" "](filterParts.shift());
             this.keypath = stripQuotes( split["."](this.args.shift().trim()) );
@@ -102,6 +108,16 @@ module Expr {
             this.filters = filterParts.map(filterExpr => {
                 return parseFilter(filterExpr, config);
             });
+
+            if ( watchParts.length === 1 ) {
+                this.watch = stripQuotes(split["."](watchParts.shift().trim()));
+            }
+            else if ( watchParts.length === 0 ) {
+                this.watch = this.keypath;
+            }
+            else {
+                throw new Error("Multiple watches in expression: " + expr);
+            }
         }
 
         /** Creates a function that applies the arguments in this expression */

@@ -148,4 +148,31 @@ describe('Expressions', function () {
         done();
     });
 
+    Test.should('Allow alternate watch paths').using(
+        `<div id='value' g-text='value < watch'></div>`
+    ).in((done, $) => {
+        var data = { value: "Veal", watch: 0 };
+        new Gobo({ watch: watch }).bind($.body, data);
+
+        assert.equal( $.cleanup($.textById('value')), "Veal" );
+
+        data.value = "Lug";
+        assert.equal( $.cleanup($.textById('value')), "Veal" );
+
+        data.watch += 1;
+        assert.equal( $.cleanup($.textById('value')), "Lug" );
+
+        done();
+    });
+
+    Test.should('Disallow multiple watch paths').using(
+        `<div id='value' g-text='value < watch < another'></div>`
+    ).in((done, $) => {
+        assert.throws(() => {
+            new Gobo().bind($.body, { value: "Veal", watch: 0 });
+        });
+
+        done();
+    });
+
 });
