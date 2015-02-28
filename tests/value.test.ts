@@ -12,8 +12,13 @@ describe('Value directives', function () {
     Test.should('Set the value of an input field').using(
         `<input id='field' g-value='name'>`
     ).in((done, $) => {
-        new Gobo({ watch: watch }).bind($.body, { name: "Veal Steakface" });
+        var data = { name: "Veal Steakface" };
+        new Gobo({ watch: watch }).bind($.body, data);
         assert.equal( $.fieldById('field').value, "Veal Steakface" );
+
+        data.name = "Lug ThickNeck";
+        assert.equal( $.fieldById('field').value, "Lug ThickNeck" );
+
         done();
     });
 
@@ -27,6 +32,19 @@ describe('Value directives', function () {
         done();
     });
 
-});
+    Test.should('Update a keypath when the value changes').using(
+        `<input id='field' g-value='person.details.name'>`
+    ).in((done, $) => {
+        var data = { person: { details: { name: "Veal Steakface" } } };
+        new Gobo({ watch: watch }).bind($.body, data);
 
+        $.typeInto('field', "Lug ThickNeck");
+        assert.equal( data.person.details.name, "Lug ThickNeck" );
+
+        $.typeInto('field', "Big McLargeHuge");
+        assert.equal( data.person.details.name, "Big McLargeHuge" );
+
+        done();
+    });
+});
 
