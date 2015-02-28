@@ -102,6 +102,32 @@ describe('Expressions', function () {
         done();
     });
 
+    Test.should('bind persistent scratchpads to filters').using(
+        `<div>
+            <span g-text='one | scratch'></span>
+            <span g-text='two | scratch'></span>
+        </div>`
+    ).in((done, $) => {
+        var gobo = new Gobo({ watch: watch });
+
+        gobo.filters.scratch = Gobo.filter(function (value) {
+            switch ( value ) {
+                case "first": this.store = "primary"; break;
+                case "second": this.store = "secondary"; break;
+                case "third": assert.equal("primary", this.store); break;
+                case "fourth": assert.equal("secondary", this.store); break;
+                default: throw "Should not be reached";
+            }
+        });
+
+        var data = { one: "first", two: "second" };
+        gobo.bind($.body, data);
+        data.one = "third";
+        data.two = "fourth";
+
+        done();
+    });
+
     Test.should('pass arguments').using(
         `<div id='values'>
             <span g-text='keywords true false null undefined'></span>

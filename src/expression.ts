@@ -60,7 +60,22 @@ module Expr {
     }
 
     /** A call to a filter */
-    type FilterCall = (data: Data.Data, value: any) => any;
+    class FilterCall {
+
+        /** The value to bind this filter to when calling */
+        private bind: any = {};
+
+        constructor( private filter: Filter, private args: string[] ) {}
+
+        /** Applies this filter when applying a value to a directive */
+        read( data: Data.Data, value: any ): any {
+            var args = this.args.map((token) => {
+                return interpret(data, token);
+            });
+            args.unshift(value);
+            return this.filter.apply(this.bind, args);
+        }
+    }
 
     /** Parses a filter expression */
     function parseFilter( expr: string, config: Config ): FilterCall {
@@ -70,15 +85,8 @@ module Expr {
         if ( !config.filters[filterName] ) {
             throw new Error("Filter does not exist: '" + filterName + "'");
         }
-        var filter = config.filters[filterName];
 
-        return function applyFilter(data: Data.Data, value: any): any {
-            var args = tokens.map((token) => {
-                return interpret(data, token);
-            });
-            args.unshift(value);
-            return filter.apply(null, args);
-        };
+        return new FilterCall( config.filters[filterName], tokens );
     }
 
 
@@ -142,7 +150,7 @@ module Expr {
         /** Returns the value of this expression */
         resolve ( data: Data.Data, allowFuncs: boolean ): any {
             var value = this.filters.reduce(
-                (value, filter) => { return filter(data, value); },
+                (value, filter) => { return filter.read(data, value); },
                 data.get(this.keypath)
             );
 
