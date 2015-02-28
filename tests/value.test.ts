@@ -79,5 +79,28 @@ describe('Value directives', function () {
 
         $.typeInto('field', "Lug ThickNeck");
     });
+
+    Test.should('publish as a final value to functions with arguments').using(
+        `<input id='field' g-value='name "one" "two"'>`
+    ).in((done, $) => {
+
+        new Gobo({ watch: watch }).bind($.body, {
+            name: function (one, two, value) {
+                assert.equal( one, "one" );
+                assert.equal( two, "two" );
+                if ( arguments.length === 2 ) {
+                    return "Veal Steakface";
+                }
+                else {
+                    assert.equal( value, "Lug ThickNeck" );
+                    done();
+                }
+            }
+        });
+
+        assert.equal( $.fieldById('field').value, "Veal Steakface" );
+
+        $.typeInto('field', "Lug ThickNeck");
+    });
 });
 

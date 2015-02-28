@@ -23,36 +23,17 @@ module Data {
         }
 
         /** Returns the value given a path of keys */
-        get ( keypath: string[] ): any {
+        get ( keypath: string[], rootKey?: string ): any {
             return keypath.reduce((obj, key) => {
                 if ( obj !== null && obj !== undefined ) {
                     return obj[key];
                 }
-            }, this.getRoot(keypath[0]));
+            }, this.getRoot(rootKey || keypath[0]));
         }
 
         /** Creates a new scope from this instance */
         scope ( key: string, value: any ): Data {
             return new Scoped(this, key, value);
-        }
-
-        /** Sets a value at the given keypath */
-        set ( keypath: string[], value: any ): void {
-            var obj;
-            if ( keypath.length === 1 ) {
-                obj = this.getRoot(keypath[0]);
-            }
-            else {
-                obj = this.get( keypath.slice(0, keypath.length - 1) );
-            }
-
-            var key = keypath[keypath.length - 1];
-            if ( typeof obj[key] === "function" ) {
-                obj[key]( value );
-            }
-            else {
-                obj[key] = value;
-            }
         }
     }
 
@@ -70,13 +51,10 @@ module Data {
         eachKey: ( keypath: string[], callback: EachKeyCallback ) => void;
 
         /** @inheritDoc Data#get */
-        get: ( keypath: string[] ) => any;
+        get: ( keypath: string[], rootKey?: string ) => any;
 
         /** @inheritDoc Data#scope */
         scope: ( key: string, value: any ) => Data;
-
-        /** @inheritDoc Data#set */
-        set: ( keypath: string[], value: any ) => void;
     }
 
     /** Creates a new data scope with a specific key and value */
@@ -104,13 +82,10 @@ module Data {
         eachKey: ( keypath: string[], callback: EachKeyCallback ) => void;
 
         /** @inheritDoc Data#get */
-        get: ( keypath: string[] ) => any;
+        get: ( keypath: string[], rootKey?: string ) => any;
 
         /** @inheritDoc Data#scope */
         scope: ( key: string, value: any ) => Data;
-
-        /** @inheritDoc Data#set */
-        set: ( keypath: string[], value: any ) => void;
     }
 
     // Apply the default data implementations to the child classes

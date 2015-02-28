@@ -122,9 +122,7 @@ module Parse {
                 cloneable: function parseCloneable(): Cloneable {
                     return cloneable(traverse.nested(elem), config);
                 },
-                publish: function publish( value: any ) {
-                    data.set( expr.keypath, value );
-                }
+                publish: expr.set.bind(expr, data)
             });
 
             section.directives.push(directive);

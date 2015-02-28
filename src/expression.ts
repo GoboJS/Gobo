@@ -104,6 +104,25 @@ module Expr {
             });
         }
 
+        /** Creates a function that applies the arguments in this expression */
+        private applyArgs(
+            data: Data.Data,
+            value: (...values: any[]) => void
+        ): (...values: any[]) => void {
+
+            if ( this.args.length === 0 ) {
+                return value;
+            }
+
+            return () => {
+                var args = [].slice.call(arguments);
+                var exprArgs = this.args.map(token => {
+                    return interpret(data, token);
+                });
+                return value.apply(null, exprArgs.concat(args));
+            };
+        }
+
         /** Returns the value of this expression */
         resolve ( data: Data.Data, allowFuncs: boolean ): any {
             var value = this.filters.reduce(
@@ -111,16 +130,31 @@ module Expr {
                 data.get(this.keypath)
             );
 
-            if ( this.args.length > 0 && typeof value === "function" ) {
-                var originalValue = value;
-                value = () => {
-                    return originalValue.apply(null, this.args.map(token => {
-                        return interpret(data, token);
-                    }));
-                };
+            if ( typeof value === "function" ) {
+                value = this.applyArgs(data, value);
+                if ( !allowFuncs ) {
+                    value = value();
+                }
             }
 
-            return !allowFuncs && typeof value === "function" ? value() : value;
+            return value;
+        }
+
+        /** Sets a value of this expression */
+        set ( data: Data.Data, value: any ): void {
+            var obj = data.get(
+                this.keypath.slice(0, this.keypath.length - 1),
+                this.keypath[0]
+            );
+
+            var key = this.keypath[this.keypath.length - 1];
+
+            if ( typeof obj[key] === "function" ) {
+                this.applyArgs( data, obj[key] )( value );
+            }
+            else {
+                obj[key] = value;
+            }
         }
     }
 
