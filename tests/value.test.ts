@@ -58,5 +58,26 @@ describe('Value directives', function () {
         assert.equal( $.fieldById('field').value, "Veal" );
         done();
     });
+
+    Test.should('Call functions when publishing values').using(
+        `<input id='field' g-value='name'>`
+    ).in((done, $) => {
+
+        new Gobo({ watch: watch }).bind($.body, {
+            name: function () {
+                if ( arguments.length === 0 ) {
+                    return "Veal Steakface";
+                }
+                else {
+                    assert.equal( arguments[0], "Lug ThickNeck" );
+                    done();
+                }
+            }
+        });
+
+        assert.equal( $.fieldById('field').value, "Veal Steakface" );
+
+        $.typeInto('field', "Lug ThickNeck");
+    });
 });
 

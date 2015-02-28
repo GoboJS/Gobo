@@ -45,7 +45,14 @@ module Data {
             else {
                 obj = this.get( keypath.slice(0, keypath.length - 1) );
             }
-            obj[keypath[keypath.length - 1]] = value;
+
+            var key = keypath[keypath.length - 1];
+            if ( typeof obj[key] === "function" ) {
+                obj[key]( value );
+            }
+            else {
+                obj[key] = value;
+            }
         }
     }
 
