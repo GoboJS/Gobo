@@ -3,7 +3,21 @@
 module Expr {
 
     /** A filter that can be applied to an expression */
-    export type Filter = (value: any, ...args: any[]) => any;
+    export type FilterFunc = (value: any, ...args: any[]) => any;
+
+    /** A two way filter expressed as an object */
+    export type FilterObj = {
+
+        /** Invoked when applying a value to a directive */
+        read: FilterFunc;
+
+        /** Invoked when publishing a value back to the model */
+        publish: FilterFunc;
+    };
+
+    /** Filters can be applied to modify an expression */
+    export type Filter = FilterFunc | FilterObj;
+
 
     /** Creates a function that splits a string */
     function splitter( regex: RegExp ): (input: string) => string[] {
@@ -67,13 +81,30 @@ module Expr {
 
         constructor( private filter: Filter, private args: string[] ) {}
 
-        /** Applies this filter when applying a value to a directive */
-        read( data: Data.Data, value: any ): any {
+        /** Calculates the arguments for this filter call */
+        private invoke(fn: FilterFunc, value: any, data: Data.Data): any[] {
             var args = this.args.map((token) => {
                 return interpret(data, token);
             });
             args.unshift(value);
-            return this.filter.apply(this.bind, args);
+            return fn.apply(this.bind, args);
+        }
+
+        /** Applies this filter when applying a value to a directive */
+        read( data: Data.Data, value: any ): any {
+            var filter = typeof this.filter === "function" ?
+                <FilterFunc> this.filter :
+                (<FilterObj> this.filter).read;
+
+            return this.invoke(filter, value, data);
+        }
+
+        /** Applies this filter when applying a value to a directive */
+        publish( data: Data.Data, value: any ): any {
+            // Don't apply simple filters on the publish step
+            return typeof this.filter === "function" ?
+                value :
+                this.invoke((<FilterObj>this.filter).publish, value, data);
         }
     }
 
@@ -166,6 +197,12 @@ module Expr {
 
         /** Sets a value of this expression */
         set ( data: Data.Data, value: any ): void {
+
+            // Walk backwards through the filters and apply any
+            for ( var i = this.filters.length - 1; i >= 0; i-- ) {
+                value = this.filters[i].publish(data, value);
+            }
+
             var obj = data.get(
                 this.keypath.slice(0, this.keypath.length - 1),
                 this.keypath[0]

@@ -238,4 +238,31 @@ describe('Expressions', function () {
         done();
     });
 
+    Test.should('Support bi-directional filters').using(
+        `<input id='value' g-value='value | one | two | three'>`
+    ).in((done, $) => {
+        var data = { value: "Veal", };
+        var gobo = new Gobo({ watch: watch });
+
+        gobo.filters.one = {
+            read: (value) => { return "1" + value; },
+            publish: (value) => { return "one " + value; },
+        };
+        gobo.filters.two = Gobo.filter(str => { return "2" + str });
+        gobo.filters.three = {
+            read: (value) => { return "3" + value; },
+            publish: (value) => { return "three " + value; },
+        };
+
+        gobo.bind($.body, data);
+        assert.equal( $.fieldById('value').value, "321Veal" );
+        assert.equal( data.value, "Veal" );
+
+        $.typeInto('value', "Lug");
+        assert.equal( $.fieldById('value').value, "321one three Lug" );
+        assert.equal( data.value, "one three Lug" );
+
+        done();
+    });
+
 });
