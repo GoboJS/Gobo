@@ -5,6 +5,7 @@
 /// <reference path="parse.ts"/>
 /// <reference path="data.ts"/>
 /// <reference path="expression.ts"/>
+/// <reference path="filters.ts"/>
 
 
 /** An interface into the gobo configuration */
@@ -17,7 +18,7 @@ class Config {
     public prefix: string;
 
     /** A lookup for resolving filters */
-    public filters: Expr.DefaultFilters;
+    public filters: Filters.DefaultFilters;
 
     /** A lookup for resolving directives */
     private getDirectiveByName:
@@ -63,7 +64,7 @@ class Gobo {
     public directives = new Directives.DefaultDirectives();
 
     /** The default filters */
-    public filters = new Expr.DefaultFilters();
+    public filters = new Filters.DefaultFilters();
 
     /** The observation module to use for watching values */
     public watch: Watch.Watch;

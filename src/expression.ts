@@ -1,23 +1,7 @@
 /// <reference path="data.ts"/>
+/// <reference path="filters.ts"/>
 
 module Expr {
-
-    /** A filter that can be applied to an expression */
-    export type FilterFunc = (value: any, ...args: any[]) => any;
-
-    /** A two way filter expressed as an object */
-    export type FilterObj = {
-
-        /** Invoked when applying a value to a directive */
-        read: FilterFunc;
-
-        /** Invoked when publishing a value back to the model */
-        publish: FilterFunc;
-    };
-
-    /** Filters can be applied to modify an expression */
-    export type Filter = FilterFunc | FilterObj;
-
 
     /** Creates a function that splits a string */
     function splitter( regex: RegExp ): (input: string) => string[] {
@@ -80,10 +64,14 @@ module Expr {
         private bind: any = {};
 
         /** @constructor */
-        constructor( private filter: Filter, private args: string[] ) {}
+        constructor(private filter: Filters.Filter, private args: string[]) {}
 
         /** Calculates the arguments for this filter call */
-        private invoke(fn: FilterFunc, value: any, data: Data.Data): any[] {
+        private invoke(
+            fn: Filters.FilterFunc,
+            value: any,
+            data: Data.Data
+        ): any[] {
             var args = this.args.map((token) => {
                 return interpret(data, token);
             });
@@ -94,8 +82,8 @@ module Expr {
         /** Applies this filter when applying a value to a directive */
         read( data: Data.Data, value: any ): any {
             var filter = typeof this.filter === "function" ?
-                <FilterFunc> this.filter :
-                (<FilterObj> this.filter).read;
+                <Filters.FilterFunc> this.filter :
+                (<Filters.FilterObj> this.filter).read;
 
             return this.invoke(filter, value, data);
         }
@@ -103,9 +91,16 @@ module Expr {
         /** Applies this filter when applying a value to a directive */
         publish( data: Data.Data, value: any ): any {
             // Don't apply simple filters on the publish step
-            return typeof this.filter === "function" ?
-                value :
-                this.invoke((<FilterObj>this.filter).publish, value, data);
+            if ( typeof this.filter === "function" ) {
+                return value;
+            }
+            else {
+                return this.invoke(
+                    (<Filters.FilterObj>this.filter).publish,
+                    value,
+                    data
+                );
+            }
         }
     }
 
@@ -221,71 +216,5 @@ module Expr {
         }
     }
 
-
-    /** Default list of directives */
-    export class DefaultFilters {
-        [key: string]: Filter;
-    }
-
-    DefaultFilters.prototype = {
-
-        /** Invert a value */
-        limit: function limitFilter(
-            value: Directives.Eachable,
-            limit: number
-        ): Directives.Eachable {
-            return {
-                forEach: function limitForEach ( fn: (value: any) => void ) {
-                    var calls = 0;
-                    value.forEach(value => {
-                        if ( calls < limit ) {
-                            fn(value);
-                            calls++;
-                        }
-                    });
-                }
-            };
-        },
-
-        /** Invert a value */
-        not: function notFilter (value: any): boolean {
-            return !value;
-        },
-
-        /** Convert a value to uppercase */
-        uppercase: function uppercaseFilter (str: string): string {
-            return str ? str.toUpperCase() : "";
-        },
-
-        /** Convert a value to lowercase */
-        lowercase: function lowercaseFilter (str: string): string {
-            return str ? str.toLowerCase() : "";
-        },
-
-        /** Assert that a value equals anoter value */
-        eq: function eqFilter (value: any, other: any): boolean {
-            return value === other;
-        },
-
-        /** Assert that a value is less than another value */
-        lt: function ltFilter (value: any, other: any): boolean {
-            return value < other;
-        },
-
-        /** Assert that a value is greater than another value */
-        gt: function gtFilter (value: any, other: any): boolean {
-            return value > other;
-        },
-
-        /** Assert that a value is less than or equal to another value */
-        lte: function lteFilter (value: any, other: any): boolean {
-            return value <= other;
-        },
-
-        /** Assert that a value is greater than or equal to another value */
-        gte: function gteFilter (value: any, other: any): boolean {
-            return value >= other;
-        }
-    };
 
 }
