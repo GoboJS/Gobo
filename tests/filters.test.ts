@@ -87,5 +87,13 @@ describe('Filters', function () {
         done();
     });
 
+    Test.should('Capitalize the first letter of a string').using(
+        `<div id='value' g-text='name | capitalize'></div>`
+    ).in((done, $) => {
+        new Gobo({ watch: watch }).bind($.body, { name: "veal" });
+        assert.equal( $.cleanup($.textById('value')), "Veal" );
+        done();
+    });
+
 });
 

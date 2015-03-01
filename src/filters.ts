@@ -56,6 +56,11 @@ module Filters {
             return str ? str.toLowerCase() : "";
         },
 
+        /** Capitalize the first character of a string */
+        capitalize: function capitalizeStr( value: string ): string {
+            return value.charAt(0).toUpperCase() + value.slice(1);
+        },
+
         /** Assert that a value equals anoter value */
         eq: function eqFilter (value: any, other: any): boolean {
             return value === other;
@@ -80,6 +85,7 @@ module Filters {
         gte: function gteFilter (value: any, other: any): boolean {
             return value >= other;
         }
+
     };
 
 }
