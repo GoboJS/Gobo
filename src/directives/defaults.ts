@@ -6,6 +6,15 @@
 
 module Directives {
 
+    /** Displays the element when a value is truthy */
+    function showHide (elem: HTMLElement, value: any): void {
+        if ( !this.natural ) {
+            this.natural = elem.style.display === "none" ?
+                "block" : elem.style.display;
+        }
+        elem.style.display = value ? this.natural : "none";
+    }
+
     /** Default list of directives */
     export class DefaultDirectives {
         [key: string]: DirectiveBuilder;
@@ -28,6 +37,14 @@ module Directives {
         /** Sets the text content of an element */
         text: Directives.directive(function text (elem, value) {
             elem.textContent = value;
+        }),
+
+        /** Displays the element when a value is truthy */
+        show: Directives.directive(showHide),
+
+        /** Hides the element when a value is truthy */
+        hide: Directives.directive(function hide (elem, value) {
+            showHide.call(this, elem, !value);
         }),
 
         /** Adds a class name */

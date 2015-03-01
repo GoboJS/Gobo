@@ -159,5 +159,24 @@ describe('Gobo', function () {
         done();
     });
 
+    Test.should('Hide and show elements').using(
+        `<ul>
+            <li id='shown' g-show='bool'></li>
+            <li id='hidden' g-hide='bool'></li>
+        </ul>`
+    ).in((done, $) => {
+        var data = { bool: true };
+        new Gobo({ watch: watch }).bind($.body, data);
+
+        assert.isTrue( $.isVisible('shown') );
+        assert.isFalse( $.isVisible('hidden') );
+
+        data.bool = false;
+        assert.isTrue( $.isVisible('hidden') );
+        assert.isFalse( $.isVisible('shown') );
+
+        done();
+    });
+
 });
 

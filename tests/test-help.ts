@@ -68,6 +68,11 @@ module Test {
             event.initEvent("input", true, true);
             elem.dispatchEvent(event);
         }
+
+        /** Returns whether an element is visible */
+        public isVisible ( id: string ): boolean {
+            return this.fieldById(id).style.display !== "none";
+        }
     }
 
     /** Executes a test on a thunk of HTML */
