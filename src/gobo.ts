@@ -23,7 +23,7 @@ class Config {
     private getDirectiveByName:
         (string) => Wildcard.Tuple<Directives.DirectiveBuilder>;
 
-    /** Constructor */
+    /** @constructor */
     constructor ( gobo: Gobo ) {
         this.watch = gobo.watch;
         this.prefix = gobo.prefix;
@@ -71,7 +71,7 @@ class Gobo {
     /** A helper for creating directives */
     static directive = Directives.directive;
 
-    /** Constructor */
+    /** @constructor */
     constructor ( options: Options = {} ) {
         this.watch = options.watch;
     }

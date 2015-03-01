@@ -18,7 +18,10 @@ module Directives {
         /** Whether the handler is connected */
         private connected: boolean = false;
 
-        /** @inheritDoc Directive#constructor */
+        /**
+         * @constructor
+         * @inheritDoc Directive#constructor
+         */
         constructor( private elem: Node, details: Details ) {
             this.event = details.param;
         }

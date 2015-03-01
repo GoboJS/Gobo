@@ -20,7 +20,10 @@ module Directives {
         /** @inheritDoc Directive#disconnect */
         public disconnect: () => void;
 
-        /** @inheritDoc Directive#constructor */
+        /**
+         * @constructor
+         * @inheritDoc Directive#constructor
+         */
         constructor( private elem: Node, details: Details ) {
             this.standin = elem.ownerDocument.createComment("if");
             this.section = details.parse();

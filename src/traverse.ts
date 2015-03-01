@@ -38,7 +38,7 @@ module Traverse {
         /** Upcoming attributes */
         private nextAttrs: Attr[] = [];
 
-        /** Searches for the given prefix on the given node */
+        /** @constructor */
         constructor (private config: Config, root: Node) {
             this.nodes = root.ownerDocument.evaluate(
                 ".//*[@*[starts-with(name(), '" + config.prefix + "')]]",
@@ -83,6 +83,7 @@ module Traverse {
         /** The current offset of the iteration */
         private i = 0;
 
+        /** @constructor */
         constructor( private elem: HTMLElement, private attrs: Attr[] ) {}
 
         /** @inheritDoc DirectiveIterator#hasNext */
@@ -110,6 +111,8 @@ module Traverse {
 
     /** Iterates over two other iterators */
     export class JoinIterator implements DirectiveIterator {
+
+        /** @constructor */
         constructor(
             private one: DirectiveIterator,
             private two: DirectiveIterator
@@ -134,7 +137,7 @@ module Traverse {
     /** Reads elements from the DOM with matching attributes */
     export class Reader {
 
-        /** Searches for the given prefix on the given node */
+        /** @constructor */
         constructor (
             private iter: DirectiveIterator,
             public root: HTMLElement

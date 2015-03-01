@@ -40,6 +40,7 @@ module Data {
     /** The root lookup table for data */
     export class Root implements Data {
 
+        /** @constructor */
         constructor( private data: any ) {}
 
         /** @inheritDoc Data#getRoot */
@@ -60,6 +61,7 @@ module Data {
     /** Creates a new data scope with a specific key and value */
     export class Scoped implements Data {
 
+        /** @constructor */
         constructor(
             private parent: Data,
             private key: string,

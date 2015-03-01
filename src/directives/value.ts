@@ -23,7 +23,10 @@ module Directives {
             this.publish( this.elem.value );
         };
 
-        /** @inheritDoc Directive#constructor */
+        /**
+         * @constructor
+         * @inheritDoc Directive#constructor
+         */
         constructor( elem: HTMLElement, details: Details ) {
             this.elem = <HTMLInputElement> elem;
             this.publish = details.publish;

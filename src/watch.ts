@@ -28,6 +28,7 @@ module Watch {
         };
 
         /**
+         * @constructor
          * @param watch The interface for setting up an observer
          * @param each Calls a function for each value in the keypath
          * @param trigger The callback to invoke when there is a change

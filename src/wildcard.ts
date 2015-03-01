@@ -24,7 +24,7 @@ module Wildcard {
         /** Whether this key/value supports a wildcard match */
         public wildcard: boolean;
 
-        /** Constructor */
+        /** @constructor */
         constructor( key: string, public value: T ) {
             var star = key.indexOf("*");
             if ( star === -1 ) {

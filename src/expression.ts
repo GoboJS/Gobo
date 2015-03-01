@@ -79,6 +79,7 @@ module Expr {
         /** The value to bind this filter to when calling */
         private bind: any = {};
 
+        /** @constructor */
         constructor( private filter: Filter, private args: string[] ) {}
 
         /** Calculates the arguments for this filter call */
@@ -136,6 +137,7 @@ module Expr {
         /** Filters to apply */
         public filters: FilterCall[];
 
+        /** @constructor */
         constructor( expr: string, config: Config ) {
             var watchParts = split["<"](expr);
 

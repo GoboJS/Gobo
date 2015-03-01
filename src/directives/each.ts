@@ -51,7 +51,10 @@ module Directives {
         /** Whether this statement is connected */
         private connected = true;
 
-        /** @inheritDoc Directive#constructor */
+        /**
+         * @constructor
+         * @inheritDoc Directive#constructor
+         */
         constructor( elem: Node, details: Details ) {
             this.end = elem.ownerDocument.createTextNode("");
             this.template = details.cloneable();

@@ -15,6 +15,7 @@ module Parse {
         /** Directives nested within this block */
         public directives: Array<Directives.Directive> = [];
 
+        /** @constructor */
         constructor( public root: HTMLElement ) {}
 
         /** Finalize the construction of directives within this section */
@@ -60,6 +61,8 @@ module Parse {
 
     /** A node that can be cloned to create new sections */
     export class Cloneable {
+
+        /** @constructor */
         constructor (
             public root: HTMLElement,
             private attrs: Array<Attr>,
