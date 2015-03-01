@@ -52,9 +52,9 @@ describe('Expressions', function () {
     ).in((done, $) => {
         var gobo = new Gobo({ watch: watch });
 
-        gobo.filters.one = Gobo.filter(str => { return "1" + str });
-        gobo.filters.two = Gobo.filter(str => { return "2" + str });
-        gobo.filters.three = Gobo.filter(str => { return "3" + str });
+        gobo.filters.one = str => { return "1" + str };
+        gobo.filters.two = str => { return "2" + str };
+        gobo.filters.three = str => { return "3" + str };
 
         var data = { name: "Veal" };
         gobo.bind($.body, data);
@@ -79,23 +79,23 @@ describe('Expressions', function () {
     ).in((done, $) => {
         var gobo = new Gobo({ watch: watch });
 
-        gobo.filters.keywords = Gobo.filter((value, t, f, n, u) => {
+        gobo.filters.keywords = (value, t, f, n, u) => {
             assert.isTrue(t);
             assert.isFalse(f);
             assert.isNull(n);
             assert.isUndefined(u);
-        });
+        };
 
-        gobo.filters.literals = Gobo.filter((value, s, i, f) => {
+        gobo.filters.literals = (value, s, i, f) => {
             assert.equal(s, "some string");
             assert.equal(i, 10);
             assert.equal(f, 4.5);
-        });
+        };
 
-        gobo.filters.variable = Gobo.filter((value, one, two) => {
+        gobo.filters.variable = (value, one, two) => {
             assert.equal(one, "Veal");
             assert.equal(two, "wakka wakka");
-        });
+        };
 
         gobo.bind($.body, { input: "Veal", some: { thing: "wakka wakka" } });
 
@@ -110,7 +110,7 @@ describe('Expressions', function () {
     ).in((done, $) => {
         var gobo = new Gobo({ watch: watch });
 
-        gobo.filters.scratch = Gobo.filter(function (value) {
+        gobo.filters.scratch = function (value) {
             switch ( value ) {
                 case "first": this.store = "primary"; break;
                 case "second": this.store = "secondary"; break;
@@ -118,7 +118,7 @@ describe('Expressions', function () {
                 case "fourth": assert.equal("secondary", this.store); break;
                 default: throw "Should not be reached";
             }
-        });
+        };
 
         var data = { one: "first", two: "second" };
         gobo.bind($.body, data);
@@ -246,12 +246,12 @@ describe('Expressions', function () {
 
         gobo.filters.one = {
             read: (value) => { return "1" + value; },
-            publish: (value) => { return "one " + value; },
+            publish: (value) => { return "one " + value; }
         };
-        gobo.filters.two = Gobo.filter(str => { return "2" + str });
+        gobo.filters.two = str => { return "2" + str };
         gobo.filters.three = {
             read: (value) => { return "3" + value; },
-            publish: (value) => { return "three " + value; },
+            publish: (value) => { return "three " + value; }
         };
 
         gobo.bind($.body, data);

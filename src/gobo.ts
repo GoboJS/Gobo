@@ -71,9 +71,6 @@ class Gobo {
     /** A helper for creating directives */
     static directive = Directives.directive;
 
-    /** A helper for creating filters */
-    static filter = Expr.filter;
-
     /** Constructor */
     constructor ( options: Options = {} ) {
         this.watch = options.watch;

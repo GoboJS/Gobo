@@ -220,11 +220,6 @@ module Expr {
     }
 
 
-    /** Creates a filter */
-    export function filter( src: Filter ): Filter {
-        return src;
-    }
-
     /** Default list of directives */
     export class DefaultFilters {
         [key: string]: Filter;
@@ -233,7 +228,7 @@ module Expr {
     DefaultFilters.prototype = {
 
         /** Invert a value */
-        limit: filter(function limit (
+        limit: function limitFilter(
             value: Directives.Eachable,
             limit: number
         ): Directives.Eachable {
@@ -248,47 +243,47 @@ module Expr {
                     });
                 }
             };
-        }),
+        },
 
         /** Invert a value */
-        not: filter((value: any): boolean => {
+        not: function notFilter (value: any): boolean {
             return !value;
-        }),
+        },
 
         /** Convert a value to uppercase */
-        uppercase: filter((str: string): string => {
+        uppercase: function uppercaseFilter (str: string): string {
             return str ? str.toUpperCase() : "";
-        }),
+        },
 
         /** Convert a value to lowercase */
-        lowercase: filter((str: string): string => {
+        lowercase: function lowercaseFilter (str: string): string {
             return str ? str.toLowerCase() : "";
-        }),
+        },
 
         /** Assert that a value equals anoter value */
-        "eq": filter((value: any, other: any): boolean => {
+        eq: function eqFilter (value: any, other: any): boolean {
             return value === other;
-        }),
+        },
 
         /** Assert that a value is less than another value */
-        "lt": filter((value: any, other: any): boolean => {
+        lt: function ltFilter (value: any, other: any): boolean {
             return value < other;
-        }),
+        },
 
         /** Assert that a value is greater than another value */
-        "gt": filter((value: any, other: any): boolean => {
+        gt: function gtFilter (value: any, other: any): boolean {
             return value > other;
-        }),
+        },
 
         /** Assert that a value is less than or equal to another value */
-        "lte": filter((value: any, other: any): boolean => {
+        lte: function lteFilter (value: any, other: any): boolean {
             return value <= other;
-        }),
+        },
 
         /** Assert that a value is greater than or equal to another value */
-        "gte": filter((value: any, other: any): boolean => {
+        gte: function gteFilter (value: any, other: any): boolean {
             return value >= other;
-        })
+        }
     };
 
 }
