@@ -201,43 +201,6 @@ describe('Expressions', function () {
         done();
     });
 
-    Test.should('support comparison operators').using(
-        `<ul id='eq'>
-            <li g-if='five | eq 5'>eq 5</li>
-            <li g-if='five | eq 6'>eq 6</li>
-        </ul>
-        <ul id='lt'>
-            <li g-if='five | lt 6'>lt 6</li>
-            <li g-if='five | lt 5'>lt 5</li>
-            <li g-if='five | lt 4'>lt 4</li>
-        </ul>
-        <ul id='lte'>
-            <li g-if='five | lte 6'>lte 6</li>
-            <li g-if='five | lte 5'>lte 5</li>
-            <li g-if='five | lte 4'>lte 4</li>
-        </ul>
-        <ul id='gt'>
-            <li g-if='five | gt 6'>gt 6</li>
-            <li g-if='five | gt 5'>gt 5</li>
-            <li g-if='five | gt 4'>gt 4</li>
-        </ul>
-        <ul id='gte'>
-            <li g-if='five | gte 6'>gte 6</li>
-            <li g-if='five | gte 5'>gte 5</li>
-            <li g-if='five | gte 4'>gte 4</li>
-        </ul>`
-    ).in((done, $) => {
-        new Gobo().bind($.body, { five: 5 });
-
-        assert.equal( $.cleanup($.textById('eq')), "eq 5" );
-        assert.equal( $.cleanup($.textById('lt')), "lt 6" );
-        assert.equal( $.cleanup($.textById('lte')), "lte 6 lte 5" );
-        assert.equal( $.cleanup($.textById('gt')), "gt 4" );
-        assert.equal( $.cleanup($.textById('gte')), "gte 5 gte 4" );
-
-        done();
-    });
-
     Test.should('Support bi-directional filters').using(
         `<input id='value' g-value='value | one | two | three'>`
     ).in((done, $) => {
