@@ -90,8 +90,8 @@ module.exports = function(grunt) {
 
     // Default task(s).
     grunt.registerTask('default',
-        ['typescript', 'tslint', 'import', 'mochaTest', 'uglify', 'bytesize']);
+        ['typescript', 'import', 'tslint', 'mochaTest', 'uglify', 'bytesize']);
 
-    grunt.registerTask('dev', ['typescript', 'connect', 'watch']);
+    grunt.registerTask('dev', ['typescript', 'import', 'connect', 'watch']);
 };
 
