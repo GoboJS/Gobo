@@ -75,7 +75,7 @@ module Parse {
             var traverse = new Traverse.Reader(
                 new Traverse.JoinIterator(
                     new Traverse.ExactIterator(cloned, this.attrs),
-                    new Traverse.XPathIterator(this.config, cloned)
+                    new Traverse.ScanIterator(this.config, cloned)
                 ),
                 cloned
             );

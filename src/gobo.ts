@@ -84,7 +84,7 @@ class Gobo {
             new Traverse.Reader(
                 new Traverse.JoinIterator(
                     Traverse.element(root, config),
-                    new Traverse.XPathIterator(config, root)
+                    new Traverse.ScanIterator(config, root)
                 ),
                 root
             ),

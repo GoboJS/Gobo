@@ -36,21 +36,21 @@
             <li>Likes:</li>
             <li g-each-like="likes" g-text="like"></li>
         </ul>
+        <script>
+            var gobo = new Gobo({ watch: WatchJS });
+            var data = {
+                name: "Jack",
+                age: 31,
+                active: true,
+                selected: false,
+                likes: [ "Cheese", "Terriers" ],
+                select: function () {
+                    data.selected = !data.selected;
+                },
+                title: "Esq."
+            };
+            gobo.bind( document.body, data );
+        </script>
     </body>
-    <script>
-        var gobo = new Gobo({ watch: WatchJS });
-        var data = {
-            name: "Jack",
-            age: 31,
-            active: true,
-            selected: false,
-            likes: [ "Cheese", "Terriers" ],
-            select: function () {
-                data.selected = !data.selected;
-            },
-            title: "Esq."
-        };
-        gobo.bind( document.body, data );
-    </script>
 </html>
 

@@ -26,11 +26,18 @@ module Traverse {
             });
     }
 
-    /** Iterates over the values in an xpath result */
-    export class XPathIterator implements DirectiveIterator {
+    /** Grab the next sibling of a Node that is an HTMLElement */
+    function nextElementSibling( elem: Node ): HTMLElement {
+        do {
+            elem = elem.nextSibling;
+            if ( elem && elem.nodeType === 1 ) {
+                return <HTMLElement> elem;
+            }
+        } while ( elem );
+    }
 
-        /** The XPath result object being iterated over */
-        private nodes: XPathResult;
+    /** Iterates over the values in an xpath result */
+    export class ScanIterator implements DirectiveIterator {
 
         /** The next element being iterated over */
         private nextElem: HTMLElement;
@@ -39,11 +46,36 @@ module Traverse {
         private nextAttrs: Attr[] = [];
 
         /** @constructor */
-        constructor (private config: Config, root: Node) {
-            this.nodes = root.ownerDocument.evaluate(
-                ".//*[@*[starts-with(name(), '" + config.prefix + "')]]",
-                root, null, 0, null
-            );
+        constructor (private config: Config, private root: HTMLElement) {
+            this.nextElem = root;
+        }
+
+        /** Searches for the next element to visit */
+        private findNextElem( next: HTMLElement ): HTMLElement {
+
+            // Traverse through all the children of this node
+            if ( next.children[0] ) {
+                return <HTMLElement> next.children[0];
+            }
+
+            var nextSibling: HTMLElement;
+
+            // Otherwise, move on to the siblings of this node. Or the siblings
+            // of the parent of this node
+            while ( next && !(nextSibling = nextElementSibling(next)) ) {
+
+                // If this node doesn't have a next sibling, check it's parent.
+                // And keep moving up the tree until you find a next sibling
+                next = <HTMLElement> (<any> next).parentNode;
+
+                // any time we move up a parent, confirm that we are still
+                // within the bounds for the constrained root
+                if ( !next || !this.root.contains(next) ) {
+                    return undefined;
+                }
+            }
+
+            return nextSibling;
         }
 
         /** @inheritDoc DirectiveIterator#hasNext */
@@ -52,14 +84,19 @@ module Traverse {
                 return true;
             }
 
-            this.nextElem = <HTMLElement> this.nodes.iterateNext();
             if ( !this.nextElem ) {
                 return false;
             }
 
-            this.nextAttrs = getAttrs(this.nextElem, this.config);
+            do {
+                this.nextElem = this.findNextElem( this.nextElem );
+                if ( !this.nextElem ) {
+                    return false;
+                }
+                this.nextAttrs = getAttrs(this.nextElem, this.config);
+            } while ( this.nextAttrs.length === 0 );
 
-            return true;
+            return this.nextAttrs.length > 0;
         }
 
         /** @inheritDoc DirectiveIterator#next */
