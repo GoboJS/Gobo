@@ -2,6 +2,73 @@
 
 module Traverse {
 
+    /** Grab the next sibling of a Node that is an HTMLElement */
+    function nextElementSibling( elem: Node ): HTMLElement {
+        do {
+            elem = elem.nextSibling;
+            if ( elem && elem.nodeType === 1 ) {
+                return <HTMLElement> elem;
+            }
+        } while ( elem );
+    }
+
+    /** Iterates over every value beneath a node, including that node */
+    class DOMIterator {
+
+        /** The next element, if any */
+        private nextElem: HTMLElement;
+
+        /** @constructor */
+        constructor (private root: HTMLElement) {
+            this.nextElem = this.findNextElem(root);
+        }
+
+        /** Searches for the next element to visit */
+        private findNextElem( elem: HTMLElement ): HTMLElement {
+
+            // Traverse through all the children of this node
+            if ( elem.children[0] ) {
+                return <HTMLElement> elem.children[0];
+            }
+
+            var nextSibling: HTMLElement;
+
+            // Otherwise, move on to the siblings of this node. Or the siblings
+            // of the parent of this node
+            while ( elem && !(nextSibling = nextElementSibling(elem)) ) {
+
+                // If this node doesn't have a next sibling, check it's parent.
+                // And keep moving up the tree until you find a next sibling
+                elem = <HTMLElement> (<any> elem).parentNode;
+
+                // any time we move up a parent, confirm that we are still
+                // within the bounds for the constrained root
+                if ( !elem || !this.root.contains(elem) ) {
+                    return undefined;
+                }
+            }
+
+            return nextSibling;
+        }
+
+        /** Whether there is another element to visit */
+        public hasNext(): boolean {
+            return !!this.nextElem;
+        }
+
+        /** Returns the next element */
+        public next(): HTMLElement {
+            var current = this.nextElem;
+            this.nextElem = this.findNextElem(current);
+            return current;
+        }
+
+        /** @inheritDoc DirectiveIterator#peek */
+        public peek(): HTMLElement {
+            return this.nextElem;
+        }
+    }
+
     /** Iterates over the nodes and attributes found from a search */
     interface DirectiveIterator {
 
@@ -26,18 +93,11 @@ module Traverse {
             });
     }
 
-    /** Grab the next sibling of a Node that is an HTMLElement */
-    function nextElementSibling( elem: Node ): HTMLElement {
-        do {
-            elem = elem.nextSibling;
-            if ( elem && elem.nodeType === 1 ) {
-                return <HTMLElement> elem;
-            }
-        } while ( elem );
-    }
-
-    /** Iterates over the values in an xpath result */
+    /** Scans through elements with directives */
     export class ScanIterator implements DirectiveIterator {
+
+        /** The source of DOM nodes */
+        private elements: DOMIterator;
 
         /** The next element being iterated over */
         private nextElem: HTMLElement;
@@ -46,36 +106,8 @@ module Traverse {
         private nextAttrs: Attr[] = [];
 
         /** @constructor */
-        constructor (private config: Config, private root: HTMLElement) {
-            this.nextElem = root;
-        }
-
-        /** Searches for the next element to visit */
-        private findNextElem( next: HTMLElement ): HTMLElement {
-
-            // Traverse through all the children of this node
-            if ( next.children[0] ) {
-                return <HTMLElement> next.children[0];
-            }
-
-            var nextSibling: HTMLElement;
-
-            // Otherwise, move on to the siblings of this node. Or the siblings
-            // of the parent of this node
-            while ( next && !(nextSibling = nextElementSibling(next)) ) {
-
-                // If this node doesn't have a next sibling, check it's parent.
-                // And keep moving up the tree until you find a next sibling
-                next = <HTMLElement> (<any> next).parentNode;
-
-                // any time we move up a parent, confirm that we are still
-                // within the bounds for the constrained root
-                if ( !next || !this.root.contains(next) ) {
-                    return undefined;
-                }
-            }
-
-            return nextSibling;
+        constructor (private config: Config, root: HTMLElement) {
+            this.elements = new DOMIterator(root);
         }
 
         /** @inheritDoc DirectiveIterator#hasNext */
@@ -84,15 +116,11 @@ module Traverse {
                 return true;
             }
 
-            if ( !this.nextElem ) {
-                return false;
-            }
-
             do {
-                this.nextElem = this.findNextElem( this.nextElem );
-                if ( !this.nextElem ) {
+                if ( !this.elements.hasNext() ) {
                     return false;
                 }
+                this.nextElem = this.elements.next();
                 this.nextAttrs = getAttrs(this.nextElem, this.config);
             } while ( this.nextAttrs.length === 0 );
 
