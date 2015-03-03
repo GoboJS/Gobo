@@ -59,16 +59,12 @@ module Directives {
             this.end = elem.ownerDocument.createTextNode("");
             this.template = details.cloneable();
 
+            this.template.root.parentNode.replaceChild(
+                this.end, this.template.root );
+
             this.scope = (value) => {
                 return details.data.scope(details.param, value);
             };
-        }
-
-        /** @inheritDoc Directive#initialize */
-        initialize (): void {
-            // Replace the root DOM element with the placeholder
-            this.template.root.parentNode.replaceChild(
-                this.end, this.template.root );
         }
 
         /** Creates a new section at the given index */
@@ -110,7 +106,6 @@ module Directives {
                     this.sections[i] = newSection;
                     this.values[i] = value;
 
-                    newSection.initialize();
                     newSection.connect();
                 }
 

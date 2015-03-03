@@ -18,15 +18,6 @@ module Parse {
         /** @constructor */
         constructor( public root: HTMLElement ) {}
 
-        /** Finalize the construction of directives within this section */
-        initialize(): void {
-            this.directives.forEach((inner) => {
-                if ( inner.initialize ) {
-                    inner.initialize();
-                }
-            });
-        }
-
         /** Hooks up the behavior for this section */
         connect(): void {
             this.bindings.forEach((inner: Watch.PathBinding) => {

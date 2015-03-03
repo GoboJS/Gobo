@@ -8,9 +8,6 @@ module Directives {
         /** Executes this directive against an element with a value */
         execute ( value: any ): void;
 
-        /** Called once when hooking up this directive */
-        initialize?: () => void;
-
         /** Hooks up the behavior for this directive */
         connect?: () => void;
 
@@ -57,7 +54,6 @@ module Directives {
     export interface CustomDirectiveObj {
         priority?: number;
         construct?: (elem: HTMLElement, details: Directives.Details) => void;
-        initialize?: () => void;
         execute: (value: any) => void;
         connect?: () => void;
         disconnect?: () => void;
@@ -81,7 +77,7 @@ module Directives {
 
         (<any> Custom).priority = obj.priority;
 
-        ["initialize", "execute", "construct", "disconnect"].forEach((fn) => {
+        ["execute", "construct", "disconnect"].forEach((fn) => {
             Custom.prototype[fn] = obj[fn];
         });
 

@@ -91,7 +91,6 @@ class Gobo {
             config,
             new Data.Root(data)
         );
-        section.initialize();
         section.connect();
     }
 }

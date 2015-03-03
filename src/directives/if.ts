@@ -43,10 +43,5 @@ module Directives {
                 this.elem.parentNode.replaceChild(this.standin, this.elem);
             }
         }
-
-        /** @inheritDoc Directive#initialize */
-        initialize (): void {
-            this.section.initialize();
-        }
     }
 }
