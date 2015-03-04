@@ -1,7 +1,10 @@
 module Components {
 
+    /** A component source that is a function */
+    type ComponentSourceFunc = (elem: Node) => ComponentSource;
+
     /** A data type from which a component can be built */
-    export type ComponentSource = string | HTMLElement;
+    export type ComponentSource = string | HTMLElement | ComponentSourceFunc;
 
     /**
      * Return whether a value is an HTML Element
@@ -20,9 +23,13 @@ module Components {
     }
 
     /** Creates a new element to use for a component */
-    function buildComponent( doc: Document, source: any ): HTMLElement {
+    function buildComponent(
+        replace: Node,
+        source: ComponentSource
+    ): HTMLElement {
+
         if ( typeof source === "string" ) {
-            var div = doc.createElement("div");
+            var div = replace.ownerDocument.createElement("div");
             div.innerHTML = source;
             if ( div.children.length !== 1 ) {
                 throw new Error("HTML snippet has more than one root nodes");
@@ -30,7 +37,13 @@ module Components {
             return <HTMLElement> div.children[0];
         }
         else if ( isElement(source) ) {
-            return source.cloneNode(true);
+            return <HTMLElement> (<HTMLElement> source).cloneNode(true);
+        }
+        else if ( typeof source === "function" ) {
+            return buildComponent(
+                replace,
+                (<ComponentSourceFunc> source)(replace)
+            );
         }
         else {
             throw new Error("Could not build component from " + typeof source);
@@ -45,7 +58,7 @@ module Components {
 
         /** Replaces a node with this component, returning the new node */
         replace( replace: Node ): HTMLElement {
-            var component = buildComponent(replace.ownerDocument, this.proto);
+            var component = buildComponent(replace, this.proto);
             replace.parentNode.replaceChild(component, replace);
             return component;
         }

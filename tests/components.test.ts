@@ -106,6 +106,27 @@ describe('Components', function () {
         done();
     });
 
+    Test.should('Create components from functions').using(
+        `<div id='container'>
+            <g-widget id='widget'></g-widget>
+        </div>`
+    ).in((done, $) => {
+        var widget = $.byId('widget');
+
+        var gobo = new Gobo({ watch: watch });
+
+        gobo.components.widget = Gobo.component((elem) => {
+            assert.equal(widget, elem);
+            return "<div>Veal Steakface</div>";
+        });
+
+        gobo.bind($.body, {});
+
+        assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
+
+        done();
+    });
+
 });
 
 
