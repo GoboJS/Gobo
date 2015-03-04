@@ -45,6 +45,11 @@ class Config {
         }
         return tuple.value.priority || 0;
     }
+
+    /** Whether a string starts with the prefix */
+    isPrefixed( str: string ): boolean {
+        return str.indexOf(this.prefix) === 0;
+    }
 }
 
 /** The options that can be passed to Gobo on instantiation */

@@ -68,15 +68,31 @@ module Traverse {
     function getAttrs( elem: HTMLElement, config: Config ): Attr[] {
         return [].slice.call(elem.attributes)
             .filter((attr) => {
-                return attr.name.indexOf(config.prefix) === 0;
+                return config.isPrefixed(attr.name);
             })
             .sort((a, b) => {
                 return config.getPriority(b) - config.getPriority(a);
             });
     }
 
-    /** Scans through elements with directives */
-    class ScanIterator {
+    /** The different types various hooks */
+    enum HookType { Directive, Component };
+
+    /** A point of interest that needs to be hooked up */
+    interface Hook {
+
+        /** The type of hook */
+        type: HookType;
+
+        /** The element of the component or directive */
+        elem: HTMLElement;
+
+        /** For directives, this is the specific directive attr */
+        attr?: Attr;
+    }
+
+    /** Scans the DOM for points that need to be hooked up */
+    class HookIterator {
 
         /** The source of DOM nodes */
         private elements: DOMIterator;
@@ -84,7 +100,13 @@ module Traverse {
         /** The next element being iterated over */
         private nextElem: HTMLElement;
 
-        /** Upcoming attributes */
+        /**
+         * Upcoming attributes. This takes on a bit of a 'special' value, since
+         * hooks are bimodal. When null, it means the current element is a
+         * component. When an array, it means we're parsing attributes on the
+         * current element. Not great, but it's localized to this class. If any
+         * other hook types need to be added, this will need to change.
+         */
         private nextAttrs: Attr[];
 
         /** @constructor */
@@ -103,7 +125,7 @@ module Traverse {
 
         /** Whether there is another attribute */
         public hasNext(): boolean {
-            if ( this.nextAttrs.length > 0 ) {
+            if ( this.nextAttrs === null || this.nextAttrs.length > 0 ) {
                 return true;
             }
 
@@ -112,23 +134,42 @@ module Traverse {
                     return false;
                 }
                 this.nextElem = this.elements.next();
-                this.nextAttrs = getAttrs(this.nextElem, this.config);
-            } while ( this.nextAttrs.length === 0 );
 
-            return this.nextAttrs.length > 0;
+                if ( this.config.isPrefixed(this.nextElem.localName) ) {
+                    this.nextAttrs = null;
+                }
+                else {
+                    this.nextAttrs = getAttrs(this.nextElem, this.config);
+                }
+            } while ( this.nextAttrs !== null && this.nextAttrs.length === 0 );
+
+            return this.nextAttrs === null || this.nextAttrs.length > 0;
         }
 
-        /** Increments to the next element */
-        public next(): { elem: HTMLElement; attr: Attr } {
-            if ( this.hasNext() ) {
-                return { elem: this.nextElem, attr: this.nextAttrs.shift() };
+        /** Return the element */
+        public current(): Hook {
+            if ( this.nextAttrs === null ) {
+                return {
+                    type: HookType.Component,
+                    elem: this.nextElem
+                };
+            }
+            else {
+                return {
+                    type: HookType.Directive,
+                    elem: this.nextElem,
+                    attr: this.nextAttrs[0]
+                };
             }
         }
 
-        /** Return the next element without incrementing to it */
-        public peek(): { elem: HTMLElement; attr: Attr } {
-            if ( this.hasNext() ) {
-                return { elem: this.nextElem, attr: this.nextAttrs[0] };
+        /** Increments to the next element */
+        public next(): void {
+            if ( this.nextAttrs === null ) {
+                this.nextAttrs = [];
+            }
+            else {
+                this.nextAttrs.shift();
             }
         }
     }
@@ -137,24 +178,25 @@ module Traverse {
     export class Reader {
 
         /** @constructor */
-        constructor (private iter: ScanIterator, public root: HTMLElement) {}
+        constructor (private iter: HookIterator, public root: HTMLElement) {}
 
         /** Creates a new instance */
         static create(config: Config, root: HTMLElement, rootAttrs?: Attr[]) {
-            return new Reader(new ScanIterator(config, root, rootAttrs), root);
+            return new Reader(new HookIterator(config, root, rootAttrs), root);
         }
 
         /** Executes a callback for each matching element */
         each( callback: (elem: HTMLElement, attr: Attr) => void ): void {
             while ( this.iter.hasNext() ) {
 
-                var peek = this.iter.peek().elem;
-                if ( this.root !== peek && !this.root.contains(peek) ) {
+                var hook = this.iter.current();
+                if (this.root !== hook.elem && !this.root.contains(hook.elem)) {
                     return;
                 }
 
-                var next = this.iter.next();
-                callback(next.elem, next.attr);
+                this.iter.next();
+
+                callback(hook.elem, hook.attr);
             }
         }
 
