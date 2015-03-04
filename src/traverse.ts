@@ -64,19 +64,6 @@ module Traverse {
         }
     }
 
-    /** Iterates over the nodes and attributes found from a search */
-    interface DirectiveIterator {
-
-        /** Whether there is another attribute */
-        hasNext(): boolean;
-
-        /** Increments to the next element */
-        next(): { elem: HTMLElement; attr: Attr };
-
-        /** Return the next element without incrementing to it */
-        peek(): { elem: HTMLElement; attr: Attr };
-    }
-
     /** Returns the attributes for a specific element */
     function getAttrs( elem: HTMLElement, config: Config ): Attr[] {
         return [].slice.call(elem.attributes)
@@ -89,7 +76,7 @@ module Traverse {
     }
 
     /** Scans through elements with directives */
-    export class ScanIterator implements DirectiveIterator {
+    export class ScanIterator {
 
         /** The source of DOM nodes */
         private elements: DOMIterator;
@@ -114,7 +101,7 @@ module Traverse {
                 getAttrs(root, config);
         }
 
-        /** @inheritDoc DirectiveIterator#hasNext */
+        /** Whether there is another attribute */
         public hasNext(): boolean {
             if ( this.nextAttrs.length > 0 ) {
                 return true;
@@ -131,14 +118,14 @@ module Traverse {
             return this.nextAttrs.length > 0;
         }
 
-        /** @inheritDoc DirectiveIterator#next */
+        /** Increments to the next element */
         public next(): { elem: HTMLElement; attr: Attr } {
             if ( this.hasNext() ) {
                 return { elem: this.nextElem, attr: this.nextAttrs.shift() };
             }
         }
 
-        /** @inheritDoc DirectiveIterator#peek */
+        /** Return the next element without incrementing to it */
         public peek(): { elem: HTMLElement; attr: Attr } {
             if ( this.hasNext() ) {
                 return { elem: this.nextElem, attr: this.nextAttrs[0] };
@@ -150,10 +137,7 @@ module Traverse {
     export class Reader {
 
         /** @constructor */
-        constructor (
-            private iter: DirectiveIterator,
-            public root: HTMLElement
-        ) {}
+        constructor ( private iter: ScanIterator, public root: HTMLElement ) {}
 
         /** Executes a callback for each matching element */
         each( callback: (elem: HTMLElement, attr: Attr) => void ): void {
