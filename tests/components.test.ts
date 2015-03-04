@@ -35,6 +35,25 @@ describe('Components', function () {
         done();
     });
 
+    Test.should('Bind to directives within a component').using(
+        `<div id='container'>
+            <g-widget></g-widget>
+        </div>`
+    ).in((done, $) => {
+        var data = { name: "Veal Steakface" };
+
+        var gobo = new Gobo({ watch: watch });
+        gobo.components.widget = Gobo.component("<div g-text='name'></div>");
+        gobo.bind($.body, data);
+
+        assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
+        data.name = "Lug ThickNeck";
+
+        assert.equal( $.cleanup($.textById('container')), "Lug ThickNeck" );
+
+        done();
+    });
+
 });
 
 

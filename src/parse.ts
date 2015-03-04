@@ -12,8 +12,11 @@ module Parse {
         /** Directives nested within this block */
         public bindings: Array<Watch.PathBinding> = [];
 
-        /** Directives nested within this block */
-        public directives: Array<Directives.Directive> = [];
+        /** Directives and sections nested within this block */
+        public nested: Array<{
+            connect?: () => void;
+            disconnect?: () => void;
+        }> = [];
 
         /** @constructor */
         constructor( public root: HTMLElement ) {}
@@ -24,7 +27,7 @@ module Parse {
                 inner.connect();
                 inner.trigger();
             });
-            this.directives.forEach((inner) => {
+            this.nested.forEach((inner) => {
                 if ( inner.connect ) {
                     inner.connect();
                 }
@@ -34,7 +37,7 @@ module Parse {
         /** Disconnects the behavior for this block */
         disconnect(): void {
             this.bindings.forEach((inner) => { inner.disconnect(); });
-            this.directives.forEach((inner) => {
+            this.nested.forEach((inner) => {
                 if ( inner.disconnect ) {
                     inner.disconnect();
                 }
@@ -46,7 +49,7 @@ module Parse {
             this.disconnect();
             this.root.parentNode.removeChild(this.root);
             this.bindings = null;
-            this.directives = null;
+            this.nested = null;
         }
     }
 
@@ -112,7 +115,7 @@ module Parse {
                 publish: expr.set.bind(expr, data)
             });
 
-            section.directives.push(directive);
+            section.nested.push(directive);
 
             // Hook up an observer so that any change to the
             // keypath causes the directive to be re-rendered
@@ -135,7 +138,13 @@ module Parse {
     ): (elem: HTMLElement) => void {
         return function parseComponent(elem) {
             var component = config.getComponent(elem.localName);
-            component.replace(elem);
+            var replacement = component.replace(elem);
+
+            section.nested.push( parse(
+                Traverse.Reader.create(config, replacement),
+                config,
+                data
+            ) );
         };
     }
 
