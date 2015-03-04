@@ -54,6 +54,31 @@ describe('Components', function () {
         done();
     });
 
+    Test.should('Allow directives directly on a component').using(
+        `<div>
+            <g-widget g-text='name'></g-widget>
+        </div>`
+    ).in((done, $) => {
+        var data = { name: "Veal Steakface", active: true };
+
+        var gobo = new Gobo({ watch: watch });
+        gobo.components.widget = Gobo.component(
+            "<div id='container' g-class-highlight='active'></div>"
+        );
+        gobo.bind($.body, data);
+
+        assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
+        assert.isTrue( $.hasClass($.byId('container'), "highlight") );
+
+        data.name = "Lug ThickNeck";
+        assert.equal( $.cleanup($.textById('container')), "Lug ThickNeck" );
+
+        data.active = false;
+        assert.isFalse( $.hasClass($.byId('container'), "highlight") );
+
+        done();
+    });
+
 });
 
 

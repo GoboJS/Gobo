@@ -66,7 +66,7 @@ module Parse {
         /** Parses a cloned node and returns the parsed section */
         private parse( cloned: HTMLElement, data: Data.Data ): Section {
 
-            var traverse = Traverse.Reader.create(
+            var traverse = Traverse.Reader.createSetRootAttrs(
                 this.config, cloned, this.attrs
             );
 
@@ -135,13 +135,13 @@ module Parse {
     function componentParser(
         traverse: Traverse.Reader, config: Config,
         data: Data.Data, section: Section
-    ): (elem: HTMLElement) => void {
-        return function parseComponent(elem) {
+    ): (elem: HTMLElement, attrs: Attr[]) => void {
+        return function parseComponent(elem, attrs) {
             var component = config.getComponent(elem.localName);
             var replacement = component.replace(elem);
 
             section.nested.push( parse(
-                Traverse.Reader.create(config, replacement),
+                Traverse.Reader.createAddRootAttrs(config, replacement, attrs),
                 config,
                 data
             ) );
