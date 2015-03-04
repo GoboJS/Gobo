@@ -64,10 +64,7 @@ module Parse {
         private parse( cloned: HTMLElement, data: Data.Data ): Section {
 
             var traverse = new Traverse.Reader(
-                new Traverse.JoinIterator(
-                    new Traverse.ExactIterator(cloned, this.attrs),
-                    new Traverse.ScanIterator(this.config, cloned)
-                ),
+                new Traverse.ScanIterator(this.config, cloned, this.attrs),
                 cloned
             );
 

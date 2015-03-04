@@ -103,11 +103,20 @@ module Traverse {
         private nextElem: HTMLElement;
 
         /** Upcoming attributes */
-        private nextAttrs: Attr[] = [];
+        private nextAttrs: Attr[];
 
         /** @constructor */
-        constructor (private config: Config, root: HTMLElement) {
+        constructor (
+            private config: Config,
+            root: HTMLElement,
+            rootAttrs?: Attr[]
+        ) {
             this.elements = new DOMIterator(root);
+            this.nextElem = root;
+
+            this.nextAttrs = rootAttrs ?
+                rootAttrs.slice() :
+                getAttrs(root, config);
         }
 
         /** @inheritDoc DirectiveIterator#hasNext */
@@ -139,63 +148,6 @@ module Traverse {
             if ( this.hasNext() ) {
                 return { elem: this.nextElem, attr: this.nextAttrs[0] };
             }
-        }
-    }
-
-    /** Iterates over the exact values given */
-    export class ExactIterator implements DirectiveIterator {
-
-        /** The current offset of the iteration */
-        private i = 0;
-
-        /** @constructor */
-        constructor( private elem: HTMLElement, private attrs: Attr[] ) {}
-
-        /** @inheritDoc DirectiveIterator#hasNext */
-        public hasNext(): boolean {
-            return this.i < this.attrs.length;
-        }
-
-        /** @inheritDoc DirectiveIterator#next */
-        public next(): { elem: HTMLElement; attr: Attr } {
-            return { elem: this.elem, attr: this.attrs[this.i++] };
-        }
-
-        /** @inheritDoc DirectiveIterator#peek */
-        public peek(): { elem: HTMLElement; attr: Attr } {
-            return { elem: this.elem, attr: this.attrs[this.i] };
-        }
-    }
-
-    /** Creates an iterator for the attributes on the given element */
-    export function element(
-        elem: HTMLElement, config: Config
-    ): DirectiveIterator {
-        return new ExactIterator(elem, getAttrs(elem, config));
-    }
-
-    /** Iterates over two other iterators */
-    export class JoinIterator implements DirectiveIterator {
-
-        /** @constructor */
-        constructor(
-            private one: DirectiveIterator,
-            private two: DirectiveIterator
-        ) {}
-
-        /** @inheritDoc DirectiveIterator#hasNext */
-        public hasNext(): boolean {
-            return this.one.hasNext() || this.two.hasNext();
-        }
-
-        /** @inheritDoc DirectiveIterator#next */
-        public next(): { elem: HTMLElement; attr: Attr } {
-            return this.one.hasNext() ? this.one.next() : this.two.next();
-        }
-
-        /** @inheritDoc DirectiveIterator#peek */
-        public peek(): { elem: HTMLElement; attr: Attr } {
-            return this.one.hasNext() ? this.one.peek() : this.two.peek();
         }
     }
 

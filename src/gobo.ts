@@ -82,10 +82,7 @@ class Gobo {
         var config = new Config(this);
         var section = Parse.parse(
             new Traverse.Reader(
-                new Traverse.JoinIterator(
-                    Traverse.element(root, config),
-                    new Traverse.ScanIterator(config, root)
-                ),
+                new Traverse.ScanIterator(config, root),
                 root
             ),
             config,
