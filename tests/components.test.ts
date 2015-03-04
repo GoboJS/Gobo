@@ -79,6 +79,33 @@ describe('Components', function () {
         done();
     });
 
+    Test.should('Create components directly from nodes').using(
+        `<div id='container'>
+            <g-widget></g-widget>
+        </div>`
+    ).in((done, $) => {
+        var gobo = new Gobo({ watch: watch });
+        gobo.components.widget = Gobo.component(
+            $.create("div", "Veal Steakface")
+        );
+        gobo.bind($.body, {});
+        assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
+        done();
+    });
+
+    Test.should('Throw when given an invalid component source').using(
+        `<div id='container'>
+            <g-widget></g-widget>
+        </div>`
+    ).in((done, $) => {
+        var gobo = new Gobo({ watch: watch });
+        gobo.components.widget = Gobo.component( {} );
+        assert.throws(() => {
+            gobo.bind($.body, {});
+        });
+        done();
+    });
+
 });
 
 

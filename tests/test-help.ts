@@ -14,6 +14,15 @@ module Test {
             this.body = document.body;
         }
 
+        /** Creates a new node */
+        public create( tag: string, content?: any ): HTMLElement {
+            var elem = this.document.createElement(tag);
+            if ( typeof content === "string" ) {
+                elem.textContent = content;
+            }
+            return elem;
+        }
+
         /** Returns a node by ID */
         public byId( id: string ): HTMLElement {
             var elem = this.document.getElementById(id);
