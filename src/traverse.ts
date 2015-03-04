@@ -62,11 +62,6 @@ module Traverse {
             this.nextElem = this.findNextElem(current);
             return current;
         }
-
-        /** @inheritDoc DirectiveIterator#peek */
-        public peek(): HTMLElement {
-            return this.nextElem;
-        }
     }
 
     /** Iterates over the nodes and attributes found from a search */
