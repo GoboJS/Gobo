@@ -185,8 +185,11 @@ module Traverse {
             return new Reader(new HookIterator(config, root, rootAttrs), root);
         }
 
-        /** Executes a callback for each matching element */
-        each( callback: (elem: HTMLElement, attr: Attr) => void ): void {
+        /** Executes a callback for each hook found in the DOM */
+        each(
+            directive: (elem: HTMLElement, attr: Attr) => void,
+            component?: (elem: HTMLElement) => void
+        ): void {
             while ( this.iter.hasNext() ) {
 
                 var hook = this.iter.current();
@@ -196,7 +199,12 @@ module Traverse {
 
                 this.iter.next();
 
-                callback(hook.elem, hook.attr);
+                if ( hook.type === HookType.Directive ) {
+                    directive(hook.elem, hook.attr);
+                }
+                else if ( component ) {
+                    component(hook.elem);
+                }
             }
         }
 

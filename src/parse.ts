@@ -85,15 +85,12 @@ module Parse {
         }
     }
 
-
-    /** Parses the DOM for directives and blocks */
-    export function parse(
-        traverse: Traverse.Reader, config: Config, data: Data.Data
-    ): Section {
-
-        var section = new Section( traverse.root );
-
-        traverse.each((elem: HTMLElement, attr: Attr) => {
+    /** Builds a function for parsing a directive with the given context */
+    function directiveParser(
+        traverse: Traverse.Reader, config: Config,
+        data: Data.Data, section: Section
+    ): (elem: HTMLElement, attr: Attr) => void {
+        return function parseDirective(elem, attr) {
 
             var tuple = config.getDirective(attr);
             if ( !tuple) {
@@ -128,7 +125,31 @@ module Parse {
                     );
                 }
             ));
-        });
+        };
+    }
+
+    /** Builds a function for parsing a component with the given context */
+    function componentParser(
+        traverse: Traverse.Reader, config: Config,
+        data: Data.Data, section: Section
+    ): (elem: HTMLElement) => void {
+        return function parseComponent(elem) {
+            var component = config.getComponent(elem.localName);
+            component.replace(elem);
+        };
+    }
+
+    /** Parses the DOM for directives and blocks */
+    export function parse(
+        traverse: Traverse.Reader, config: Config, data: Data.Data
+    ): Section {
+
+        var section = new Section( traverse.root );
+
+        traverse.each(
+            directiveParser(traverse, config, data, section),
+            componentParser(traverse, config, data, section)
+        );
 
         return section;
     }

@@ -24,11 +24,15 @@ class Config {
     private getDirectiveByName:
         (string) => Wildcard.Tuple<Directives.DirectiveBuilder>;
 
+    /** The default components */
+    private components: { [key: string]: Components.Component };
+
     /** @constructor */
     constructor ( gobo: Gobo ) {
         this.watch = gobo.watch;
         this.prefix = gobo.prefix;
         this.filters = gobo.filters;
+        this.components = gobo.components;
         this.getDirectiveByName = Wildcard.createLookup(gobo.directives);
     }
 
@@ -49,6 +53,15 @@ class Config {
     /** Whether a string starts with the prefix */
     isPrefixed( str: string ): boolean {
         return str.indexOf(this.prefix) === 0;
+    }
+
+    /** Returns the component given a tag name */
+    getComponent( name: string ): Components.Component {
+        name = name.substr(this.prefix.length);
+        if ( !this.components[name] ) {
+            throw new Error("Unrecognized Component: " + name);
+        }
+        return this.components[name];
     }
 }
 
@@ -71,11 +84,17 @@ class Gobo {
     /** The default filters */
     public filters = new Filters.DefaultFilters();
 
+    /** The default components */
+    public components: { [key: string]: Components.Component } = {};
+
     /** The observation module to use for watching values */
     public watch: Watch.Watch;
 
     /** A helper for creating directives */
     static directive = Directives.directive;
+
+    /** A helper for creating components */
+    static component = Components.component;
 
     /** @constructor */
     constructor ( options: Options = {} ) {
