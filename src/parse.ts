@@ -63,9 +63,8 @@ module Parse {
         /** Parses a cloned node and returns the parsed section */
         private parse( cloned: HTMLElement, data: Data.Data ): Section {
 
-            var traverse = new Traverse.Reader(
-                new Traverse.ScanIterator(this.config, cloned, this.attrs),
-                cloned
+            var traverse = Traverse.Reader.create(
+                this.config, cloned, this.attrs
             );
 
             return parse(traverse, this.config, data);

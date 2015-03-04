@@ -76,7 +76,7 @@ module Traverse {
     }
 
     /** Scans through elements with directives */
-    export class ScanIterator {
+    class ScanIterator {
 
         /** The source of DOM nodes */
         private elements: DOMIterator;
@@ -137,7 +137,12 @@ module Traverse {
     export class Reader {
 
         /** @constructor */
-        constructor ( private iter: ScanIterator, public root: HTMLElement ) {}
+        constructor (private iter: ScanIterator, public root: HTMLElement) {}
+
+        /** Creates a new instance */
+        static create(config: Config, root: HTMLElement, rootAttrs?: Attr[]) {
+            return new Reader(new ScanIterator(config, root, rootAttrs), root);
+        }
 
         /** Executes a callback for each matching element */
         each( callback: (elem: HTMLElement, attr: Attr) => void ): void {
