@@ -16,7 +16,7 @@ describe('Components', function () {
     ).in((done, $) => {
         var gobo = new Gobo();
 
-        gobo.components.widget = Gobo.component("<div>Veal Steakface</div>");
+        gobo.components.widget = "<div>Veal Steakface</div>";
 
         gobo.bind($.body, {});
         assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
@@ -43,7 +43,7 @@ describe('Components', function () {
         var data = { name: "Veal Steakface" };
 
         var gobo = new Gobo({ watch: watch });
-        gobo.components.widget = Gobo.component("<div g-text='name'></div>");
+        gobo.components.widget = "<div g-text='name'></div>";
         gobo.bind($.body, data);
 
         assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
@@ -62,9 +62,8 @@ describe('Components', function () {
         var data = { name: "Veal Steakface", active: true };
 
         var gobo = new Gobo({ watch: watch });
-        gobo.components.widget = Gobo.component(
-            "<div id='container' g-class-highlight='active'></div>"
-        );
+        gobo.components.widget =
+            "<div id='container' g-class-highlight='active'></div>";
         gobo.bind($.body, data);
 
         assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
@@ -85,9 +84,7 @@ describe('Components', function () {
         </div>`
     ).in((done, $) => {
         var gobo = new Gobo({ watch: watch });
-        gobo.components.widget = Gobo.component(
-            $.create("div", "Veal Steakface")
-        );
+        gobo.components.widget = $.create("div", "Veal Steakface");
         gobo.bind($.body, {});
         assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
         done();
@@ -99,7 +96,7 @@ describe('Components', function () {
         </div>`
     ).in((done, $) => {
         var gobo = new Gobo({ watch: watch });
-        gobo.components.widget = Gobo.component( {} );
+        gobo.components.widget = {};
         assert.throws(() => {
             gobo.bind($.body, {});
         });
@@ -115,10 +112,10 @@ describe('Components', function () {
 
         var gobo = new Gobo({ watch: watch });
 
-        gobo.components.widget = Gobo.component((elem) => {
+        gobo.components.widget = (elem) => {
             assert.equal(widget, elem);
             return "<div>Veal Steakface</div>";
-        });
+        };
 
         gobo.bind($.body, {});
 

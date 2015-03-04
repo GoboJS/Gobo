@@ -25,15 +25,21 @@ class Config {
         (string) => Wildcard.Tuple<Directives.DirectiveBuilder>;
 
     /** The default components */
-    private components: { [key: string]: Components.Component };
+    private components: { [key: string]: Components.Component } = {};
 
     /** @constructor */
     constructor ( gobo: Gobo ) {
         this.watch = gobo.watch;
         this.prefix = gobo.prefix;
         this.filters = gobo.filters;
-        this.components = gobo.components;
         this.getDirectiveByName = Wildcard.createLookup(gobo.directives);
+
+        for ( var key in gobo.components ) {
+            // Purposefully missing the hasOwnProperty check. Picking up values
+            // from the prototype allows inheritence to work here
+            this.components[key] =
+                new Components.Component(gobo.components[key]);
+        }
     }
 
     /** Strips the prefix off of a string */
@@ -85,16 +91,13 @@ class Gobo {
     public filters = new Filters.DefaultFilters();
 
     /** The default components */
-    public components: { [key: string]: Components.Component } = {};
+    public components: { [key: string]: Components.ComponentSource } = {};
 
     /** The observation module to use for watching values */
     public watch: Watch.Watch;
 
     /** A helper for creating directives */
     static directive = Directives.directive;
-
-    /** A helper for creating components */
-    static component = Components.component;
 
     /** @constructor */
     constructor ( options: Options = {} ) {

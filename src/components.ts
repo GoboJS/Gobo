@@ -64,10 +64,5 @@ module Components {
         }
     }
 
-    /** Creates a component */
-    export function component ( source: ComponentSource ): Component {
-        return new Component(source);
-    };
-
 }
 
