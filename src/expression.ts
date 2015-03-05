@@ -116,6 +116,10 @@ module Expr {
         return new FilterCall( config.filters[filterName], tokens );
     }
 
+    /** Parses a keypath */
+    export function parseKeypath ( expr: string ): string[] {
+        return stripQuotes( split["."]( expr.trim() ) );
+    }
 
     /** A parsed expression */
     export class Expression {
@@ -139,7 +143,7 @@ module Expr {
             var filterParts = split["|"](watchParts.shift());
 
             this.args = split[" "](filterParts.shift());
-            this.keypath = stripQuotes( split["."](this.args.shift().trim()) );
+            this.keypath = parseKeypath( this.args.shift() );
 
             this.filters = filterParts.map(filterExpr => {
                 return parseFilter(filterExpr, config);

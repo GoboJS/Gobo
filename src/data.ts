@@ -12,23 +12,34 @@ module Data {
          */
         getRoot: ( key: string ) => any;
 
+        /** A mechanism for mapping one keypath to another */
+        resolveKeypath: ( keypath: string[] ) => string[];
+
         /** Applies a callback to each object/key in a chain */
         eachKey ( keypath: string[], callback: EachKeyCallback ): void {
-            return keypath.reduce((obj, key) => {
-                callback(obj, key);
-                if ( obj !== null && obj !== undefined ) {
-                    return obj[key];
-                }
-            }, this.getRoot(keypath[0]));
+            keypath = this.resolveKeypath(keypath);
+
+            if ( keypath ) {
+                return keypath.reduce((obj, key) => {
+                    callback(obj, key);
+                    if ( obj !== null && obj !== undefined ) {
+                        return obj[key];
+                    }
+                }, this.getRoot(keypath[0]));
+            }
         }
 
         /** Returns the value given a path of keys */
         get ( keypath: string[], rootKey?: string ): any {
-            return keypath.reduce((obj, key) => {
-                if ( obj !== null && obj !== undefined ) {
-                    return obj[key];
-                }
-            }, this.getRoot(rootKey || keypath[0]));
+            keypath = this.resolveKeypath(keypath);
+
+            if ( keypath ) {
+                return keypath.reduce((obj, key) => {
+                    if ( obj !== null && obj !== undefined ) {
+                        return obj[key];
+                    }
+                }, this.getRoot(rootKey || keypath[0]));
+            }
         }
 
         /** Creates a new scope from this instance */
@@ -46,6 +57,11 @@ module Data {
         /** @inheritDoc Data#getRoot */
         getRoot ( key: string ): any {
             return this.data;
+        }
+
+        /** @inheritDoc Data#resolveKeypath */
+        resolveKeypath ( keypath: string[] ): string[] {
+            return keypath;
         }
 
         /** @inheritDoc Data#eachKey */
@@ -80,6 +96,42 @@ module Data {
             }
         }
 
+        /** @inheritDoc Data#resolveKeypath */
+        resolveKeypath ( keypath: string[] ): string[] {
+            return keypath;
+        }
+
+        /** @inheritDoc Data#eachKey */
+        eachKey: ( keypath: string[], callback: EachKeyCallback ) => void;
+
+        /** @inheritDoc Data#get */
+        get: ( keypath: string[], rootKey?: string ) => any;
+
+        /** @inheritDoc Data#scope */
+        scope: ( key: string, value: any ) => Data;
+    }
+
+    /** Creates a scope that maps certain keys and denies all other values */
+    export class Mask implements Data {
+
+        /** @constructor */
+        constructor(
+            private parent: Data,
+            private mapping: { [key: string]: string[]; }
+        ) {}
+
+        /** @inheritDoc Data#getRoot */
+        getRoot ( key: string ): any {
+            return this.parent.getRoot(key);
+        }
+
+        /** @inheritDoc Data#resolveKeypath */
+        resolveKeypath ( keypath: string[] ): string[] {
+            if ( this.mapping[keypath[0]] ) {
+                return this.mapping[keypath[0]].concat( keypath.slice(1) );
+            }
+        }
+
         /** @inheritDoc Data#eachKey */
         eachKey: ( keypath: string[], callback: EachKeyCallback ) => void;
 
@@ -94,6 +146,7 @@ module Data {
     Object.getOwnPropertyNames(Data.prototype).forEach(name => {
         Root.prototype[name] = Data.prototype[name];
         Scoped.prototype[name] = Data.prototype[name];
+        Mask.prototype[name] = Data.prototype[name];
     });
 
 }

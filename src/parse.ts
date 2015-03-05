@@ -137,13 +137,32 @@ module Parse {
         data: Data.Data, section: Section
     ): (elem: HTMLElement, attrs: Attr[]) => void {
         return function parseComponent(elem, attrs) {
-            var component = config.getComponent(elem.localName);
-            var replacement = component.replace(elem);
 
-            section.nested.push( parse(
-                Traverse.Reader.createAddRootAttrs(config, replacement, attrs),
-                config,
-                data
+            var replacement = config.getComponent(elem.localName).replace(elem);
+
+            // The outer section is used to parse attributes directly on
+            // the element being replaced. They need access to the outer scope
+            // of data
+            var outerSection = parse(
+                Traverse.Reader.createExactly(config, replacement, attrs),
+                config, data
+            );
+
+            section.nested.push( outerSection );
+
+            // Grab the unprefix attributes and use them as variable masks
+            var mask: { [key: string]: string[]; } = {};
+            [].slice.call(elem.attributes).forEach((attr) => {
+                if ( !config.isPrefixed(attr.name) ) {
+                    mask[attr.name] = Expr.parseKeypath(attr.value);
+                }
+            });
+
+            // The inner section parses the content of the component. It gets
+            // masked data depending on the attributes passed to it
+            outerSection.nested.push( parse(
+                Traverse.Reader.create(config, replacement),
+                config, new Data.Mask(data, mask)
             ) );
         };
     }

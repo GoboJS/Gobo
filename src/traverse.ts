@@ -12,15 +12,25 @@ module Traverse {
         } while ( elem );
     }
 
+    /** Iterates over DOM nodes */
+    interface DOMIterator {
+
+        /** Whether there is another element to visit */
+        hasNext(): boolean;
+
+        /** Returns the next element */
+        next(): HTMLElement;
+    }
+
     /** Iterates over every value beneath a node, including that node */
-    class DOMIterator {
+    class DeepDOMIterator implements DOMIterator {
 
         /** The next element, if any */
         private nextElem: HTMLElement;
 
         /** @constructor */
         constructor (private root: HTMLElement) {
-            this.nextElem = this.findNextElem(root);
+            this.nextElem = root;
         }
 
         /** Searches for the next element to visit */
@@ -51,15 +61,34 @@ module Traverse {
             return nextSibling;
         }
 
-        /** Whether there is another element to visit */
+        /** @inheritDoc DOMIterator#hasNext */
         public hasNext(): boolean {
             return !!this.nextElem;
         }
 
-        /** Returns the next element */
+        /** @inheritDoc DOMIterator#next */
         public next(): HTMLElement {
             var current = this.nextElem;
             this.nextElem = this.findNextElem(current);
+            return current;
+        }
+    }
+
+    /** Iterates over a single node */
+    class ShallowDOMIterator implements DOMIterator {
+
+        /** @constructor */
+        constructor (private root: HTMLElement) {}
+
+        /** @inheritDoc DOMIterator#hasNext */
+        public hasNext(): boolean {
+            return !!this.root;
+        }
+
+        /** @inheritDoc DOMIterator#next */
+        public next(): HTMLElement {
+            var current = this.root;
+            this.root = undefined;
             return current;
         }
     }
@@ -97,9 +126,6 @@ module Traverse {
     /** Scans the DOM for points that need to be hooked up */
     class HookIterator {
 
-        /** The source of DOM nodes */
-        private elements: DOMIterator;
-
         /** The next element being iterated over */
         private nextElem: HTMLElement;
 
@@ -115,11 +141,10 @@ module Traverse {
         /** @constructor */
         constructor (
             private config: Config,
-            root: HTMLElement,
+            private elements: DOMIterator,
             rootAttrs: Attr[]
         ) {
-            this.elements = new DOMIterator(root);
-            this.nextElem = root;
+            this.nextElem = elements.next();
 
             // Make a copy so we don't change someone else's array
             this.nextAttrs = rootAttrs.slice();
@@ -191,19 +216,9 @@ module Traverse {
         static createSetRootAttrs(
             config: Config, root: HTMLElement, rootAttrs: Attr[]
         ): Reader {
-            return new Reader(new HookIterator(config, root, rootAttrs), root);
-        }
-
-        /**
-         * Creates a new instance, using adding the specificied attributes to
-         * the root elem. These are in addition to any other attributes that
-         * exist
-         */
-        static createAddRootAttrs(
-            config: Config, root: HTMLElement, rootAttrs: Attr[]
-        ): Reader {
-            return Reader.createSetRootAttrs(
-                config, root, rootAttrs.concat( getAttrs(root, config) )
+            return new Reader(
+                new HookIterator(config, new DeepDOMIterator(root), rootAttrs),
+                root
             );
         }
 
@@ -211,6 +226,21 @@ module Traverse {
         static create(config: Config, root: HTMLElement): Reader {
             return Reader.createSetRootAttrs(
                 config, root, getAttrs(root, config)
+            );
+        }
+
+        /**
+         * Creates a new instance, parsing the given dom node with the given
+         * attributes and nothing else.
+         */
+        static createExactly(
+            config: Config, root: HTMLElement, rootAttrs: Attr[]
+        ): Reader {
+            return new Reader(
+                new HookIterator(
+                    config, new ShallowDOMIterator(root), rootAttrs
+                ),
+                root
             );
         }
 

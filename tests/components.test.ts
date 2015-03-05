@@ -37,7 +37,7 @@ describe('Components', function () {
 
     Test.should('Bind to directives within a component').using(
         `<div id='container'>
-            <g-widget></g-widget>
+            <g-widget name='name'></g-widget>
         </div>`
     ).in((done, $) => {
         var data = { name: "Veal Steakface" };
@@ -56,7 +56,7 @@ describe('Components', function () {
 
     Test.should('Allow directives directly on a component').using(
         `<div>
-            <g-widget g-text='name'></g-widget>
+            <g-widget active='active' g-text='name'></g-widget>
         </div>`
     ).in((done, $) => {
         var data = { name: "Veal Steakface", active: true };
@@ -120,6 +120,31 @@ describe('Components', function () {
         gobo.bind($.body, {});
 
         assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
+
+        done();
+    });
+
+    Test.should('Mask data behind attributes').using(
+        `<div id='container'>
+            <g-widget name='veal'></g-widget>
+            <g-widget></g-widget>
+            <g-widget name='lug'></g-widget>
+        </div>`
+    ).in((done, $) => {
+        var data = {
+            veal: "Veal Steakface",
+            lug: "Lug ThickNeck",
+            name: "Not to be confused with THIS."
+        };
+
+        var gobo = new Gobo({ watch: watch });
+        gobo.components.widget = "<div g-text='name'></div>";
+        gobo.bind($.body, data);
+
+        assert.equal(
+            $.cleanup($.textById('container')),
+            "Veal Steakface Lug ThickNeck"
+        );
 
         done();
     });
