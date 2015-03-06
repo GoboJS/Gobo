@@ -127,8 +127,8 @@ module Expr {
         /** The path of keys to fetch when resolving values */
         public keypath: string[];
 
-        /** The path to monitor for changes */
-        public watch: string[];
+        /** A list of paths to monitor */
+        public watches: string[][];
 
         /** Arguments to pass */
         public args: string[];
@@ -145,19 +145,18 @@ module Expr {
             this.args = split[" "](filterParts.shift());
             this.keypath = parseKeypath( this.args.shift() );
 
+            if ( watchParts.length > 0 ) {
+                this.watches = watchParts.map(token => {
+                    return parseKeypath(token);
+                });
+            }
+            else {
+                this.watches = [ this.keypath ];
+            }
+
             this.filters = filterParts.map(filterExpr => {
                 return parseFilter(filterExpr, config);
             });
-
-            if ( watchParts.length === 1 ) {
-                this.watch = parseKeypath( watchParts.shift() );
-            }
-            else if ( watchParts.length === 0 ) {
-                this.watch = this.keypath;
-            }
-            else {
-                throw new Error("Multiple watches in expression: " + expr);
-            }
         }
 
         /** Creates a function that applies the arguments in this expression */

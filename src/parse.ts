@@ -117,17 +117,23 @@ module Parse {
 
             section.nested.push(directive);
 
+            /**
+             * Evalutes the expression and triggers the directive. This gets
+             * called any time the data changes.
+             */
+            function trigger () {
+                directive.execute(expr.resolve(data, tuple.value.allowFuncs));
+            }
+
             // Hook up an observer so that any change to the
             // keypath causes the directive to be re-rendered
-            section.bindings.push(new Watch.PathBinding(
-                config.watch,
-                data.eachKey.bind(data, expr.watch),
-                () => {
-                    directive.execute(
-                        expr.resolve(data, tuple.value.allowFuncs)
-                    );
-                }
-            ));
+            expr.watches.forEach(watch => {
+                section.bindings.push(new Watch.PathBinding(
+                    config.watch,
+                    data.eachKey.bind(data, watch),
+                    trigger
+                ));
+            });
         };
     }
 

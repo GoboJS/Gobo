@@ -191,12 +191,23 @@ describe('Expressions', function () {
         done();
     });
 
-    Test.should('Disallow multiple watch paths').using(
-        `<div id='value' g-text='value < watch < another'></div>`
+    Test.should('Allow multiple watch paths').using(
+        `<div id='value' g-text='fullname < first < last'></div>`
     ).in((done, $) => {
-        assert.throws(() => {
-            new Gobo().bind($.body, { value: "Veal", watch: 0 });
-        });
+        var data = {
+            fullname: () => { return data.first + " " + data.last; },
+            first: "Veal",
+            last: "Steakface"
+        };
+        new Gobo({ watch: watch }).bind($.body, data);
+
+        assert.equal( $.cleanup($.textById('value')), "Veal Steakface" );
+
+        data.first = "Lug";
+        assert.equal( $.cleanup($.textById('value')), "Lug Steakface" );
+
+        data.last = "ThickNeck";
+        assert.equal( $.cleanup($.textById('value')), "Lug ThickNeck" );
 
         done();
     });
