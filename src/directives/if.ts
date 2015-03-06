@@ -11,9 +11,6 @@ module Directives {
         /** The fragment standing in for the element */
         private standin: Node;
 
-        /** The directives nested within this If statement */
-        private section: Parse.Section;
-
         /** @inheritDoc Directive#connect */
         public connect: () => void;
 
@@ -26,20 +23,20 @@ module Directives {
          */
         constructor( private elem: Node, details: Details ) {
             this.standin = elem.ownerDocument.createComment("if");
-            this.section = details.parse();
+            var section = details.parse();
 
-            this.connect = this.section.connect.bind(this.section);
-            this.disconnect = this.section.disconnect.bind(this.section);
+            this.connect = section.connect.bind(section);
+            this.disconnect = section.disconnect.bind(section);
         }
 
         /** @inheritDoc Directive#execute */
         execute ( value: any ): void {
             if ( value && !this.elem.parentNode ) {
-                this.section.connect();
+                this.connect();
                 this.standin.parentNode.replaceChild(this.elem, this.standin);
             }
             else if ( !value && this.elem.parentNode ) {
-                this.section.disconnect();
+                this.disconnect();
                 this.elem.parentNode.replaceChild(this.standin, this.elem);
             }
         }
