@@ -149,6 +149,29 @@ describe('Components', function () {
         done();
     });
 
+    Test.should('Allow deep attribute masking').using(
+        `<div id='container'>
+            <g-widget person='fake.people.veal'></g-widget>
+        </div>`
+    ).in((done, $) => {
+
+        var data = { fake: { people: { veal: { name: "Veal Steakface" } } } };
+
+        var gobo = new Gobo({ watch: watch });
+        gobo.components.widget = "<div g-text='person.name'></div>";
+        gobo.bind($.body, data);
+
+        assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
+
+        data.fake.people.veal.name = "Veal McLargeHuge";
+        assert.equal( $.cleanup($.textById('container')), "Veal McLargeHuge" );
+
+        data.fake.people.veal = { name: "Veal LugNut" };
+        assert.equal( $.cleanup($.textById('container')), "Veal LugNut" );
+
+        done();
+    });
+
 });
 
 
