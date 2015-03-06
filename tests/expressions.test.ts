@@ -239,4 +239,23 @@ describe('Expressions', function () {
         done();
     });
 
+    Test.should('Watch for changes to filter arguments').using(
+        `<div id='value' g-text='alpha | multiply beta gamma'></div>`
+    ).in((done, $) => {
+        var data = { alpha: 2, beta: 3, gamma: 4 };
+        var gobo = new Gobo({ watch: watch });
+        gobo.filters.multiply = (a, b, c) => { return a * b * c; };
+        gobo.bind($.body, data);
+
+        assert.equal( $.cleanup($.textById('value')), "24" );
+
+        data.beta = 4;
+        assert.equal( $.cleanup($.textById('value')), "32" );
+
+        data.gamma = 5;
+        assert.equal( $.cleanup($.textById('value')), "40" );
+
+        done();
+    });
+
 });

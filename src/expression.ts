@@ -39,7 +39,10 @@ module Expr {
     }
 
     /** Given a token from an expression, interprets it */
-    function interpret ( data: Data.Data, token: string ): any {
+    function interpret (
+        data: { get (keypath: Data.Keypath): any; },
+        token: string
+    ): any {
         switch (token) {
             case "true":
                 return true;
@@ -107,6 +110,16 @@ module Expr {
                 );
             }
         }
+
+        /** Adds any keypaths referenced by this filter to an array */
+        addKeypaths( keypaths: Data.Keypath[] ): void {
+            // By actually interpretting the argument, we weed out the list
+            // of primitives from actual keypath references. Then, we hijack
+            // the call to get
+            this.args.forEach(interpret.bind(null, {
+                get: (keypath) => { keypaths.push(keypath); }
+            }));
+        }
     }
 
     /** Parses a filter expression */
@@ -155,7 +168,9 @@ module Expr {
             }
 
             this.filters = filterParts.map(filterExpr => {
-                return parseFilter(filterExpr, config);
+                var filter = parseFilter(filterExpr, config);
+                filter.addKeypaths( this.watches );
+                return filter;
             });
         }
 
