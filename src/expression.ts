@@ -33,6 +33,11 @@ module Expr {
         });
     }
 
+    /** Parses a keypath */
+    export function parseKeypath ( expr: string ): string[] {
+        return stripQuotes( split["."]( expr.trim() ) );
+    }
+
     /** Given a token from an expression, interprets it */
     function interpret ( data: Data.Data, token: string ): any {
         switch (token) {
@@ -52,7 +57,7 @@ module Expr {
                     return parseFloat(token);
                 }
                 else {
-                    return data.get( split["."](token) );
+                    return data.get( parseKeypath(token) );
                 }
         }
     }
@@ -116,11 +121,6 @@ module Expr {
         return new FilterCall( config.filters[filterName], tokens );
     }
 
-    /** Parses a keypath */
-    export function parseKeypath ( expr: string ): string[] {
-        return stripQuotes( split["."]( expr.trim() ) );
-    }
-
     /** A parsed expression */
     export class Expression {
 
@@ -150,7 +150,7 @@ module Expr {
             });
 
             if ( watchParts.length === 1 ) {
-                this.watch = stripQuotes(split["."](watchParts.shift().trim()));
+                this.watch = parseKeypath( watchParts.shift() );
             }
             else if ( watchParts.length === 0 ) {
                 this.watch = this.keypath;
