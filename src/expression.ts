@@ -27,14 +27,14 @@ module Expr {
     }
 
     /** Strips quotes from the values in an array of string */
-    function stripQuotes( values: string[] ) {
+    function stripQuotes( values: string[] ): string[] {
         return values.map(value => {
             return isQuoted(value) ? value.substr(1, value.length - 2) : value;
         });
     }
 
     /** Parses a keypath */
-    export function parseKeypath ( expr: string ): string[] {
+    export function parseKeypath ( expr: string ): Data.Keypath {
         return stripQuotes( split["."]( expr.trim() ) );
     }
 
@@ -125,10 +125,10 @@ module Expr {
     export class Expression {
 
         /** The path of keys to fetch when resolving values */
-        public keypath: string[];
+        public keypath: Data.Keypath;
 
         /** A list of paths to monitor */
-        public watches: string[][];
+        public watches: Data.Keypath[];
 
         /** Arguments to pass */
         public args: string[];

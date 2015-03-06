@@ -1,5 +1,17 @@
 module Data {
 
+    /**
+     * A list of keys describing the path to a value. This is really a phantom
+     * type. In actuality, this is implemented as an array.
+     */
+    export interface Keypath {
+        [index: number]: string;
+        length: number;
+        concat( other: Keypath ): Keypath;
+        slice( start: number, end?: number ): Keypath;
+        reduce<T>( callback: (accum: T, key: string) => T, initial: T ): T;
+    }
+
     /** The callback used for iterating over the keys of a data chain */
     export type EachKeyCallback = (obj: any, key: string) => void;
 
@@ -13,10 +25,10 @@ module Data {
         getRoot: ( key: string ) => any;
 
         /** A mechanism for mapping one keypath to another */
-        resolveKeypath: ( keypath: string[] ) => string[];
+        resolveKeypath: ( keypath: Keypath ) => Keypath;
 
         /** Applies a callback to each object/key in a chain */
-        eachKey ( keypath: string[], callback: EachKeyCallback ): void {
+        eachKey ( keypath: Keypath, callback: EachKeyCallback ): void {
             keypath = this.resolveKeypath(keypath);
 
             if ( keypath ) {
@@ -30,7 +42,7 @@ module Data {
         }
 
         /** Returns the value given a path of keys */
-        get ( keypath: string[], rootKey?: string ): any {
+        get ( keypath: Keypath, rootKey?: string ): any {
             keypath = this.resolveKeypath(keypath);
 
             if ( keypath ) {
@@ -60,15 +72,15 @@ module Data {
         }
 
         /** @inheritDoc Data#resolveKeypath */
-        resolveKeypath ( keypath: string[] ): string[] {
+        resolveKeypath ( keypath: Keypath ): Keypath {
             return keypath;
         }
 
         /** @inheritDoc Data#eachKey */
-        eachKey: ( keypath: string[], callback: EachKeyCallback ) => void;
+        eachKey: ( keypath: Keypath, callback: EachKeyCallback ) => void;
 
         /** @inheritDoc Data#get */
-        get: ( keypath: string[], rootKey?: string ) => any;
+        get: ( keypath: Keypath, rootKey?: string ) => any;
 
         /** @inheritDoc Data#scope */
         scope: ( key: string, value: any ) => Data;
@@ -97,15 +109,15 @@ module Data {
         }
 
         /** @inheritDoc Data#resolveKeypath */
-        resolveKeypath ( keypath: string[] ): string[] {
+        resolveKeypath ( keypath: Keypath ): Keypath {
             return keypath;
         }
 
         /** @inheritDoc Data#eachKey */
-        eachKey: ( keypath: string[], callback: EachKeyCallback ) => void;
+        eachKey: ( keypath: Keypath, callback: EachKeyCallback ) => void;
 
         /** @inheritDoc Data#get */
-        get: ( keypath: string[], rootKey?: string ) => any;
+        get: ( keypath: Keypath, rootKey?: string ) => any;
 
         /** @inheritDoc Data#scope */
         scope: ( key: string, value: any ) => Data;
@@ -117,7 +129,7 @@ module Data {
         /** @constructor */
         constructor(
             private parent: Data,
-            private mapping: { [key: string]: string[]; }
+            private mapping: { [key: string]: Keypath; }
         ) {}
 
         /** @inheritDoc Data#getRoot */
@@ -126,17 +138,17 @@ module Data {
         }
 
         /** @inheritDoc Data#resolveKeypath */
-        resolveKeypath ( keypath: string[] ): string[] {
+        resolveKeypath ( keypath: Keypath ): Keypath {
             if ( this.mapping[keypath[0]] ) {
                 return this.mapping[keypath[0]].concat( keypath.slice(1) );
             }
         }
 
         /** @inheritDoc Data#eachKey */
-        eachKey: ( keypath: string[], callback: EachKeyCallback ) => void;
+        eachKey: ( keypath: Keypath, callback: EachKeyCallback ) => void;
 
         /** @inheritDoc Data#get */
-        get: ( keypath: string[], rootKey?: string ) => any;
+        get: ( keypath: Keypath, rootKey?: string ) => any;
 
         /** @inheritDoc Data#scope */
         scope: ( key: string, value: any ) => Data;
