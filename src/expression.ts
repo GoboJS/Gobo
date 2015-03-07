@@ -46,31 +46,44 @@ module Expr {
     /** A value can be a boolean, null, a string, number or keypath */
     class Value {
 
+        /** The raw value */
+        private value: boolean | Data.Keypath | number | string;
+
         /** @constructor */
-        constructor ( private token: any ) {}
+        constructor ( token: any ) {
+            switch ( token ) {
+                case "true":
+                    this.value = true;
+                    break;
+                case "false":
+                    this.value = false;
+                    break;
+                case "null":
+                    this.value = null;
+                    break;
+                case "undefined":
+                    break;
+                default:
+                    if ( isQuoted(token) ) {
+                        this.value = token.substr(1, token.length - 2);
+                    }
+                    else if ( isNumeric(token) ) {
+                        this.value = parseFloat(token);
+                    }
+                    else {
+                        this.value = parseKeypath(token);
+                    }
+            }
+        }
 
         /** Interpret and return the value */
         interpret (data: { get (keypath: Data.Keypath): any; }): any {
-            switch ( this.token ) {
-                case "true":
-                    return true;
-                case "false":
-                    return false;
-                case "null":
-                    return null;
-                case "undefined":
-                    return undefined;
-                default:
-                    if ( isQuoted(this.token) ) {
-                        return this.token.substr(1, this.token.length - 2);
-                    }
-                    else if ( isNumeric(this.token) ) {
-                        return parseFloat(this.token);
-                    }
-                    else {
-                        return data.get( parseKeypath(this.token) );
-                    }
-            }
+            // Since there is no syntax for writing out arrays, we can use the
+            // fact that value is an array as an indication that it was parsed
+            // as a keypath
+            return Array.isArray(this.value) ?
+                data.get(<Data.Keypath> this.value) :
+                this.value;
         }
     }
 
