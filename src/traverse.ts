@@ -1,4 +1,5 @@
 /// <reference path="browser.d.ts"/>
+/// <reference path="config.ts"/>
 
 module Traverse {
 
@@ -94,7 +95,7 @@ module Traverse {
     }
 
     /** Returns the attributes for a specific element */
-    function getAttrs( elem: HTMLElement, config: Config ): Attr[] {
+    function getAttrs( elem: HTMLElement, config: Config.Config ): Attr[] {
         return [].slice.call(elem.attributes)
             .filter((attr) => {
                 return config.isPrefixed(attr.name);
@@ -140,7 +141,7 @@ module Traverse {
 
         /** @constructor */
         constructor (
-            private config: Config,
+            private config: Config.Config,
             private elements: DOMIterator,
             rootAttrs: Attr[]
         ) {
@@ -214,7 +215,7 @@ module Traverse {
          * be ignored
          */
         static createSetRootAttrs(
-            config: Config, root: HTMLElement, rootAttrs: Attr[]
+            config: Config.Config, root: HTMLElement, rootAttrs: Attr[]
         ): Reader {
             return new Reader(
                 new HookIterator(config, new DeepDOMIterator(root), rootAttrs),
@@ -223,7 +224,7 @@ module Traverse {
         }
 
         /** Creates a new instance */
-        static create(config: Config, root: HTMLElement): Reader {
+        static create(config: Config.Config, root: HTMLElement): Reader {
             return Reader.createSetRootAttrs(
                 config, root, getAttrs(root, config)
             );
@@ -234,7 +235,7 @@ module Traverse {
          * attributes and nothing else.
          */
         static createExactly(
-            config: Config, root: HTMLElement, rootAttrs: Attr[]
+            config: Config.Config, root: HTMLElement, rootAttrs: Attr[]
         ): Reader {
             return new Reader(
                 new HookIterator(

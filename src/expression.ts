@@ -142,7 +142,7 @@ module Expr {
     }
 
     /** Parses a filter expression */
-    function parseFilter( expr: string, config: Config ): FilterCall {
+    function parseFilter( expr: string, config: Config.Config ): FilterCall {
         var tokens = split[" "](expr);
 
         var filterName = tokens.shift().trim();
@@ -172,7 +172,7 @@ module Expr {
         public filters: FilterCall[];
 
         /** @constructor */
-        constructor( expr: string, config: Config ) {
+        constructor( expr: string, config: Config.Config ) {
             var watchParts = split["<"](expr);
 
             var filterParts = split["|"](watchParts.shift());

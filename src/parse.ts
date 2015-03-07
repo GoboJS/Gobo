@@ -2,6 +2,7 @@
 /// <reference path="watch.ts"/>
 /// <reference path="data.ts"/>
 /// <reference path="expression.ts"/>
+/// <reference path="config.ts"/>
 /// <reference path="directives/definition.ts"/>
 
 module Parse {
@@ -60,7 +61,7 @@ module Parse {
         constructor (
             public root: HTMLElement,
             private attrs: Array<Attr>,
-            private config: Config
+            private config: Config.Config
         ) {}
 
         /** Parses a cloned node and returns the parsed section */
@@ -90,7 +91,7 @@ module Parse {
 
     /** Builds a function for parsing a directive with the given context */
     function directiveParser(
-        traverse: Traverse.Reader, config: Config,
+        traverse: Traverse.Reader, config: Config.Config,
         data: Data.Data, section: Section
     ): (elem: HTMLElement, attr: Attr) => void {
         return function parseDirective(elem, attr) {
@@ -139,7 +140,7 @@ module Parse {
 
     /** Builds a function for parsing a component with the given context */
     function componentParser(
-        traverse: Traverse.Reader, config: Config,
+        traverse: Traverse.Reader, config: Config.Config,
         data: Data.Data, section: Section
     ): (elem: HTMLElement, attrs: Attr[]) => void {
         return function parseComponent(elem, attrs) {
@@ -175,7 +176,7 @@ module Parse {
 
     /** Parses the DOM for directives and blocks */
     export function parse(
-        traverse: Traverse.Reader, config: Config, data: Data.Data
+        traverse: Traverse.Reader, config: Config.Config, data: Data.Data
     ): Section {
 
         var section = new Section( traverse.root );
@@ -190,7 +191,7 @@ module Parse {
 
     /** Parses a section to create a cloneable block */
     export function cloneable(
-        traverse: Traverse.Reader, config: Config
+        traverse: Traverse.Reader, config: Config.Config
     ): Cloneable {
 
         var attrs: Array<Attr> = [];
