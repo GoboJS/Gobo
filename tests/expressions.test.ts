@@ -9,7 +9,7 @@ var watch = require("watchjs");
 
 describe('Expressions', function () {
 
-    Test.should('allow single quotes').using(
+    Test.should('support keypaths with single quotes').using(
         `<div>
             <span id='veal' g-text="veal.'full name'"></span>
             <span id='lug' g-text="lug.'full.name'"></span>
@@ -26,7 +26,7 @@ describe('Expressions', function () {
         done();
     });
 
-    Test.should('allow double quotes').using(
+    Test.should('support keypaths with double quotes').using(
         `<div>
             <span id='veal' g-text='veal."full name"'></span>
             <span id='lug' g-text='lug."full.name"'></span>
@@ -40,6 +40,16 @@ describe('Expressions', function () {
         assert.equal( $.cleanup($.textById('veal')), "Veal Steakface" );
         assert.equal( $.cleanup($.textById('lug')), "Lug ThickNeck" );
 
+        done();
+    });
+
+    Test.should('strip leading dots off keypaths').using(
+        `<div id='value'>
+            <div g-text='."key with spaces"'>
+        </div>`
+    ).in((done, $) => {
+        new Gobo().bind($.body, { "key with spaces": "Veal Steakface" });
+        assert.equal( $.cleanup($.textById('value')), "Veal Steakface" );
         done();
     });
 

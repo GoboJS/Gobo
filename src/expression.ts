@@ -35,7 +35,7 @@ module Expr {
 
     /** Parses a keypath */
     function parseKeypath ( expr: string ): Data.Keypath {
-        return stripQuotes( split["."]( expr.trim() ) );
+        return stripQuotes( split["."]( expr.trim().replace(/^\.+/, "") ) );
     }
 
     /** Returns whether a string appears to be a number */
