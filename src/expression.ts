@@ -38,30 +38,39 @@ module Expr {
         return stripQuotes( split["."]( expr.trim() ) );
     }
 
-    /** Given a token from an expression, interprets it */
-    function interpret (
-        data: { get (keypath: Data.Keypath): any; },
-        token: string
-    ): any {
-        switch (token) {
-            case "true":
-                return true;
-            case "false":
-                return false;
-            case "null":
-                return null;
-            case "undefined":
-                return undefined;
-            default:
-                if ( isQuoted(token) ) {
-                    return token.substr(1, token.length - 2);
-                }
-                else if (!isNaN(parseFloat(token)) && isFinite(<any> token)) {
-                    return parseFloat(token);
-                }
-                else {
-                    return data.get( parseKeypath(token) );
-                }
+    /** Returns whether a string appears to be a number */
+    function isNumeric ( str: string ): boolean {
+        return !isNaN(parseFloat(str)) && isFinite(<any> str);
+    }
+
+    /** A value can be a boolean, null, a string, number or keypath */
+    class Value {
+
+        /** @constructor */
+        constructor ( private token: any ) {}
+
+        /** Interpret and return the value */
+        interpret (data: { get (keypath: Data.Keypath): any; }): any {
+            switch ( this.token ) {
+                case "true":
+                    return true;
+                case "false":
+                    return false;
+                case "null":
+                    return null;
+                case "undefined":
+                    return undefined;
+                default:
+                    if ( isQuoted(this.token) ) {
+                        return this.token.substr(1, this.token.length - 2);
+                    }
+                    else if ( isNumeric(this.token) ) {
+                        return parseFloat(this.token);
+                    }
+                    else {
+                        return data.get( parseKeypath(this.token) );
+                    }
+            }
         }
     }
 
@@ -72,7 +81,7 @@ module Expr {
         private bind: any = {};
 
         /** @constructor */
-        constructor(private filter: Filters.Filter, private args: string[]) {}
+        constructor(private filter: Filters.Filter, private args: Value[]) {}
 
         /** Calculates the arguments for this filter call */
         private invoke(
@@ -80,9 +89,7 @@ module Expr {
             value: any,
             data: Data.Data
         ): any[] {
-            var args = this.args.map((token) => {
-                return interpret(data, token);
-            });
+            var args = this.args.map(arg => { return arg.interpret(data); });
             args.unshift(value);
             return fn.apply(this.bind, args);
         }
@@ -116,9 +123,8 @@ module Expr {
             // By actually interpretting the argument, we weed out the list
             // of primitives from actual keypath references. Then, we hijack
             // the call to get
-            this.args.forEach(interpret.bind(null, {
-                get: (keypath) => { keypaths.push(keypath); }
-            }));
+            var add = { get: (keypath) => { keypaths.push(keypath); } };
+            this.args.forEach(arg => { arg.interpret(add); });
         }
     }
 
@@ -131,7 +137,10 @@ module Expr {
             throw new Error("Filter does not exist: '" + filterName + "'");
         }
 
-        return new FilterCall( config.filters[filterName], tokens );
+        return new FilterCall(
+            config.filters[filterName],
+            tokens.map(token => { return new Value(token); })
+        );
     }
 
     /** A parsed expression */
@@ -144,7 +153,7 @@ module Expr {
         public watches: Data.Keypath[];
 
         /** Arguments to pass */
-        public args: string[];
+        public args: Value[];
 
         /** Filters to apply */
         public filters: FilterCall[];
@@ -155,8 +164,11 @@ module Expr {
 
             var filterParts = split["|"](watchParts.shift());
 
-            this.args = split[" "](filterParts.shift());
-            this.keypath = parseKeypath( this.args.shift() );
+            var args = split[" "](filterParts.shift());
+
+            this.keypath = parseKeypath( args.shift() );
+
+            this.args = args.map(arg => { return new Value(arg); });
 
             if ( watchParts.length > 0 ) {
                 this.watches = watchParts.map(token => {
@@ -186,8 +198,8 @@ module Expr {
 
             return () => {
                 var args = [].slice.call(arguments);
-                var exprArgs = this.args.map(token => {
-                    return interpret(data, token);
+                var exprArgs = this.args.map(arg => {
+                    return arg.interpret(data);
                 });
                 return value.apply(null, exprArgs.concat(args));
             };
