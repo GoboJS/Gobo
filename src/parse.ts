@@ -160,7 +160,9 @@ module Parse {
             var mask: { [key: string]: Data.Keypath; } = {};
             [].slice.call(elem.attributes).forEach((attr) => {
                 if ( !config.isPrefixed(attr.name) ) {
-                    mask[attr.name] = Expr.parseKeypath(attr.value);
+                    mask[attr.name] = Expr.parseKeypath(
+                        attr.value || attr.name
+                    );
                 }
             });
 

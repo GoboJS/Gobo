@@ -172,6 +172,21 @@ describe('Components', function () {
         done();
     });
 
+    Test.should('Allow quick pass through definitions').using(
+        `<div id='container'>
+            <g-widget person></g-widget>
+        </div>`
+    ).in((done, $) => {
+
+        var gobo = new Gobo({ watch: watch });
+        gobo.components.widget = "<div g-text='person.name'></div>";
+        gobo.bind($.body, { person: { name: "Veal Steakface" } });
+
+        assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
+
+        done();
+    });
+
 });
 
 
