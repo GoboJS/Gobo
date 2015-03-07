@@ -2,14 +2,13 @@
 /// <reference path="../src/gobo.ts"/>
 
 declare var require: (string) => any;
-declare var describe: (string, any) => void;
 
 var assert = require('chai').assert;
 var watch = require("watchjs");
 
-describe('Components', function () {
+Test.test('Components', (should) => {
 
-    Test.should('Be creatable from strings').using(
+    should('Be creatable from strings').using(
         `<div id='container'>
             <g-widget></g-widget>
         </div>`
@@ -23,7 +22,7 @@ describe('Components', function () {
         done();
     });
 
-    Test.should('Throw if a widget isnt recognized').using(
+    should('Throw if a widget isnt recognized').using(
         `<div id='container'>
             <g-widget></g-widget>
         </div>`
@@ -35,7 +34,7 @@ describe('Components', function () {
         done();
     });
 
-    Test.should('Bind to directives within a component').using(
+    should('Bind to directives within a component').using(
         `<div id='container'>
             <g-widget person-name='name'></g-widget>
         </div>`
@@ -54,7 +53,7 @@ describe('Components', function () {
         done();
     });
 
-    Test.should('Allow directives directly on a component').using(
+    should('Allow directives directly on a component').using(
         `<div>
             <g-widget active='active' g-text='name'></g-widget>
         </div>`
@@ -78,7 +77,7 @@ describe('Components', function () {
         done();
     });
 
-    Test.should('Create components directly from nodes').using(
+    should('Create components directly from nodes').using(
         `<div id='container'>
             <g-widget></g-widget>
         </div>`
@@ -90,7 +89,7 @@ describe('Components', function () {
         done();
     });
 
-    Test.should('Throw when given an invalid component source').using(
+    should('Throw when given an invalid component source').using(
         `<div id='container'>
             <g-widget></g-widget>
         </div>`
@@ -103,7 +102,7 @@ describe('Components', function () {
         done();
     });
 
-    Test.should('Create components from functions').using(
+    should('Create components from functions').using(
         `<div id='container'>
             <g-widget id='widget'></g-widget>
         </div>`
@@ -124,7 +123,7 @@ describe('Components', function () {
         done();
     });
 
-    Test.should('Mask data behind attributes').using(
+    should('Mask data behind attributes').using(
         `<div id='container'>
             <g-widget name='veal'></g-widget>
             <g-widget></g-widget>
@@ -149,7 +148,7 @@ describe('Components', function () {
         done();
     });
 
-    Test.should('Allow deep attribute masking').using(
+    should('Allow deep attribute masking').using(
         `<div id='container'>
             <g-widget person='fake.people.veal'></g-widget>
         </div>`
@@ -172,7 +171,7 @@ describe('Components', function () {
         done();
     });
 
-    Test.should('Allow quick pass through definitions').using(
+    should('Allow quick pass through definitions').using(
         `<div id='container'>
             <g-widget person></g-widget>
         </div>`
@@ -187,7 +186,7 @@ describe('Components', function () {
         done();
     });
 
-    Test.should('Allow primitives to be passed to components').using(
+    should('Allow primitives to be passed to components').using(
         `<div id='container'>
             <g-widget enable="true" name="'Veal Steakface'"></g-widget>
             <g-widget enable="false" name="'Lug ThickNeck'"></g-widget>

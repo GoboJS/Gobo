@@ -1,5 +1,6 @@
 declare var it: (string, any) => void;
 declare var exports: any;
+declare var describe: (string, any) => void;
 
 module Test {
 
@@ -103,7 +104,7 @@ module Test {
     }
 
     /** Initializes a test */
-    export function should ( name: string ) {
+    function should ( name: string ) {
         return {
             using: function ( html: string ) {
                 return {
@@ -115,6 +116,18 @@ module Test {
                 };
             }
         };
+    }
+
+    /** Fluent test definition */
+    type Should = (name: string) => {
+        using: ( html: string ) => {
+            in: ( callback: (done: () => void, $: DocReader) => void ) => void
+        };
+    };
+
+    /** Defines a test suite */
+    export function test(name: string, tests: ( should: Should ) => void) {
+        describe(name, tests.bind(null, should));
     }
 }
 

@@ -2,14 +2,13 @@
 /// <reference path="../src/gobo.ts"/>
 
 declare var require: (string) => any;
-declare var describe: (string, any) => void;
 
 var assert = require('chai').assert;
 var watch = require("watchjs");
 
-describe('Filters', function () {
+Test.test('Filters', (should) => {
 
-    Test.should('convert to upper and lower case').using(
+    should('convert to upper and lower case').using(
         `<div>
             <span id='upper' g-text='name | uppercase'></span>
             <span id='lower' g-text='name | lowercase'></span>
@@ -21,7 +20,7 @@ describe('Filters', function () {
         done();
     });
 
-    Test.should('Invert a truthy value').using(
+    should('Invert a truthy value').using(
         `<div>
             <span id='not' g-if='active | not'>VISIBLE</span>
         </div>`
@@ -37,7 +36,7 @@ describe('Filters', function () {
         done();
     });
 
-    Test.should('Limit the values of an array').using(
+    should('Limit the values of an array').using(
         `<ul id='looped'>
             <li g-each-name='names | limit 2' g-text='name'></li>
         </li>`
@@ -50,7 +49,7 @@ describe('Filters', function () {
         done();
     });
 
-    Test.should('support comparison operators').using(
+    should('support comparison operators').using(
         `<ul id='eq'>
             <li g-if='five | eq 5'>eq 5</li>
             <li g-if='five | eq 6'>eq 6</li>
@@ -87,7 +86,7 @@ describe('Filters', function () {
         done();
     });
 
-    Test.should('Capitalize the first letter of a string').using(
+    should('Capitalize the first letter of a string').using(
         `<div id='value' g-text='name | capitalize'></div>`
     ).in((done, $) => {
         new Gobo({ watch: watch }).bind($.body, { name: "veal" });

@@ -2,14 +2,13 @@
 /// <reference path="../src/gobo.ts"/>
 
 declare var require: (string) => any;
-declare var describe: (string, any) => void;
 
 var assert = require('chai').assert;
 var watch = require("watchjs");
 
-describe('If blocks', function () {
+Test.test('If blocks', (should) => {
 
-    Test.should('detach nodes').using(
+    should('detach nodes').using(
         `<ul>
             <li id='name' g-if='activated'>
                 <span g-text="name.first"></span>
@@ -38,7 +37,7 @@ describe('If blocks', function () {
         done();
     });
 
-    Test.should('disconnect nested directives').using(
+    should('disconnect nested directives').using(
         `<ul>
             <li id='flag' g-if='activated'>
                 <span g-custom="toggle"></span>
@@ -74,7 +73,7 @@ describe('If blocks', function () {
         done();
     });
 
-    Test.should('support nested if statements').using(
+    should('support nested if statements').using(
         `<ul>
             <li id='name' g-if='activated'>
                 <div g-if='reallyActivated'>

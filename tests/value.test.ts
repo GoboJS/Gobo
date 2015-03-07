@@ -2,14 +2,13 @@
 /// <reference path="../src/gobo.ts"/>
 
 declare var require: (string) => any;
-declare var describe: (string, any) => void;
 
 var assert = require('chai').assert;
 var watch = require("watchjs");
 
-describe('Value directives', function () {
+Test.test('Value directives', (should) => {
 
-    Test.should('Set the value of an input field').using(
+    should('Set the value of an input field').using(
         `<input id='field' g-value='name'>`
     ).in((done, $) => {
         var data = { name: "Veal Steakface" };
@@ -22,7 +21,7 @@ describe('Value directives', function () {
         done();
     });
 
-    Test.should('Update the data when the value changes').using(
+    should('Update the data when the value changes').using(
         `<input id='field' g-value='name'>`
     ).in((done, $) => {
         var data = { name: "Veal Steakface" };
@@ -32,7 +31,7 @@ describe('Value directives', function () {
         done();
     });
 
-    Test.should('Update a keypath when the value changes').using(
+    should('Update a keypath when the value changes').using(
         `<input id='field' g-value='person.details.name'>`
     ).in((done, $) => {
         var data = { person: { details: { name: "Veal Steakface" } } };
@@ -47,7 +46,7 @@ describe('Value directives', function () {
         done();
     });
 
-    Test.should('Set the value of a select field').using(
+    should('Set the value of a select field').using(
         `<select id='field' g-value='name'>
             <option>Lug</option>
             <option>Veal</option>
@@ -59,7 +58,7 @@ describe('Value directives', function () {
         done();
     });
 
-    Test.should('Call functions when publishing values').using(
+    should('Call functions when publishing values').using(
         `<input id='field' g-value='name'>`
     ).in((done, $) => {
 
@@ -80,7 +79,7 @@ describe('Value directives', function () {
         $.typeInto('field', "Lug ThickNeck");
     });
 
-    Test.should('publish as a final value to functions with arguments').using(
+    should('publish as a final value to functions with arguments').using(
         `<input id='field' g-value='name "one" "two"'>`
     ).in((done, $) => {
 

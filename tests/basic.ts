@@ -2,14 +2,13 @@
 /// <reference path="../src/gobo.ts"/>
 
 declare var require: (string) => any;
-declare var describe: (string, any) => void;
 
 var assert = require('chai').assert;
 var watch = require("watchjs");
 
-describe('Gobo', function () {
+Test.test('Gobo', (should) => {
 
-    Test.should('bind values to text content').using(
+    should('bind values to text content').using(
         `<ul>
             <li>
                 <span>Name:</span>
@@ -30,7 +29,7 @@ describe('Gobo', function () {
         done();
     });
 
-    Test.should('call functions to resolve values').using(
+    should('call functions to resolve values').using(
         `<ul>
             <li g-text="name" id='name' class='bold'></li>
         </ul>`
@@ -42,7 +41,7 @@ describe('Gobo', function () {
         done();
     });
 
-    Test.should('return nested data').using(
+    should('return nested data').using(
         `<ul>
             <li id='name'>
                 <span g-text="person.name.first"></span>
@@ -69,7 +68,7 @@ describe('Gobo', function () {
         done();
     });
 
-    Test.should('update the dom when a value changes').using(
+    should('update the dom when a value changes').using(
         `<ul>
             <li id='name'>
                 <span g-text="firstname"></span>
@@ -95,7 +94,7 @@ describe('Gobo', function () {
         done();
     });
 
-    Test.should('add and remove classes').using(
+    should('add and remove classes').using(
         `<ul>
             <li id='elem' g-class-active='activated'></li>
         </ul>`
@@ -115,7 +114,7 @@ describe('Gobo', function () {
     });
 
 
-    Test.should('sort directives by priority').using(
+    should('sort directives by priority').using(
         `<ul>
             <li g-three='junk' g-one='junk' g-final='junk' g-two='junk'>
             </li>
@@ -151,7 +150,7 @@ describe('Gobo', function () {
         done();
     });
 
-    Test.should('allow bindings on the root element').using(
+    should('allow bindings on the root element').using(
         `<div id='name' g-text='name'></div>`
     ).in((done, $) => {
         new Gobo().bind( $.byId('name'), { name: "Jack" });
@@ -159,7 +158,7 @@ describe('Gobo', function () {
         done();
     });
 
-    Test.should('Hide and show elements').using(
+    should('Hide and show elements').using(
         `<ul>
             <li id='shown' g-show='bool'></li>
             <li id='hidden' g-hide='bool'></li>

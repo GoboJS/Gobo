@@ -2,14 +2,13 @@
 /// <reference path="../src/gobo.ts"/>
 
 declare var require: (string) => any;
-declare var describe: (string, any) => void;
 
 var assert = require('chai').assert;
 var watch = require("watchjs");
 
-describe('Expressions', function () {
+Test.test('Expressions', (should) => {
 
-    Test.should('support keypaths with single quotes').using(
+    should('support keypaths with single quotes').using(
         `<div>
             <span id='veal' g-text="veal.'full name'"></span>
             <span id='lug' g-text="lug.'full.name'"></span>
@@ -26,7 +25,7 @@ describe('Expressions', function () {
         done();
     });
 
-    Test.should('support keypaths with double quotes').using(
+    should('support keypaths with double quotes').using(
         `<div>
             <span id='veal' g-text='veal."full name"'></span>
             <span id='lug' g-text='lug."full.name"'></span>
@@ -43,7 +42,7 @@ describe('Expressions', function () {
         done();
     });
 
-    Test.should('strip leading dots off keypaths').using(
+    should('strip leading dots off keypaths').using(
         `<div id='value'>
             <div g-text='."key with spaces"'>
         </div>`
@@ -53,7 +52,7 @@ describe('Expressions', function () {
         done();
     });
 
-    Test.should('allow filtering').using(
+    should('allow filtering').using(
         `<div>
             <span id='one' g-text='name | one'></span>
             <span id='two' g-text='name | one | two'></span>
@@ -80,7 +79,7 @@ describe('Expressions', function () {
         done();
     });
 
-    Test.should('pass arguments to filter').using(
+    should('pass arguments to filter').using(
         `<div>
             <span g-text='input | keywords true false null undefined'></span>
             <span g-text='input | literals "some string" 10 4.5'></span>
@@ -112,7 +111,7 @@ describe('Expressions', function () {
         done();
     });
 
-    Test.should('bind persistent scratchpads to filters').using(
+    should('bind persistent scratchpads to filters').using(
         `<div>
             <span g-text='one | scratch'></span>
             <span g-text='two | scratch'></span>
@@ -138,7 +137,7 @@ describe('Expressions', function () {
         done();
     });
 
-    Test.should('pass arguments').using(
+    should('pass arguments').using(
         `<div id='values'>
             <span g-text='keywords true false null undefined'></span>
             <span g-text='literals "some string" 10 4.5'></span>
@@ -176,7 +175,7 @@ describe('Expressions', function () {
         done();
     });
 
-    Test.should('not call values that arent functions').using(
+    should('not call values that arent functions').using(
         `<div id='value' g-text='input true false'></div>`
     ).in((done, $) => {
         new Gobo().bind($.body, { input:  "Veal" });
@@ -184,7 +183,7 @@ describe('Expressions', function () {
         done();
     });
 
-    Test.should('Allow alternate watch paths').using(
+    should('Allow alternate watch paths').using(
         `<div id='value' g-text='value < watch'></div>`
     ).in((done, $) => {
         var data = { value: "Veal", watch: 0 };
@@ -201,7 +200,7 @@ describe('Expressions', function () {
         done();
     });
 
-    Test.should('Allow multiple watch paths').using(
+    should('Allow multiple watch paths').using(
         `<div id='value' g-text='fullname < first < last'></div>`
     ).in((done, $) => {
         var data = {
@@ -222,7 +221,7 @@ describe('Expressions', function () {
         done();
     });
 
-    Test.should('Support bi-directional filters').using(
+    should('Support bi-directional filters').using(
         `<input id='value' g-value='value | one | two | three'>`
     ).in((done, $) => {
         var data = { value: "Veal", };
@@ -249,7 +248,7 @@ describe('Expressions', function () {
         done();
     });
 
-    Test.should('Watch for changes to filter arguments').using(
+    should('Watch for changes to filter arguments').using(
         `<div id='value' g-text='alpha | multiply beta gamma'></div>`
     ).in((done, $) => {
         var data = { alpha: 2, beta: 3, gamma: 4 };

@@ -2,14 +2,13 @@
 /// <reference path="../src/gobo.ts"/>
 
 declare var require: (string) => any;
-declare var describe: (string, any) => void;
 
 var assert = require('chai').assert;
 var watch = require("watchjs");
 
-describe('On-event directives', function () {
+Test.test('On-event directives', (should) => {
 
-    Test.should('call functions').using(
+    should('call functions').using(
         `<a href='#' id='link' g-on-click='execute'>Click me</a>`
     ).in((done, $) => {
         var data = { execute: done };
@@ -17,7 +16,7 @@ describe('On-event directives', function () {
         $.clickById('link');
     });
 
-    Test.should('Disable events when disabled').using(
+    should('Disable events when disabled').using(
         `<div g-if='active'>
             <a href='#' id='link' g-on-click='execute'>Click me</a>
         </div>`

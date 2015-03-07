@@ -2,14 +2,13 @@
 /// <reference path="../src/gobo.ts"/>
 
 declare var require: (string) => any;
-declare var describe: (string, any) => void;
 
 var assert = require('chai').assert;
 var watch = require("watchjs");
 
-describe('Each blocks', function () {
+Test.test('Each blocks', (should) => {
 
-    Test.should('iterate over values').using(
+    should('iterate over values').using(
         `<ul id='names'>
             <li g-each-name='names'>
                 <span g-text="name"></span>
@@ -29,7 +28,7 @@ describe('Each blocks', function () {
         done();
     });
 
-    Test.should('Allow directives directly on a looped node').using(
+    should('Allow directives directly on a looped node').using(
         `<ul id='names'>
             <li g-each-name='names' g-text="name"></li>
         </ul>`
@@ -47,7 +46,7 @@ describe('Each blocks', function () {
         done();
     });
 
-    Test.should('Respond when a value is added or removed').using(
+    should('Respond when a value is added or removed').using(
         `<ul id='names'>
             <li g-each-name='names'>
                 <span g-text="name"></span>
@@ -76,7 +75,7 @@ describe('Each blocks', function () {
         done();
     });
 
-    Test.should('Reuse nodes when possible').using(
+    should('Reuse nodes when possible').using(
         `<ul id='names'>
             <li g-each-person='people'>
                 <span g-text="person.name" g-counter="person"></span>
@@ -106,7 +105,7 @@ describe('Each blocks', function () {
         done();
     });
 
-    Test.should('Disable subsections when disabled').using(
+    should('Disable subsections when disabled').using(
         `<div id='names'>
             <ul g-if="active">
                 <li g-each-person='people'>
