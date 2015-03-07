@@ -157,12 +157,10 @@ module Parse {
             section.nested.push( outerSection );
 
             // Grab the unprefix attributes and use them as variable masks
-            var mask: { [key: string]: Data.Keypath; } = {};
+            var mask: { [key: string]: Expr.Value; } = {};
             [].slice.call(elem.attributes).forEach((attr) => {
                 if ( !config.isPrefixed(attr.name) ) {
-                    mask[attr.name] = Expr.parseKeypath(
-                        attr.value || attr.name
-                    );
+                    mask[attr.name] = new Expr.Value(attr.value || attr.name);
                 }
             });
 

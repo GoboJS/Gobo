@@ -37,13 +37,13 @@ describe('Components', function () {
 
     Test.should('Bind to directives within a component').using(
         `<div id='container'>
-            <g-widget name='name'></g-widget>
+            <g-widget person-name='name'></g-widget>
         </div>`
     ).in((done, $) => {
         var data = { name: "Veal Steakface" };
 
         var gobo = new Gobo({ watch: watch });
-        gobo.components.widget = "<div g-text='name'></div>";
+        gobo.components.widget = "<div g-text='person-name'></div>";
         gobo.bind($.body, data);
 
         assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
@@ -181,6 +181,22 @@ describe('Components', function () {
         var gobo = new Gobo({ watch: watch });
         gobo.components.widget = "<div g-text='person.name'></div>";
         gobo.bind($.body, { person: { name: "Veal Steakface" } });
+
+        assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
+
+        done();
+    });
+
+    Test.should('Allow primitives to be passed to components').using(
+        `<div id='container'>
+            <g-widget enable="true" name="'Veal Steakface'"></g-widget>
+            <g-widget enable="false" name="'Lug ThickNeck'"></g-widget>
+        </div>`
+    ).in((done, $) => {
+
+        var gobo = new Gobo({ watch: watch });
+        gobo.components.widget = "<div g-if='enable' g-text='name'></div>";
+        gobo.bind($.body, {});
 
         assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
 

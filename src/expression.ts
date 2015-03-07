@@ -34,7 +34,7 @@ module Expr {
     }
 
     /** Parses a keypath */
-    export function parseKeypath ( expr: string ): Data.Keypath {
+    function parseKeypath ( expr: string ): Data.Keypath {
         return stripQuotes( split["."]( expr.trim() ) );
     }
 
@@ -44,7 +44,7 @@ module Expr {
     }
 
     /** A value can be a boolean, null, a string, number or keypath */
-    class Value {
+    export class Value {
 
         /** The raw value */
         private value: boolean | Data.Keypath | number | string;
