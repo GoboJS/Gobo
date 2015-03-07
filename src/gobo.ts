@@ -6,6 +6,7 @@
 /// <reference path="data.ts"/>
 /// <reference path="expression.ts"/>
 /// <reference path="filters.ts"/>
+/// <reference path="components.ts"/>
 
 
 /** An interface into the gobo configuration */
@@ -32,7 +33,8 @@ class Config {
         this.watch = gobo.watch;
         this.prefix = gobo.prefix;
         this.filters = gobo.filters;
-        this.getDirectiveByName = Wildcard.createLookup(gobo.directives);
+        this.getDirectiveByName =
+            Wildcard.createLookup<Directives.DirectiveBuilder>(gobo.directives);
 
         for ( var key in gobo.components ) {
             // Purposefully missing the hasOwnProperty check. Picking up values
@@ -85,13 +87,13 @@ class Gobo {
     public prefix: string = "g-";
 
     /** The default directives */
-    public directives = new Directives.DefaultDirectives();
+    public directives: any = new Directives.DefaultDirectives();
 
     /** The default filters */
-    public filters = new Filters.DefaultFilters();
+    public filters: any = new Filters.DefaultFilters();
 
     /** The default components */
-    public components: { [key: string]: Components.ComponentSource } = {};
+    public components: any = {};
 
     /** The observation module to use for watching values */
     public watch: Watch.Watch;

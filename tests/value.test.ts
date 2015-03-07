@@ -1,10 +1,10 @@
 /// <reference path="test-help.ts"/>
+/// <reference path="../src/gobo.ts"/>
 
 declare var require: (string) => any;
 declare var describe: (string, any) => void;
 
 var assert = require('chai').assert;
-var Gobo = require("../gobo.debug.js").Gobo;
 var watch = require("watchjs");
 
 describe('Value directives', function () {

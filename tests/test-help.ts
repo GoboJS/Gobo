@@ -8,7 +8,7 @@ module Test {
     /** A helper class for interacting with a jsdom document */
     class DocReader {
         /** The document body */
-        public body: Element;
+        public body: HTMLElement;
 
         constructor( private document: Document ) {
             this.body = document.body;
