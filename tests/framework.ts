@@ -1,13 +1,14 @@
-declare var it: (string, any) => void;
-declare var exports: any;
-declare var describe: (string, any) => void;
+declare var require: (string) => any;
 
+/**
+ * A testing framework designed to allow locally run unit tests using jsdom,
+ * and remotely run unit tests using webdriver.
+ */
 module Test {
 
-    var jsdom = require("jsdom");
-
     /** A helper class for interacting with a jsdom document */
-    class DocReader {
+    export class DocReader {
+
         /** The document body */
         public body: HTMLElement;
 
@@ -85,49 +86,14 @@ module Test {
         }
     }
 
-    /** Executes a test on a thunk of HTML */
-    function testHtml(
-        testName: string,
-        html: string,
-        callback: (done: () => void, $: DocReader) => void
-    ): void {
-        it(testName, (done) => {
-            jsdom.env( html, [], function (errors, window) {
-                if ( !errors || errors.length === 0 ) {
-                    callback( done, new DocReader(window.document) );
-                }
-                else {
-                    done( errors[0] );
-                }
-            });
-        });
-    }
-
-    /** Initializes a test */
-    function should ( name: string ) {
-        return {
-            using: function ( html: string ) {
-                return {
-                    in: function callback (
-                        callback: (done: () => void, $: DocReader) => void
-                    ): void {
-                        testHtml( "should " + name, html, callback );
-                    }
-                };
-            }
-        };
-    }
-
     /** Fluent test definition */
-    type Should = (name: string) => {
+    export type Should = (name: string) => {
         using: ( html: string ) => {
             in: ( callback: (done: () => void, $: DocReader) => void ) => void
         };
     };
 
     /** Defines a test suite */
-    export function test(name: string, tests: ( should: Should ) => void) {
-        describe(name, tests.bind(null, should));
-    }
+    export type test = (name: string, tests: (should: Should) => void) => void;
 }
 
