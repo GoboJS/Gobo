@@ -97,10 +97,8 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('test-server', function() {
-        var data = require('./build/private/test-data.js')();
-        var server = require('./build/private/test-server.js');
-        server.start(data);
-        this.async();
+        console.log("Starting server");
+        require('./build/private/test-server.js')().start();
     });
 
     // Plugins
@@ -116,6 +114,6 @@ module.exports = function(grunt) {
     grunt.registerTask('default',
         ['typescript', 'import', 'tslint', 'mochaTest', 'uglify', 'bytesize']);
 
-    grunt.registerTask('dev', ['typescript', 'import', 'watch']);
+    grunt.registerTask('dev', ['typescript', 'import', 'test-server', 'watch']);
 };
 
