@@ -17,9 +17,36 @@ module.exports = function(grunt) {
                     basePath: 'src'
                 }
             },
-            tests: {
+            'tests-local': {
                 src: ['tests/local.ts', 'tests/*.test.ts'],
                 dest: 'build/private/local-test.js',
+                options: {
+                    module: 'commonjs',
+                    target: 'es5',
+                    basePath: 'tests'
+                }
+            },
+            'test-data': {
+                src: ['tests/test-data.ts', 'tests/*.test.ts'],
+                dest: 'build/private/test-data.js',
+                options: {
+                    module: 'commonjs',
+                    target: 'es5',
+                    basePath: 'tests'
+                }
+            },
+            'test-framework': {
+                src: ['tests/framework.ts'],
+                dest: 'build/private/test-framework.js',
+                options: {
+                    module: 'commonjs',
+                    target: 'es5',
+                    basePath: 'tests'
+                }
+            },
+            'test-server': {
+                src: ['tests/test-server.ts'],
+                dest: 'build/private/test-server.js',
                 options: {
                     module: 'commonjs',
                     target: 'es5',
@@ -67,6 +94,13 @@ module.exports = function(grunt) {
                 src: ['build/private/local-test.js']
             }
         }
+    });
+
+    grunt.registerTask('test-server', function() {
+        var data = require('./build/private/test-data.js')();
+        var server = require('./build/private/test-server.js');
+        server.start(data);
+        this.async();
     });
 
     // Plugins

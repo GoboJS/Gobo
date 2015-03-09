@@ -86,10 +86,25 @@ module Test {
         }
     }
 
+    /** The function for executing a test */
+    export type Logic = (done: () => void, $: DocReader) => void;
+
+    /** Bunded data about a test */
+    export interface Bundle {
+        html: string;
+        logic: Logic;
+    }
+
+    /** A suite is a set of named tests */
+    export type Suite = { [name: string]: Bundle };
+
+    /** All registered suites */
+    export type SuiteSet = { [name: string]: Suite };
+
     /** Fluent test definition */
     export type Should = (name: string) => {
         using: ( html: string ) => {
-            in: ( callback: (done: () => void, $: DocReader) => void ) => void
+            in: ( callback: Logic ) => void
         };
     };
 
