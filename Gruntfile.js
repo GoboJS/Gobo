@@ -66,15 +66,6 @@ module.exports = function(grunt) {
             test: {
                 src: ['build/private/local-test.js']
             }
-        },
-
-        connect: {
-            server: {
-                options: {
-                    port: 8080,
-                    base: '.'
-                }
-            }
         }
     });
 
@@ -82,7 +73,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-bytesize');
-    grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-import');
     grunt.loadNpmTasks('grunt-mocha-test');
@@ -92,6 +82,6 @@ module.exports = function(grunt) {
     grunt.registerTask('default',
         ['typescript', 'import', 'tslint', 'mochaTest', 'uglify', 'bytesize']);
 
-    grunt.registerTask('dev', ['typescript', 'import', 'connect', 'watch']);
+    grunt.registerTask('dev', ['typescript', 'import', 'watch']);
 };
 
