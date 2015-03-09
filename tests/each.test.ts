@@ -4,7 +4,7 @@
 declare var require: (string) => any;
 
 var assert = require('chai').assert;
-var watch = require("watchjs");
+var WatchJS = require("watchjs");
 
 Test.test('Each blocks', (should) => {
 
@@ -19,7 +19,7 @@ Test.test('Each blocks', (should) => {
             names: [ "Veal Steakface", "Lug ThickNeck", "Big McLargeHuge" ]
         };
 
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
         assert.equal(
             $.cleanup($.textById('names')),
             "Veal Steakface Lug ThickNeck Big McLargeHuge"
@@ -37,7 +37,7 @@ Test.test('Each blocks', (should) => {
             names: [ "Veal Steakface ", "Lug ThickNeck ", "Big McLargeHuge " ]
         };
 
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
         assert.equal(
             $.cleanup($.textById('names')),
             "Veal Steakface Lug ThickNeck Big McLargeHuge"
@@ -57,7 +57,7 @@ Test.test('Each blocks', (should) => {
             names: [ "Veal Steakface", "Lug ThickNeck", "Big McLargeHuge" ]
         };
 
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
         assert.equal( $.cleanup($.textById('names')), data.names.join(" ") );
 
         data.names.push("Blast ThickNeck");
@@ -86,7 +86,7 @@ Test.test('Each blocks', (should) => {
             people: [ { name: "Veal" }, { name: "Lug" }, { name: "Big" } ]
         };
 
-        var gobo = new Gobo({ watch: watch })
+        var gobo = new Gobo({ watch: WatchJS })
 
         var calls = 0;
         gobo.directives.counter = Gobo.directive((elem, value) => {
@@ -119,7 +119,7 @@ Test.test('Each blocks', (should) => {
             people: [ { name: "Veal" }, { name: "Lug" }, { name: "Big" } ]
         };
 
-        var gobo = new Gobo({ watch: watch });
+        var gobo = new Gobo({ watch: WatchJS });
         gobo.directives.check = Gobo.directive((elem, value) => {
             assert.isTrue(data.active);
         });

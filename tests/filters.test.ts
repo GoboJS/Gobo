@@ -4,7 +4,7 @@
 declare var require: (string) => any;
 
 var assert = require('chai').assert;
-var watch = require("watchjs");
+var WatchJS = require("watchjs");
 
 Test.test('Filters', (should) => {
 
@@ -14,7 +14,7 @@ Test.test('Filters', (should) => {
             <span id='lower' g-text='name | lowercase'></span>
         </div>`
     ).in((done, $) => {
-        new Gobo({ watch: watch }).bind($.body, { name: "Veal" });
+        new Gobo({ watch: WatchJS }).bind($.body, { name: "Veal" });
         assert.equal( $.cleanup($.textById('upper')), "VEAL" );
         assert.equal( $.cleanup($.textById('lower')), "veal" );
         done();
@@ -26,7 +26,7 @@ Test.test('Filters', (should) => {
         </div>`
     ).in((done, $) => {
         var data = { active: false };
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
 
         assert.equal( $.cleanup($.textById('not')), "VISIBLE" );
 
@@ -42,7 +42,7 @@ Test.test('Filters', (should) => {
         </li>`
     ).in((done, $) => {
         var data = { names: [ "Veal ", "Lug ", "Big " ] };
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
 
         assert.equal( $.cleanup($.textById('looped')), "Veal Lug" );
 
@@ -89,7 +89,7 @@ Test.test('Filters', (should) => {
     should('Capitalize the first letter of a string').using(
         `<div id='value' g-text='name | capitalize'></div>`
     ).in((done, $) => {
-        new Gobo({ watch: watch }).bind($.body, { name: "veal" });
+        new Gobo({ watch: WatchJS }).bind($.body, { name: "veal" });
         assert.equal( $.cleanup($.textById('value')), "Veal" );
         done();
     });

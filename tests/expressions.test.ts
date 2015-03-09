@@ -4,7 +4,7 @@
 declare var require: (string) => any;
 
 var assert = require('chai').assert;
-var watch = require("watchjs");
+var WatchJS = require("watchjs");
 
 Test.test('Expressions', (should) => {
 
@@ -59,7 +59,7 @@ Test.test('Expressions', (should) => {
             <span id='three' g-text='name | one | two | three'></span>
         </div>`
     ).in((done, $) => {
-        var gobo = new Gobo({ watch: watch });
+        var gobo = new Gobo({ watch: WatchJS });
 
         gobo.filters.one = str => { return "1" + str };
         gobo.filters.two = str => { return "2" + str };
@@ -86,7 +86,7 @@ Test.test('Expressions', (should) => {
             <span g-text='input | variable input some.thing'></span>
         </div>`
     ).in((done, $) => {
-        var gobo = new Gobo({ watch: watch });
+        var gobo = new Gobo({ watch: WatchJS });
 
         gobo.filters.keywords = (value, t, f, n, u) => {
             assert.isTrue(t);
@@ -117,7 +117,7 @@ Test.test('Expressions', (should) => {
             <span g-text='two | scratch'></span>
         </div>`
     ).in((done, $) => {
-        var gobo = new Gobo({ watch: watch });
+        var gobo = new Gobo({ watch: WatchJS });
 
         gobo.filters.scratch = function (value) {
             switch ( value ) {
@@ -187,7 +187,7 @@ Test.test('Expressions', (should) => {
         `<div id='value' g-text='value < watch'></div>`
     ).in((done, $) => {
         var data = { value: "Veal", watch: 0 };
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
 
         assert.equal( $.cleanup($.textById('value')), "Veal" );
 
@@ -208,7 +208,7 @@ Test.test('Expressions', (should) => {
             first: "Veal",
             last: "Steakface"
         };
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
 
         assert.equal( $.cleanup($.textById('value')), "Veal Steakface" );
 
@@ -225,7 +225,7 @@ Test.test('Expressions', (should) => {
         `<input id='value' g-value='value | one | two | three'>`
     ).in((done, $) => {
         var data = { value: "Veal", };
-        var gobo = new Gobo({ watch: watch });
+        var gobo = new Gobo({ watch: WatchJS });
 
         gobo.filters.one = {
             read: (value) => { return "1" + value; },
@@ -252,7 +252,7 @@ Test.test('Expressions', (should) => {
         `<div id='value' g-text='alpha | multiply beta gamma'></div>`
     ).in((done, $) => {
         var data = { alpha: 2, beta: 3, gamma: 4 };
-        var gobo = new Gobo({ watch: watch });
+        var gobo = new Gobo({ watch: WatchJS });
         gobo.filters.multiply = (a, b, c) => { return a * b * c; };
         gobo.bind($.body, data);
 

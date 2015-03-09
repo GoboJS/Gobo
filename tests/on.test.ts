@@ -4,7 +4,7 @@
 declare var require: (string) => any;
 
 var assert = require('chai').assert;
-var watch = require("watchjs");
+var WatchJS = require("watchjs");
 
 Test.test('On-event directives', (should) => {
 
@@ -12,7 +12,7 @@ Test.test('On-event directives', (should) => {
         `<a href='#' id='link' g-on-click='execute'>Click me</a>`
     ).in((done, $) => {
         var data = { execute: done };
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
         $.clickById('link');
     });
 
@@ -28,7 +28,7 @@ Test.test('On-event directives', (should) => {
             active: true
         };
 
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
 
         var elem = $.byId('link');
         $.click(elem);

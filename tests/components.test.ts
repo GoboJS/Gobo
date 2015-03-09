@@ -4,7 +4,7 @@
 declare var require: (string) => any;
 
 var assert = require('chai').assert;
-var watch = require("watchjs");
+var WatchJS = require("watchjs");
 
 Test.test('Components', (should) => {
 
@@ -41,7 +41,7 @@ Test.test('Components', (should) => {
     ).in((done, $) => {
         var data = { name: "Veal Steakface" };
 
-        var gobo = new Gobo({ watch: watch });
+        var gobo = new Gobo({ watch: WatchJS });
         gobo.components.widget = "<div g-text='person-name'></div>";
         gobo.bind($.body, data);
 
@@ -60,7 +60,7 @@ Test.test('Components', (should) => {
     ).in((done, $) => {
         var data = { name: "Veal Steakface", active: true };
 
-        var gobo = new Gobo({ watch: watch });
+        var gobo = new Gobo({ watch: WatchJS });
         gobo.components.widget =
             "<div id='container' g-class-highlight='active'></div>";
         gobo.bind($.body, data);
@@ -82,7 +82,7 @@ Test.test('Components', (should) => {
             <g-widget></g-widget>
         </div>`
     ).in((done, $) => {
-        var gobo = new Gobo({ watch: watch });
+        var gobo = new Gobo({ watch: WatchJS });
         gobo.components.widget = $.create("div", "Veal Steakface");
         gobo.bind($.body, {});
         assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
@@ -94,7 +94,7 @@ Test.test('Components', (should) => {
             <g-widget></g-widget>
         </div>`
     ).in((done, $) => {
-        var gobo = new Gobo({ watch: watch });
+        var gobo = new Gobo({ watch: WatchJS });
         gobo.components.widget = {};
         assert.throws(() => {
             gobo.bind($.body, {});
@@ -109,7 +109,7 @@ Test.test('Components', (should) => {
     ).in((done, $) => {
         var widget = $.byId('widget');
 
-        var gobo = new Gobo({ watch: watch });
+        var gobo = new Gobo({ watch: WatchJS });
 
         gobo.components.widget = (elem) => {
             assert.equal(widget, elem);
@@ -136,7 +136,7 @@ Test.test('Components', (should) => {
             name: "Not to be confused with THIS."
         };
 
-        var gobo = new Gobo({ watch: watch });
+        var gobo = new Gobo({ watch: WatchJS });
         gobo.components.widget = "<div g-text='name'></div>";
         gobo.bind($.body, data);
 
@@ -156,7 +156,7 @@ Test.test('Components', (should) => {
 
         var data = { fake: { people: { veal: { name: "Veal Steakface" } } } };
 
-        var gobo = new Gobo({ watch: watch });
+        var gobo = new Gobo({ watch: WatchJS });
         gobo.components.widget = "<div g-text='person.name'></div>";
         gobo.bind($.body, data);
 
@@ -177,7 +177,7 @@ Test.test('Components', (should) => {
         </div>`
     ).in((done, $) => {
 
-        var gobo = new Gobo({ watch: watch });
+        var gobo = new Gobo({ watch: WatchJS });
         gobo.components.widget = "<div g-text='person.name'></div>";
         gobo.bind($.body, { person: { name: "Veal Steakface" } });
 
@@ -193,7 +193,7 @@ Test.test('Components', (should) => {
         </div>`
     ).in((done, $) => {
 
-        var gobo = new Gobo({ watch: watch });
+        var gobo = new Gobo({ watch: WatchJS });
         gobo.components.widget = "<div g-if='enable' g-text='name'></div>";
         gobo.bind($.body, {});
 

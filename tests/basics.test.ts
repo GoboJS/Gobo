@@ -4,7 +4,7 @@
 declare var require: (string) => any;
 
 var assert = require('chai').assert;
-var watch = require("watchjs");
+var WatchJS = require("watchjs");
 
 Test.test('Gobo', (should) => {
 
@@ -81,7 +81,7 @@ Test.test('Gobo', (should) => {
             person: { name: { last: "Steakface" } }
         };
 
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
         assert.equal( $.cleanup($.textById('name')), "Veal Steakface" );
 
         data.firstname = "Big";
@@ -101,7 +101,7 @@ Test.test('Gobo', (should) => {
     ).in((done, $) => {
         var data = { activated: true };
 
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
         assert.isTrue( $.hasClass($.byId('elem'), 'active') );
 
         data.activated = false;
@@ -165,7 +165,7 @@ Test.test('Gobo', (should) => {
         </ul>`
     ).in((done, $) => {
         var data = { bool: true };
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
 
         assert.isTrue( $.isVisible('shown') );
         assert.isFalse( $.isVisible('hidden') );

@@ -4,7 +4,7 @@
 declare var require: (string) => any;
 
 var assert = require('chai').assert;
-var watch = require("watchjs");
+var WatchJS = require("watchjs");
 
 Test.test('Value directives', (should) => {
 
@@ -12,7 +12,7 @@ Test.test('Value directives', (should) => {
         `<input id='field' g-value='name'>`
     ).in((done, $) => {
         var data = { name: "Veal Steakface" };
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
         assert.equal( $.fieldById('field').value, "Veal Steakface" );
 
         data.name = "Lug ThickNeck";
@@ -25,7 +25,7 @@ Test.test('Value directives', (should) => {
         `<input id='field' g-value='name'>`
     ).in((done, $) => {
         var data = { name: "Veal Steakface" };
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
         $.typeInto('field', "Lug ThickNeck");
         assert.equal( data.name, "Lug ThickNeck" );
         done();
@@ -35,7 +35,7 @@ Test.test('Value directives', (should) => {
         `<input id='field' g-value='person.details.name'>`
     ).in((done, $) => {
         var data = { person: { details: { name: "Veal Steakface" } } };
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
 
         $.typeInto('field', "Lug ThickNeck");
         assert.equal( data.person.details.name, "Lug ThickNeck" );
@@ -53,7 +53,7 @@ Test.test('Value directives', (should) => {
             <option>Big</option>
         </select>`
     ).in((done, $) => {
-        new Gobo({ watch: watch }).bind($.body, { name: "Veal" });
+        new Gobo({ watch: WatchJS }).bind($.body, { name: "Veal" });
         assert.equal( $.fieldById('field').value, "Veal" );
         done();
     });
@@ -62,7 +62,7 @@ Test.test('Value directives', (should) => {
         `<input id='field' g-value='name'>`
     ).in((done, $) => {
 
-        new Gobo({ watch: watch }).bind($.body, {
+        new Gobo({ watch: WatchJS }).bind($.body, {
             name: function () {
                 if ( arguments.length === 0 ) {
                     return "Veal Steakface";
@@ -83,7 +83,7 @@ Test.test('Value directives', (should) => {
         `<input id='field' g-value='name "one" "two"'>`
     ).in((done, $) => {
 
-        new Gobo({ watch: watch }).bind($.body, {
+        new Gobo({ watch: WatchJS }).bind($.body, {
             name: function (one, two, value) {
                 assert.equal( one, "one" );
                 assert.equal( two, "two" );

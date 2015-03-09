@@ -4,7 +4,7 @@
 declare var require: (string) => any;
 
 var assert = require('chai').assert;
-var watch = require("watchjs");
+var WatchJS = require("watchjs");
 
 Test.test('If blocks', (should) => {
 
@@ -21,7 +21,7 @@ Test.test('If blocks', (should) => {
             name: { first: "Veal", last: "Steakface" }
         };
 
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
         assert.equal( $.cleanup($.textById('name')), "Veal Steakface" );
 
         data.activated = false;
@@ -51,7 +51,7 @@ Test.test('If blocks', (should) => {
 
         var calls = 0;
 
-        var gobo = new Gobo({ watch: watch });
+        var gobo = new Gobo({ watch: WatchJS });
         gobo.directives.custom = Gobo.directive((elem, value) => {
             assert.include(value, 'valid');
             calls++;
@@ -89,7 +89,7 @@ Test.test('If blocks', (should) => {
             name: { first: "Veal", last: "Steakface" }
         };
 
-        new Gobo({ watch: watch }).bind($.body, data);
+        new Gobo({ watch: WatchJS }).bind($.body, data);
         assert.equal( $.cleanup($.textById('name')), "Veal Steakface" );
 
         data.reallyActivated = false;
