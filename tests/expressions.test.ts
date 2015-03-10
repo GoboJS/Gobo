@@ -44,7 +44,7 @@ Test.test('Expressions', (should) => {
 
     should('strip leading dots off keypaths').using(
         `<div id='value'>
-            <div g-text='."key with spaces"'>
+            <div g-text='."key with spaces"'></div>
         </div>`
     ).in((done, $) => {
         new Gobo().bind($.body, { "key with spaces": "Veal Steakface" });

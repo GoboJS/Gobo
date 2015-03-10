@@ -39,7 +39,7 @@ Test.test('Filters', (should) => {
     should('Limit the values of an array').using(
         `<ul id='looped'>
             <li g-each-name='names | limit 2' g-text='name'></li>
-        </li>`
+        </ul>`
     ).in((done, $) => {
         var data = { names: [ "Veal ", "Lug ", "Big " ] };
         new Gobo({ watch: WatchJS }).bind($.body, data);

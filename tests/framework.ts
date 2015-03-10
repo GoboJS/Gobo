@@ -75,7 +75,7 @@ module Test {
         public typeInto ( id: string, value: string ): void {
             var elem = this.fieldById(id)
             elem.value = value;
-            var event = this.document.createEvent("InputEvent");
+            var event = this.document.createEvent("UIEvent");
             event.initEvent("input", true, true);
             elem.dispatchEvent(event);
         }
