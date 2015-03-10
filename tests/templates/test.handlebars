@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Gobo Test</title>
+        <script src='/lib/chai.js'></script>
+        <script src='/lib/test-framework.js'></script>
+        <script src='/lib/watch.js'></script>
+        <script src='/lib/gobo.js'></script>
+        <script>var assert = chai.assert</script>
+    </head>
+    <body>
+        {{{html}}}
+        <script>
+            (function (logic) {
+                logic( function(){}, new Test.DocReader(document) );
+            }(
+                {{{logic}}}
+            ));
+        </script>
+    </body>
+</html>
+

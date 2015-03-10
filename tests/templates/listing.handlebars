@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Gobo Tests</title>
+    </head>
+    <body>
+
+        <h1>Tests</h1>
+        <ul>
+            {{#each suites}}
+                <li>{{suite}}
+                    <ul>
+                        {{#each tests}}
+                            <li>
+                                <a href='{{url}}'>{{test}}</a>
+                            </li>
+                        {{/each}}
+                    </ul>
+                </li>
+            {{/each}}
+        </ul>
+    </body>
+</html>

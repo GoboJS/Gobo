@@ -4,11 +4,16 @@ declare var require: (string) => any;
 declare var module: any;
 declare var process: any;
 
+var Handlebars = require("handlebars");
+
 /** Starts a local server that serves up test code */
 class Server {
 
     /** Start a new server */
     start(): void {
+
+        var fs = require('fs');
+        var server = require('express')();
 
         /** Loads fresh test data */
         function load () {
@@ -24,66 +29,65 @@ class Server {
             return require('./test-data.js')();
         }
 
-        var fs = require('fs');
-        var server = require('express')();
+        /** Attempts to read a file, throwing an error if it fails */
+        function readFile(
+            res: any, path: string,
+            fn: (content: string) => void
+        ) {
+            fs.readFile(path, (err, content) => {
+                if (err) {
+                    res.sendStatus(500);
+                    res.send(err);
+                }
+                else {
+                    fn(content.toString());
+                }
+            });
+        }
 
         /** Sends back a chunk of HTML */
-        function html(res: any, body: string, head?: string) {
-            res.set('Content-Type', 'text/html');
-            res.send("<!DOCTYPE html>\n" +
-                "<html>\n" +
-                "<head>\n" +
-                "<title>Gobo Tests</title>\n" +
-                (head ? head + "\n": "") +
-                "</head>\n" +
-                "<body>\n" + body + "\n</body>\n" +
-                "</html>"
-            );
+        function htmlTemplate(res: any, path: string, data: any) {
+            readFile(res, path, (html) => {
+                var template = Handlebars.compile(html);
+                res.set('Content-Type', 'text/html');
+                res.send( template(data) );
+            });
         }
 
-        /** Formats an object as an HTML list */
-        function asHtmlList(
-            obj: { [key: string]: any },
-            fn: (key: string) => string
-        ): string {
-            return "<ul>" +
-                Object.keys(obj).map(key => {
-                    return "<li>" + fn(key) + "</li>";
-                }).join("\n") +
-                "</ul>";
+        /** Serves a javascript file */
+        function serveJS (path: string) {
+            return (req, res) => {
+                readFile(res, path, (data) => {
+                    res.set('Content-Type', 'application/javascript');
+                    res.send(data);
+                });
+            };
         }
+
 
         // At the root level, list out all of the tests
         server.get('/', (req, res) => {
             var suites = load();
-            html(
+
+            var data = Object.keys(suites).map(suite => {
+                return {
+                    suite: suite,
+                    tests: Object.keys(suites[suite]).map(test => {
+                        return {
+                            test: test,
+                            url: "/" + encodeURIComponent(suite) +
+                                "/" + encodeURIComponent(test)
+                        };
+                    })
+                };
+            });
+
+            htmlTemplate(
                 res,
-                '<h1>Tests</h1>' +
-                asHtmlList(suites, suite => {
-                    return suite + asHtmlList(suites[suite], test => {
-                        var url = "/" + encodeURIComponent(suite) +
-                            "/" + encodeURIComponent(test);
-                        return "<a href='" + url + "'>" + test + "</a>";
-                    });
-                })
+                "./tests/templates/listing.handlebars",
+                { suites: data }
             );
         });
-
-        /** Serves a javascript file */
-        function serveJS (path: string) {
-            return function (req, res) {
-                fs.readFile(path, (err, data) => {
-                    if (err) {
-                        res.status(500);
-                        res.send(err);
-                    }
-                    else {
-                        res.set('Content-Type', 'application/javascript');
-                        res.send(data);
-                    }
-                });
-            };
-        }
 
         // Serve up the required JS files
         server.get('/lib/gobo.js', serveJS('build/gobo.debug.js'));
@@ -101,23 +105,14 @@ class Server {
                 suites[req.params.suite][req.params.test];
 
             if ( bundle ) {
-                html(res,
-                    bundle.html +
-                    `<script>
-                    (function (logic) {
-                        logic( function(){}, new Test.DocReader(document) );
-                    }(${bundle.logic}));
-                    </script>`,
-                    "<script src='/lib/chai.js'></script>\n" +
-                    "<script src='/lib/test-framework.js'></script>\n" +
-                    "<script src='/lib/watch.js'></script>\n" +
-                    "<script src='/lib/gobo.js'></script>" +
-                    "<script>var assert = chai.assert</script>"
-                );
+                htmlTemplate(res, "./tests/templates/test.handlebars", {
+                    html: bundle.html,
+                    logic: bundle.logic.toString()
+                });
             }
             else {
-                res.status(404);
-                html(res, "<h1>Test not found</h1>");
+                res.sendStatus(404);
+                res.send("<html><body><h1>Test not found</h1></body></html>");
             }
         });
 
