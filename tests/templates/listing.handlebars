@@ -2,6 +2,22 @@
 <html>
     <head>
         <title>Gobo Tests</title>
+        <style>
+        iframe {
+            width: 1px;
+            height: 1px;
+            position: absolute;
+            left: -500px;
+        }
+        .success:before {
+            content: "\2713 ";
+            color: green;
+        }
+        .failure:before {
+            content: "\2717 ";
+            color: red;
+        }
+        </style>
     </head>
     <body>
 
@@ -19,5 +35,36 @@
                 </li>
             {{/each}}
         </ul>
+
+        <script>
+        (function () {
+            var tests = [].slice.call(document.querySelectorAll("a"));
+            var active;
+
+            window.addEventListener('message', function(e) {
+                if ( typeof e.data.success === "boolean" ) {
+                    active.classList.add(
+                        e.data.success ? "success" : "failure"
+                    );
+                    run();
+                }
+                else {
+                    throw new Error(
+                        "Unrecognized postMessage response: " +
+                        e.data
+                    );
+                }
+            });
+
+            function run () {
+                active = tests.shift();
+                var elem = document.createElement("iframe");
+                elem.src = active.href;
+                active.parentNode.insertBefore(elem, active);
+            }
+
+            run();
+        }());
+        </script>
     </body>
 </html>

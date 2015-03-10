@@ -12,7 +12,24 @@
         {{{html}}}
         <script>
             (function (logic) {
-                logic( function(){}, new Test.DocReader(document) );
+
+                // Logic for reporting the result of the test
+                var complete = false;
+                function done ( result ) {
+                    if ( !complete ) {
+                        complete = true;
+                        parent.postMessage( { success: result }, "*" );
+                    }
+                }
+
+                // If an error is thrown, report a failure
+                window.onerror = done.bind(null, false);
+
+                // Time the test
+                setTimeout(done.bind(null, false), 1000);
+
+                // Run the test
+                logic( done.bind(null, true), new Test.DocReader(document) );
             }(
                 {{{logic}}}
             ));
