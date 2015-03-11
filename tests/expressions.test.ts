@@ -184,9 +184,9 @@ Test.test('Expressions', (should) => {
     });
 
     should('Allow alternate watch paths').using(
-        `<div id='value' g-text='value < watch'></div>`
+        `<div id='value' g-text='value < alternate'></div>`
     ).in((done, $) => {
-        var data = { value: "Veal", watch: 0 };
+        var data = { value: "Veal", alternate: 0 };
         new Gobo({ watch: WatchJS }).bind($.body, data);
 
         assert.equal( $.cleanup($.textById('value')), "Veal" );
@@ -194,7 +194,7 @@ Test.test('Expressions', (should) => {
         data.value = "Lug";
         assert.equal( $.cleanup($.textById('value')), "Veal" );
 
-        data.watch += 1;
+        data.alternate += 1;
         assert.equal( $.cleanup($.textById('value')), "Lug" );
 
         done();

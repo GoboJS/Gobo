@@ -39,7 +39,7 @@ class Gobo {
 
     /** @constructor */
     constructor ( options: Options = {} ) {
-        this.watch = options.watch;
+        this.watch = options.hasOwnProperty("watch") ? options.watch : null;
     }
 
     /** Attaches this configuration to a DOM element */
