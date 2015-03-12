@@ -96,6 +96,8 @@ class Server {
             serveJS('node_modules/watchjs/src/watch.js'));
         server.get('/lib/test-framework.js',
             serveJS('build/private/test-framework.js'));
+        server.get('/lib/test-harness.js',
+            serveJS('build/private/test-harness.js'));
 
         // Serve an HTML file with a specific test
         server.get('/:suite/:test', (req, res) => {

@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Gobo Tests</title>
+        <script src='lib/test-harness.js'></script>
         <style>
         iframe {
             width: 1px;
@@ -28,7 +29,11 @@
                     <ul>
                         {{#each tests}}
                             <li>
-                                <a href='{{url}}'>{{test}}</a>
+                                <a test-case
+                                    test-suite='{{suite}}'
+                                    href='{{url}}'>
+                                    {{test}}
+                                </a>
                             </li>
                         {{/each}}
                     </ul>
@@ -37,34 +42,9 @@
         </ul>
 
         <script>
-        (function () {
-            var tests = [].slice.call(document.querySelectorAll("a"));
-            var active;
-
-            window.addEventListener('message', function(e) {
-                if ( typeof e.data.success === "boolean" ) {
-                    active.classList.add(
-                        e.data.success ? "success" : "failure"
-                    );
-                    run();
-                }
-                else {
-                    throw new Error(
-                        "Unrecognized postMessage response: " +
-                        e.data
-                    );
-                }
+            Harness.start(function (result) {
+                window.global_test_results = results;
             });
-
-            function run () {
-                active = tests.shift();
-                var elem = document.createElement("iframe");
-                elem.src = active.href;
-                active.parentNode.insertBefore(elem, active);
-            }
-
-            run();
-        }());
         </script>
     </body>
 </html>

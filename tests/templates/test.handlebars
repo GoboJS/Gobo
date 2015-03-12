@@ -18,7 +18,10 @@
                 function done ( result ) {
                     if ( !complete ) {
                         complete = true;
-                        parent.postMessage( { success: result }, "*" );
+                        parent.postMessage( {
+                            result: result,
+                            id: document.location.search.substr(1)
+                        }, "*" );
                     }
                 }
 

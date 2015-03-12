@@ -52,7 +52,16 @@ module.exports = function(grunt) {
                     target: 'es5',
                     basePath: 'tests'
                 }
-            }
+            },
+            'test-harness': {
+                src: ['tests/test-harness.ts'],
+                dest: 'build/private/test-harness.js',
+                options: {
+                    module: 'commonjs',
+                    target: 'es5',
+                    basePath: 'tests'
+                }
+            },
         },
 
         tslint: {
