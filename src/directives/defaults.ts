@@ -36,7 +36,7 @@ module Directives {
 
         /** Sets the text content of an element */
         text: Directives.directive(function text (elem, value) {
-            elem.textContent = value;
+            elem.textContent = (value === undefined ? "" : value);
         }),
 
         /** Displays the element when a value is truthy */
