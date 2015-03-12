@@ -18,7 +18,7 @@ module.exports = function(grunt) {
                 }
             },
             'tests-local': {
-                src: ['tests/local.ts', 'tests/*.test.ts'],
+                src: ['tests/framework/local.ts', 'tests/*.test.ts'],
                 dest: 'build/private/local-test.js',
                 options: {
                     module: 'commonjs',
@@ -27,7 +27,7 @@ module.exports = function(grunt) {
                 }
             },
             'test-data': {
-                src: ['tests/test-data.ts', 'tests/*.test.ts'],
+                src: ['tests/framework/data.ts', 'tests/*.test.ts'],
                 dest: 'build/private/test-data.js',
                 options: {
                     module: 'commonjs',
@@ -36,7 +36,7 @@ module.exports = function(grunt) {
                 }
             },
             'test-framework': {
-                src: ['tests/framework.ts'],
+                src: ['tests/framework/framework.ts'],
                 dest: 'build/private/test-framework.js',
                 options: {
                     module: 'commonjs',
@@ -45,7 +45,7 @@ module.exports = function(grunt) {
                 }
             },
             'test-server': {
-                src: ['tests/test-server.ts'],
+                src: ['tests/framework/server.ts'],
                 dest: 'build/private/test-server.js',
                 options: {
                     module: 'commonjs',
@@ -54,7 +54,7 @@ module.exports = function(grunt) {
                 }
             },
             'test-harness': {
-                src: ['tests/test-harness.ts'],
+                src: ['tests/framework/harness.ts'],
                 dest: 'build/private/test-harness.js',
                 options: {
                     module: 'commonjs',

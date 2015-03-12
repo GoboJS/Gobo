@@ -84,7 +84,7 @@ class Server {
 
             htmlTemplate(
                 res,
-                "./tests/templates/listing.handlebars",
+                "./tests/framework/listing.handlebars",
                 { suites: data }
             );
         });
@@ -107,7 +107,7 @@ class Server {
                 suites[req.params.suite][req.params.test];
 
             if ( bundle ) {
-                htmlTemplate(res, "./tests/templates/test.handlebars", {
+                htmlTemplate(res, "./tests/framework/test.handlebars", {
                     html: bundle.html,
                     logic: bundle.logic.toString()
                 });

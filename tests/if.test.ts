@@ -1,4 +1,4 @@
-/// <reference path="framework.ts"/>
+/// <reference path="framework/framework.ts"/>
 /// <reference path="../src/gobo.ts"/>
 
 declare var require: (string) => any;
