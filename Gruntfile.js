@@ -128,6 +128,11 @@ module.exports = function(grunt) {
                             browserName: 'internet explorer',
                             version: '10',
                             platform: 'WIN8'
+                        },
+                        {
+                            browserName: 'internet explorer',
+                            version: '9',
+                            platform: 'WIN7'
                         }
                     ]
                 }

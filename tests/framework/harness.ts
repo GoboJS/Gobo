@@ -80,7 +80,7 @@ module Harness {
 
         /** Reports a result back to this test case */
         report ( outcome: TestResult ): void {
-            this.elem.classList.add( outcome.result ? "success" : "failure" );
+            this.elem.className += outcome.result ? " success" : " failure";
             if ( !outcome.result && outcome.message ) {
                 var error = document.createElement("div");
                 error.classList.add("error");
@@ -107,15 +107,17 @@ module Harness {
 
         /** A global handler for listening for messages */
         window.addEventListener('message', function(e) {
-            if ( e.data.id === undefined ) {
-                throw new Error("Message received without an id" + e.data);
+            var data = JSON.parse(e.data);
+
+            if ( data.id === undefined ) {
+                throw new Error("Message received without an id" + data);
             }
 
-            if ( !listeners[e.data.id] ) {
-                throw new Error("No listener registered for " + e.data.id);
+            if ( !listeners[data.id] ) {
+                throw new Error("No listener registered for " + data.id);
             }
 
-            listeners[e.data.id](e.data);
+            listeners[data.id](data);
         });
 
         /** Registers a function to be called for the given ID */
