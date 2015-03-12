@@ -75,18 +75,24 @@ module Harness {
         run ( id: string ): void {
             var iframe = document.createElement("iframe");
             iframe.src = this.elem.getAttribute('href') + "?" + id;
-            this.elem.parentNode.insertBefore(iframe, this.elem);
+            this.elem.parentNode.insertBefore(iframe, null);
         }
 
         /** Reports a result back to this test case */
         report ( outcome: TestResult ): void {
             this.elem.classList.add( outcome.result ? "success" : "failure" );
+            if ( !outcome.result && outcome.message ) {
+                var error = document.createElement("div");
+                error.classList.add("error");
+                error.textContent = outcome.message;
+                this.elem.parentNode.insertBefore(error, null);
+            }
         }
 
         /** Returns the name of this test case */
         name(): string {
             return this.elem.getAttribute("test-suite") + ": " +
-                this.elem.textContent;
+                this.elem.textContent.trim();
         }
     }
 

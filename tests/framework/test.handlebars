@@ -15,12 +15,13 @@
 
                 // Logic for reporting the result of the test
                 var complete = false;
-                function done ( result ) {
+                function done ( result, message ) {
                     if ( !complete ) {
                         complete = true;
                         parent.postMessage( {
                             result: result,
-                            id: document.location.search.substr(1)
+                            id: document.location.search.substr(1),
+                            message: message
                         }, "*" );
                     }
                 }
@@ -29,10 +30,13 @@
                 window.onerror = done.bind(null, false);
 
                 // Time the test
-                setTimeout(done.bind(null, false), 1000);
+                setTimeout(done.bind(null, false, "Timeout"), 1000);
 
                 // Run the test
-                logic( done.bind(null, true), new Test.DocReader(document) );
+                logic(
+                    done.bind(null, true, "Passed"),
+                    new Test.DocReader(document)
+                );
             }(
                 {{{logic}}}
             ));
