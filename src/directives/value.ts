@@ -35,8 +35,17 @@ module Directives {
 
         /** @inheritDoc Directive#execute */
         execute ( value: any ): void {
-            if ( this.elem.value !== value ) {
-                this.elem.value = value;
+            if ( this.elem.tagName !== "SELECT" ) {
+                if ( this.elem.value !== value ) {
+                    this.elem.value = value;
+                }
+            }
+            else {
+                [].forEach.call(this.elem.children, (elem) => {
+                    if ( elem.value === value ) {
+                        elem.selected = true;
+                    }
+                });
             }
         }
 
