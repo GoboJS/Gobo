@@ -4,7 +4,80 @@ declare var require: (string) => any;
 declare var module: any;
 declare var process: any;
 
+var fs = require('fs');
 var Handlebars = require("handlebars");
+
+/** Loads fresh test data */
+function load () {
+
+    // `require` caches modules. We need to clear that cache before
+    // reloading to ensure we get fresh data
+    Object.keys((<any> require).cache).forEach((key) => {
+        if ( key.match(/test-data\.js$/) ) {
+            delete (<any> require).cache[key];
+        }
+    });
+
+    return require('./test-data.js')();
+}
+
+/** Attempts to read a file, throwing an error if it fails */
+function readFile(
+    res: any, path: string,
+    fn: (content: string) => void
+) {
+    fs.readFile(path, (err, content) => {
+        if (err) {
+            res.sendStatus(500);
+            res.send(err);
+        }
+        else {
+            fn(content.toString());
+        }
+    });
+}
+
+/** Sends back a chunk of HTML */
+function htmlTemplate(res: any, path: string, data: any) {
+    readFile(res, path, (html) => {
+        var template = Handlebars.compile(html);
+        res.set('Content-Type', 'text/html');
+        res.send( template(data) );
+    });
+}
+
+/** Serves a javascript file */
+function serveJS (path: string) {
+    return (req, res) => {
+        readFile(res, path, (data) => {
+            res.set('Content-Type', 'application/javascript');
+            res.send(data);
+        });
+    };
+}
+
+/** Serves a map of test suites */
+function serveSuiteList ( res: any, suites: Test.SuiteSet ) {
+    var data = Object.keys(suites).map(suite => {
+        return {
+            suite: suite,
+            url: "/" + encodeURIComponent(suite),
+            tests: Object.keys(suites[suite]).map(test => {
+                return {
+                    test: test,
+                    url: "/" + encodeURIComponent(suite) +
+                        "/" + encodeURIComponent(test)
+                };
+            })
+        };
+    });
+
+    htmlTemplate(
+        res,
+        "./tests/framework/listing.handlebars",
+        { suites: data }
+    );
+}
 
 /** Starts a local server that serves up test code */
 class Server {
@@ -12,81 +85,7 @@ class Server {
     /** Start a new server */
     start(): void {
 
-        var fs = require('fs');
         var server = require('express')();
-
-        /** Loads fresh test data */
-        function load () {
-
-            // `require` caches modules. We need to clear that cache before
-            // reloading to ensure we get fresh data
-            Object.keys((<any> require).cache).forEach((key) => {
-                if ( key.match(/test-data\.js$/) ) {
-                    delete (<any> require).cache[key];
-                }
-            });
-
-            return require('./test-data.js')();
-        }
-
-        /** Attempts to read a file, throwing an error if it fails */
-        function readFile(
-            res: any, path: string,
-            fn: (content: string) => void
-        ) {
-            fs.readFile(path, (err, content) => {
-                if (err) {
-                    res.sendStatus(500);
-                    res.send(err);
-                }
-                else {
-                    fn(content.toString());
-                }
-            });
-        }
-
-        /** Sends back a chunk of HTML */
-        function htmlTemplate(res: any, path: string, data: any) {
-            readFile(res, path, (html) => {
-                var template = Handlebars.compile(html);
-                res.set('Content-Type', 'text/html');
-                res.send( template(data) );
-            });
-        }
-
-        /** Serves a javascript file */
-        function serveJS (path: string) {
-            return (req, res) => {
-                readFile(res, path, (data) => {
-                    res.set('Content-Type', 'application/javascript');
-                    res.send(data);
-                });
-            };
-        }
-
-
-        /** Serves a map of test suites */
-        function serveSuiteList ( res: any, suites: any ) {
-            var data = Object.keys(suites).map(suite => {
-                return {
-                    suite: suite,
-                    url: "/" + encodeURIComponent(suite),
-                    tests: Object.keys(suites[suite]).map(test => {
-                        return {
-                            test: test,
-                            url: "/" + encodeURIComponent(suite) +
-                                "/" + encodeURIComponent(test)
-                        };
-                    })
-                };
-            });
-
-            htmlTemplate(
-                res,
-                "./tests/framework/listing.handlebars",
-                { suites: data }
-            );
-        }
 
         // At the root level, list out all of the tests
         server.get('/', (req, res) => {
@@ -98,7 +97,7 @@ class Server {
             var suites = load();
 
             if ( suites[req.params.suite] ) {
-                var single = {};
+                var single: Test.SuiteSet = {};
                 single[req.params.suite] = suites[req.params.suite];
                 serveSuiteList(res, single);
             }
