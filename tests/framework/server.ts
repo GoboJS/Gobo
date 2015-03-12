@@ -65,13 +65,12 @@ class Server {
         }
 
 
-        // At the root level, list out all of the tests
-        server.get('/', (req, res) => {
-            var suites = load();
-
+        /** Serves a map of test suites */
+        function serveSuiteList ( res: any, suites: any ) {
             var data = Object.keys(suites).map(suite => {
                 return {
                     suite: suite,
+                    url: "/" + encodeURIComponent(suite),
                     tests: Object.keys(suites[suite]).map(test => {
                         return {
                             test: test,
@@ -87,6 +86,25 @@ class Server {
                 "./tests/framework/listing.handlebars",
                 { suites: data }
             );
+        }
+
+        // At the root level, list out all of the tests
+        server.get('/', (req, res) => {
+            serveSuiteList(res, load());
+        });
+
+        //Serve a single test suite
+        server.get('/:suite', (req, res) => {
+            var suites = load();
+
+            if ( suites[req.params.suite] ) {
+                var single = {};
+                single[req.params.suite] = suites[req.params.suite];
+                serveSuiteList(res, single);
+            }
+            else {
+                res.sendStatus(404);
+            }
         });
 
         // Serve up the required JS files
@@ -114,7 +132,6 @@ class Server {
             }
             else {
                 res.sendStatus(404);
-                res.send("<html><body><h1>Test not found</h1></body></html>");
             }
         });
 
