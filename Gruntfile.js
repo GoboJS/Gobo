@@ -102,6 +102,25 @@ module.exports = function(grunt) {
             test: {
                 src: ['build/private/local-test.js']
             }
+        },
+
+        'saucelabs-custom': {
+            all: {
+                options: {
+                    urls: [ 'http://localhost:8080' ],
+                    build: process.env.CI_BUILD_NUMBER,
+                    browsers: [
+                        {
+                            browserName: 'firefox',
+                            platform: 'WIN8.1'
+                        },
+                        {
+                            browserName: 'chrome',
+                            platform: 'WIN8.1'
+                        }
+                    ]
+                }
+            }
         }
     });
 
@@ -118,6 +137,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-import');
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-tslint');
+    grunt.loadNpmTasks('grunt-saucelabs');
 
     // Default task(s).
     grunt.registerTask('default',
