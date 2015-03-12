@@ -109,6 +109,7 @@ module.exports = function(grunt) {
                 options: {
                     urls: [ 'http://localhost:8080' ],
                     build: process.env.CI_BUILD_NUMBER,
+                    testname: 'Gobo unit tests',
                     browsers: [
                         {
                             browserName: 'firefox',
@@ -144,5 +145,8 @@ module.exports = function(grunt) {
         ['typescript', 'import', 'tslint', 'mochaTest', 'uglify', 'bytesize']);
 
     grunt.registerTask('dev', ['typescript', 'import', 'test-server', 'watch']);
+
+    grunt.registerTask('release',
+        ['default', 'test-server', 'saucelabs-custom']);
 };
 

@@ -27,6 +27,6 @@
     "watchjs": "0.0.0"
   },
   "scripts": {
-    "test": "grunt --verbose"
+    "test": "grunt --verbose release"
   }
 }
