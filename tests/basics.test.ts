@@ -177,5 +177,24 @@ Test.test('Gobo', (should) => {
         done();
     });
 
+    should('Set and unset attributes').using(
+        `<ul>
+            <li id='elem' g-some-attr='key'></li>
+        </ul>`
+    ).in((done, $) => {
+        var data: any = {};
+        new Gobo({ watch: WatchJS }).bind($.body, data);
+
+        assert.isFalse( $.byId('elem').hasAttribute("some-attr") );
+
+        data.key = 'blah';
+        assert.equal($.byId('elem').getAttribute("some-attr"), 'blah');
+
+        data.key = false;
+        assert.isFalse( $.byId('elem').hasAttribute("some-attr") );
+
+        done();
+    });
+
 });
 

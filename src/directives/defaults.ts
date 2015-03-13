@@ -56,6 +56,16 @@ module Directives {
                 var reg = new RegExp("(\\s|^)" + this.param + "(\\s|$)");
                 this.elem.className = this.elem.className.replace(reg, " ");
             }
+        }),
+
+        /** A catch all that simply sets an attribute */
+        "*": Directives.directive(function attribute (elem, value) {
+            if ( value ) {
+                elem.setAttribute(this.param, value);
+            }
+            else {
+                elem.removeAttribute(this.param);
+            }
         })
     };
 }
