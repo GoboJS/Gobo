@@ -28,7 +28,7 @@ module Test {
             using: function using ( html: string ) {
                 return {
                     in: function callback ( callback: Logic ): void {
-                        testHtml( "should " + name, html, callback );
+                        testHtml( name, html, callback );
                     }
                 };
             }
@@ -37,7 +37,7 @@ module Test {
 
     /** Defines a test suite */
     export function test(name: string, tests: ( should: Should ) => void) {
-        describe(name, tests.bind(null, should));
+        describe(name + " should...", tests.bind(null, should));
     }
 }
 
