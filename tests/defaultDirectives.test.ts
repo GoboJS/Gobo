@@ -48,6 +48,25 @@ Test.test('Default Directives', (should) => {
         done();
     });
 
+    should('Remove prexisting classes').using(
+        `<ul>
+            <li id='elem' class='klazz' g-class-klazz='enabled'></li>
+        </ul>`
+    ).in((done, $) => {
+        var data: any = { enabled: true };
+
+        new Gobo({ watch: WatchJS }).bind($.body, data);
+        assert.isTrue( $.hasClass($.byId('elem'), 'klazz') );
+
+        data.enabled = true;
+        assert.isTrue( $.hasClass($.byId('elem'), 'klazz') );
+
+        data.enabled = false;
+        assert.isFalse( $.hasClass($.byId('elem'), 'klazz') );
+
+        done();
+    });
+
     should('Hide and show elements').using(
         `<ul>
             <li id='shown' g-show='bool'></li>

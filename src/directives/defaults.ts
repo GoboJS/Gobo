@@ -53,8 +53,10 @@ module Directives {
                 elem.className += " " + this.param;
             }
             else {
-                var reg = new RegExp("(\\s|^)" + this.param + "(\\s|$)");
-                this.elem.className = this.elem.className.replace(reg, " ");
+                this.elem.className = this.elem.className.replace(
+                    new RegExp("(^|\\b)" + this.param + "(\\b|$)", "gi"),
+                    " "
+                );
             }
         }),
 
