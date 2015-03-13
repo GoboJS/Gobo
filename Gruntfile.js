@@ -139,6 +139,12 @@ module.exports = function(grunt) {
                             platform: 'Linux',
                             version: '4.4',
                             deviceName: 'Google Nexus 7 HD Emulator'
+                        },
+                        {
+                            browserName: 'iphone',
+                            platform: 'OS X 10.10',
+                            version: '8.1',
+                            deviceName: 'iPhone Simulator'
                         }
                     ]
                 }
