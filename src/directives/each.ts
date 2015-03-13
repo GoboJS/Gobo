@@ -87,7 +87,7 @@ module Directives {
         /** @inheritDoc Directive#execute */
         execute ( value: any ): void {
             var i = 0;
-            value.forEach((value: any) => {
+            (value && value.forEach ? value : []).forEach((value: any) => {
 
                 var found = this.values.indexOf(value, i);
 

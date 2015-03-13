@@ -137,6 +137,33 @@ Test.test('Each blocks', (should) => {
         done();
     });
 
+    should('ignore non-iterable values').using(
+        `<ul id='values'>
+            <li g-each-value='undef'>undef</li>
+            <li g-each-value='explicitUndef'>explicit undef</li>
+            <li g-each-value='t'>true</li>
+            <li g-each-value='f'>false</li>
+            <li g-each-value='zero'>zero</li>
+            <li g-each-value='number'>number</li>
+            <li g-each-value='str'>string</li>
+            <li g-each-value='obj'>object</li>
+        </ul>`
+    ).in((done, $) => {
+        new Gobo().bind($.body, {
+            explicitUndef: undefined,
+            nil: null,
+            t: true,
+            f: false,
+            zero: 0,
+            number: 3.1415,
+            str: "String",
+            obj: {}
+        });
+        assert.equal( $.cleanup($.textById('values')), "" );
+
+        done();
+    });
+
 });
 
 
