@@ -135,10 +135,21 @@ module.exports = function(grunt) {
                             platform: 'WIN7'
                         },
                         {
+                            browserName: 'safari',
+                            platform: 'OS X 10.10',
+                            version: '8.0'
+                        },
+                        {
                             browserName: 'android',
                             platform: 'Linux',
                             version: '4.4',
-                            deviceName: 'Google Nexus 7 HD Emulator'
+                            deviceName: 'Android Emulator'
+                        },
+                        {
+                            browserName: 'android',
+                            platform: 'Linux',
+                            version: '4.3',
+                            deviceName: 'Android Emulator'
                         },
                         {
                             browserName: 'iphone',
