@@ -122,10 +122,8 @@ module Data {
             fn: (resolved: Keypath) => T
         ): T {
             if ( this.mapping[keypath[0]] ) {
-                return <T> this.mapping[keypath[0]].interpret({
-                    get: ( resolved: Keypath ) => {
-                        return fn( resolved.concat(keypath.slice(1)) );
-                    }
+                return <T> this.mapping[keypath[0]].interpret(resolved => {
+                    return fn( resolved.concat(keypath.slice(1)) );
                 });
             }
         }

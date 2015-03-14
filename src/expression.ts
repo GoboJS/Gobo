@@ -86,7 +86,7 @@ module Expr {
         }
 
         /** Interpret and return the value */
-        interpret (data: { get (keypath: Data.Keypath): any; }): any {
+        interpret ( get: (keypath: Data.Keypath) => any ): any {
             // Since there is no syntax for writing out arrays, we can use the
             // fact that value is an array as an indication that it was parsed
             // as a keypath
@@ -94,7 +94,7 @@ module Expr {
                 return this.value;
             }
 
-            var value = data.get(<Data.Keypath> this.value);
+            var value = get(<Data.Keypath> this.value);
 
             // If the value isn't a function, or there are no custom arguments,
             // we don't need to do anything special
@@ -106,7 +106,7 @@ module Expr {
             // arguments and combine them with any passed in args
             var args = this.args;
             return function ( ...passed: any[] ): any {
-                var resolved = args.map(arg => { return arg.interpret(data); });
+                var resolved = args.map(arg => { return arg.interpret(get); });
                 return value.apply( this, resolved.concat(passed) );
             };
         }
@@ -116,7 +116,7 @@ module Expr {
             // By actually interpretting the argument, we weed out the list
             // of primitives from actual keypath references. Then, we hijack
             // the call to get
-            var add = { get: (keypath) => { keypaths.push(keypath); } };
+            var add = keypaths.push.bind(keypaths);
 
             this.interpret(add);
 
@@ -141,7 +141,9 @@ module Expr {
             value: any,
             data: Data.Data
         ): any[] {
-            var args = this.args.map(arg => { return arg.interpret(data); });
+            var args = this.args.map(arg => {
+                return arg.interpret( data.get.bind(data) );
+            });
             args.unshift(value);
             return fn.apply(this.bind, args);
         }
@@ -175,7 +177,7 @@ module Expr {
             // By actually interpretting the argument, we weed out the list
             // of primitives from actual keypath references. Then, we hijack
             // the call to get
-            var add = { get: (keypath) => { keypaths.push(keypath); } };
+            var add = keypaths.push.bind(keypaths);
             this.args.forEach(arg => { arg.interpret(add); });
         }
     }
@@ -232,7 +234,7 @@ module Expr {
         resolve ( data: Data.Data, allowFuncs: boolean ): any {
             var value = this.filters.reduce(
                 (value, filter) => { return filter.read(data, value); },
-                this.value.interpret(data)
+                this.value.interpret( data.get.bind(data) )
             );
 
             if ( !allowFuncs && typeof value === "function" ) {
@@ -250,25 +252,22 @@ module Expr {
                 value = this.filters[i].publish(data, value);
             }
 
-            var setter = this.value.interpret({
-                get: (keypath) => {
+            var setter = this.value.interpret(keypath => {
 
-                    var obj = data.get( keypath.slice(0, -1), keypath[0] );
-                    var key = keypath[keypath.length - 1];
+                var obj = data.get( keypath.slice(0, -1), keypath[0] );
+                var key = keypath[keypath.length - 1];
 
-                    // By returning a function, it gets passed through the
-                    // binding logic of Expression.interpret, which hooks in
-                    // any extra arguments and attaches the correct 'this'
-                    // value
-                    return function setter ( ...args: any[] ) {
-                        if ( typeof obj[key] === "function" ) {
-                            obj[key].apply( obj, args );
-                        }
-                        else {
-                            obj[key] = value;
-                        }
-                    };
-                }
+                // By returning a function, it gets passed through the binding
+                // logic of Expression.interpret, which hooks in any extra
+                // arguments and attaches the correct 'this' value
+                return function setter ( ...args: any[] ) {
+                    if ( typeof obj[key] === "function" ) {
+                        obj[key].apply( obj, args );
+                    }
+                    else {
+                        obj[key] = value;
+                    }
+                };
             });
 
             if ( typeof setter === "function" ) {
