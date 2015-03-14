@@ -32,27 +32,46 @@
         <script>
             (function (logic) {
 
+                // Reports a result back up te chain
+                function report ( result, message ) {
+                    parent.postMessage( JSON.stringify({
+                        result: result,
+                        id: document.location.search.substr(1),
+                        message: message
+                    }), "*" );
+
+                    if ( result ) {
+                        document.body.className += " success";
+                    }
+                    else {
+                        var report = document.createElement("div");
+                        report.className = "failure";
+                        report.textContent = message;
+                        document.body.insertBefore(
+                            report, document.body.firstChild);
+                    }
+                }
+
                 // Logic for reporting the result of the test
-                var complete = false;
+                var complete;
                 function done ( result, message ) {
                     if ( !complete ) {
-                        complete = true;
-                        parent.postMessage( JSON.stringify({
-                            result: result,
-                            id: document.location.search.substr(1),
-                            message: message
-                        }), "*" );
+                        complete = { result: result, message: message };
 
-                        if ( result ) {
-                            document.body.className += " success";
-                        }
-                        else {
-                            var report = document.createElement("div");
-                            report.className = "failure";
-                            report.textContent = message;
-                            document.body.insertBefore(
-                                report, document.body.firstChild);
-                        }
+                        // Delaying the report allows errors to be caught that
+                        // happen after 'done' is invoked
+                        setTimeout(function () {
+                            report( complete.result, complete.message );
+                        }, 0);
+                    }
+                    else if ( !result ) {
+                        complete = { result: result, message: message };
+                    }
+                    else {
+                        complete = {
+                            result: false,
+                            message: "'done' called multiple times"
+                        };
                     }
                 }
 
