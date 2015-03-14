@@ -5,7 +5,7 @@ Gobo projects your data onto your DOM. It's a small MVVM library for binding
 data to HTML; you provide the model, then write attributes in your HTML that
 describe the user experience. Gobo glues them together.
 
-[![Sauce Test Status](https://saucelabs.com/browser-matrix/nycto-gobo.svg)](https://saucelabs.com/u/nycto-gobo)
+![Sauce Test Status](https://saucelabs.com/browser-matrix/nycto-gobo.svg?auth=35717a653e612001e0b36828bcb06a24)
 
 MVVM?
 -----
