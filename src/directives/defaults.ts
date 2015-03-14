@@ -2,7 +2,7 @@
 /// <reference path="if.ts"/>
 /// <reference path="each.ts"/>
 /// <reference path="on.ts"/>
-/// <reference path="value.ts"/>
+/// <reference path="model.ts"/>
 
 module Directives {
 
@@ -32,7 +32,7 @@ module Directives {
         "on-*": Directives.OnStatement,
 
         /** Binds to a field value */
-        value: Directives.ValueStatement,
+        model: Directives.ModelStatement,
 
         /** Sets the text content of an element */
         text: Directives.directive(function text (elem, value) {

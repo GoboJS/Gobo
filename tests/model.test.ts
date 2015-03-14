@@ -6,10 +6,10 @@ declare var require: (string) => any;
 var assert = require('chai').assert;
 var WatchJS = require("watchjs");
 
-Test.test('Value directives', (should) => {
+Test.test('Model directives', (should) => {
 
     should('Set the value of an input field').using(
-        `<input id='field' g-value='name'>`
+        `<input id='field' g-model='name'>`
     ).in((done, $) => {
         var data = { name: "Veal Steakface" };
         new Gobo({ watch: WatchJS }).bind($.body, data);
@@ -22,7 +22,7 @@ Test.test('Value directives', (should) => {
     });
 
     should('Update the data when the value changes').using(
-        `<input id='field' g-value='name'>`
+        `<input id='field' g-model='name'>`
     ).in((done, $) => {
         var data = { name: "Veal Steakface" };
         new Gobo({ watch: WatchJS }).bind($.body, data);
@@ -32,7 +32,7 @@ Test.test('Value directives', (should) => {
     });
 
     should('Update a keypath when the value changes').using(
-        `<input id='field' g-value='person.details.name'>`
+        `<input id='field' g-model='person.details.name'>`
     ).in((done, $) => {
         var data = { person: { details: { name: "Veal Steakface" } } };
         new Gobo({ watch: WatchJS }).bind($.body, data);
@@ -47,7 +47,7 @@ Test.test('Value directives', (should) => {
     });
 
     should('Set the value of a select field').using(
-        `<select id='field' g-value='name'>
+        `<select id='field' g-model='name'>
             <option>Lug</option>
             <option>Veal</option>
             <option>Big</option>
@@ -59,7 +59,7 @@ Test.test('Value directives', (should) => {
     });
 
     should('Call functions when publishing values').using(
-        `<input id='field' g-value='name'>`
+        `<input id='field' g-model='name'>`
     ).in((done, $) => {
 
         new Gobo({ watch: WatchJS }).bind($.body, {
@@ -80,7 +80,7 @@ Test.test('Value directives', (should) => {
     });
 
     should('publish as a final value to functions with arguments').using(
-        `<input id='field' g-value='name "one" "two"'>`
+        `<input id='field' g-model='name "one" "two"'>`
     ).in((done, $) => {
 
         new Gobo({ watch: WatchJS }).bind($.body, {

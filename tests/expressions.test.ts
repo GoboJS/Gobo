@@ -239,7 +239,7 @@ Test.test('Expressions', (should) => {
     });
 
     should('Support bi-directional filters').using(
-        `<input id='value' g-value='value | one | two | three'>`
+        `<input id='value' g-model='value | one | two | three'>`
     ).in((done, $) => {
         var data = { value: "Veal", };
         var gobo = new Gobo({ watch: WatchJS });
