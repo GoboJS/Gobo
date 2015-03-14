@@ -11,10 +11,10 @@ module Directives {
         /** The fragment standing in for the element */
         private standin: Node;
 
-        /** @inheritDoc Directive#connect */
+        /** @inheritDoc Connection#connect */
         public connect: () => void;
 
-        /** @inheritDoc Directive#disconnect */
+        /** @inheritDoc Connect#disconnect */
         public disconnect: () => void;
 
         /**

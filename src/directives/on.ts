@@ -15,9 +15,6 @@ module Directives {
         /** The event handler */
         private handler: ( evt: Event ) => void;
 
-        /** Whether the handler is connected */
-        private connected: boolean = false;
-
         /**
          * @constructor
          * @inheritDoc Directive#constructor
@@ -38,18 +35,16 @@ module Directives {
             this.connect();
         }
 
-        /** @inheritDoc Directive#connect */
+        /** @inheritDoc Connection#connect */
         connect(): void {
-            if ( this.handler && !this.connected ) {
-                this.connected = true;
+            if ( this.handler ) {
                 this.elem.addEventListener(this.event, this.handler);
             }
         }
 
-        /** @inheritDoc Directive#disconnect */
+        /** @inheritDoc Connect#disconnect */
         disconnect(): void {
             if ( this.handler ) {
-                this.connected = false;
                 this.elem.removeEventListener(this.event, this.handler);
             }
         }

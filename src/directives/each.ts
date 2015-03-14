@@ -48,8 +48,8 @@ module Directives {
          */
         private values: Array<any> = [];
 
-        /** Whether this statement is connected */
-        private connected = true;
+        /** @inheritDoc Connect#connected */
+        public connected = true;
 
         /**
          * @constructor
@@ -119,20 +119,14 @@ module Directives {
             }
         }
 
-        /** @inheritDoc Directive#connect */
+        /** @inheritDoc Connect#connect */
         connect(): void {
-            if ( !this.connected ) {
-                this.sections.forEach((section) => { section.connect(); });
-                this.connected = true;
-            }
+            this.sections.forEach((section) => { section.connect(); });
         }
 
-        /** @inheritDoc Directive#disconnect */
+        /** @inheritDoc Connect#disconnect */
         disconnect(): void {
-            if ( this.connected ) {
-                this.sections.forEach((section) => { section.disconnect(); });
-                this.connected = false;
-            }
+            this.sections.forEach((section) => { section.disconnect(); });
         }
     }
 }

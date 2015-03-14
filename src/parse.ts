@@ -3,26 +3,24 @@
 /// <reference path="data.ts"/>
 /// <reference path="expression.ts"/>
 /// <reference path="config.ts"/>
+/// <reference path="connect.ts"/>
 /// <reference path="directives/definition.ts"/>
 
 module Parse {
 
     /** A section contains directives and blocks */
-    export class Section {
+    export class Section implements Connect.Connectable {
 
         /** Directives nested within this block */
         public bindings: Array<Watch.PathBinding> = [];
 
         /** Directives and sections nested within this block */
-        public nested: Array<{
-            connect?: () => void;
-            disconnect?: () => void;
-        }> = [];
+        public nested: Array<Connect.Connectable> = [];
 
         /** @constructor */
         constructor( public root: HTMLElement ) {}
 
-        /** Hooks up the behavior for this section */
+        /** @inheritDoc Connect#connect */
         connect(): void {
             this.bindings.forEach((inner: Watch.PathBinding) => {
                 inner.connect();
@@ -35,7 +33,7 @@ module Parse {
             });
         }
 
-        /** Disconnects the behavior for this block */
+        /** @inheritDoc Connect#disconnect */
         disconnect(): void {
             this.bindings.forEach((inner) => { inner.disconnect(); });
             this.nested.forEach((inner) => {
@@ -115,6 +113,10 @@ module Parse {
                 },
                 publish: expr.set.bind(expr, data)
             });
+
+            // Wrap the directive in a Debouncer to automatically manage
+            // multiple calls to connect/disconnect
+            Connect.debounce(directive);
 
             section.nested.push(directive);
 

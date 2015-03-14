@@ -1,18 +1,13 @@
 /// <reference path="../data.ts"/>
+/// <reference path="../connect.ts"/>
 
 module Directives {
 
     /** Directives modify a single element */
-    export interface Directive {
+    export interface Directive extends Connect.Connectable {
 
         /** Executes this directive against an element with a value */
         execute ( value: any ): void;
-
-        /** Hooks up the behavior for this directive */
-        connect?: () => void;
-
-        /** Unhooks the behavior for this directive */
-        disconnect?: () => void;
     }
 
     /** Detailed info about how a directive is constructed */

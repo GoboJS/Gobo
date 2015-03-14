@@ -9,9 +9,6 @@ module Directives {
         /** The form element */
         private elem: HTMLInputElement;
 
-        /** Whether the handler is connected */
-        private connected: boolean = false;
-
         /** The event to monitor */
         private event: string;
 
@@ -47,18 +44,16 @@ module Directives {
             }
         }
 
-        /** @inheritDoc Directive#connect */
+        /** @inheritDoc Connection#connect */
         connect(): void {
-            if ( this.handler && !this.connected ) {
-                this.connected = true;
+            if ( this.handler ) {
                 this.elem.addEventListener(this.event, this.handler);
             }
         }
 
-        /** @inheritDoc Directive#disconnect */
+        /** @inheritDoc Connect#disconnect */
         disconnect(): void {
             if ( this.handler ) {
-                this.connected = false;
                 this.elem.removeEventListener(this.event, this.handler);
             }
         }
