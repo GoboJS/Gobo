@@ -126,15 +126,23 @@ module Parse {
                 directive.execute(expr.resolve(data, tuple.value.allowFuncs));
             }
 
-            // Hook up an observer so that any change to the
-            // keypath causes the directive to be re-rendered
-            expr.watches.forEach(watch => {
-                section.bindings.push(new Watch.PathBinding(
-                    config.watch,
-                    data.eachKey.bind(data, watch),
-                    trigger
-                ));
-            });
+            // If there were no watches, it means there were _just_ primitives,
+            // which also means the triggering will never happen. So, we need
+            // to make sure it gets triggered at least once
+            if ( expr.watches.length === 0 ) {
+                trigger();
+            }
+            else {
+                // Hook up an observer so that any change to the
+                // keypath causes the directive to be re-rendered
+                expr.watches.forEach(watch => {
+                    section.bindings.push(new Watch.PathBinding(
+                        config.watch,
+                        data.eachKey.bind(data, watch),
+                        trigger
+                    ));
+                });
+            }
         };
     }
 

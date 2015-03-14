@@ -186,15 +186,32 @@ Test.test('Expressions', (should) => {
     should('Allow alternate watch paths').using(
         `<div id='value' g-text='value < alternate'></div>`
     ).in((done, $) => {
+
+        var i = 0;
+        var data = { value: function () { return i++; }, alternate: 0 };
+
+        new Gobo({ watch: WatchJS }).bind($.body, data);
+
+        assert.equal( $.cleanup($.textById('value')), "1" );
+
+        data.alternate += 1;
+        assert.equal( $.cleanup($.textById('value')), "2" );
+
+        data.alternate += 1;
+        assert.equal( $.cleanup($.textById('value')), "3" );
+
+        done();
+    });
+
+    should('Watch for changes on a keypath despite a watch path').using(
+        `<div id='value' g-text='value < alternate'></div>`
+    ).in((done, $) => {
         var data = { value: "Veal", alternate: 0 };
         new Gobo({ watch: WatchJS }).bind($.body, data);
 
         assert.equal( $.cleanup($.textById('value')), "Veal" );
 
         data.value = "Lug";
-        assert.equal( $.cleanup($.textById('value')), "Veal" );
-
-        data.alternate += 1;
         assert.equal( $.cleanup($.textById('value')), "Lug" );
 
         done();
@@ -263,6 +280,26 @@ Test.test('Expressions', (should) => {
 
         data.gamma = 5;
         assert.equal( $.cleanup($.textById('value')), "40" );
+
+        done();
+    });
+
+    should('Allow primitives to be passed directly to directives').using(
+        `<ul id='values'>
+            <li g-text='undefined'></li>
+            <li g-text='null'></li>
+            <li g-text='true'></li>
+            <li g-text='false'></li>
+            <li g-text='3.14'></li>
+            <li g-text='"some string"'></li>
+        </ul>`
+    ).in((done, $) => {
+        new Gobo().bind($.body, {});
+
+        assert.equal(
+            $.cleanup($.textById('values')),
+            "true false 3.14 some string"
+        );
 
         done();
     });

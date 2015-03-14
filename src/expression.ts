@@ -49,6 +49,9 @@ module Expr {
         /** The raw value */
         private value: boolean | Data.Keypath | number | string;
 
+        /** Any arguments to be passed to this value if it is a function */
+        private args: Value[];
+
         /** @constructor */
         constructor ( token: any ) {
             switch ( token ) {
@@ -71,7 +74,13 @@ module Expr {
                         this.value = parseFloat(token);
                     }
                     else {
-                        this.value = parseKeypath(token);
+                        var parts = split[" "](token);
+                        this.value = parseKeypath( parts.shift() );
+                        if ( parts.length > 0 ) {
+                            this.args = parts.map(part => {
+                                return new Value(part);
+                            });
+                        }
                     }
             }
         }
@@ -81,9 +90,39 @@ module Expr {
             // Since there is no syntax for writing out arrays, we can use the
             // fact that value is an array as an indication that it was parsed
             // as a keypath
-            return Array.isArray(this.value) ?
-                data.get(<Data.Keypath> this.value) :
-                this.value;
+            if ( !Array.isArray(this.value) ) {
+                return this.value;
+            }
+
+            var value = data.get(<Data.Keypath> this.value);
+
+            // If the value isn't a function, or there are no custom arguments,
+            // we don't need to do anything special
+            if ( !this.args || typeof value !== "function" ) {
+                return value;
+            }
+
+            // Otherwise, return a function that will interpret the predefined
+            // arguments and combine them with any passed in args
+            var args = this.args;
+            return function ( ...passed: any[] ): any {
+                var resolved = args.map(arg => { return arg.interpret(data); });
+                return value.apply( this, resolved.concat(passed) );
+            };
+        }
+
+        /** Adds any keypaths referenced by this value to an array */
+        addKeypaths( keypaths: Data.Keypath[] ): void {
+            // By actually interpretting the argument, we weed out the list
+            // of primitives from actual keypath references. Then, we hijack
+            // the call to get
+            var add = { get: (keypath) => { keypaths.push(keypath); } };
+
+            this.interpret(add);
+
+            if ( this.args ) {
+                this.args.forEach(arg => { arg.interpret(add); });
+            }
         }
     }
 
@@ -159,14 +198,11 @@ module Expr {
     /** A parsed expression */
     export class Expression {
 
-        /** The path of keys to fetch when resolving values */
-        public keypath: Data.Keypath;
+        /** The value to fetch when resolving an expression */
+        private value: Value;
 
         /** A list of paths to monitor */
-        public watches: Data.Keypath[];
-
-        /** Arguments to pass */
-        public args: Value[];
+        public watches: Data.Keypath[] = [];
 
         /** Filters to apply */
         public filters: FilterCall[];
@@ -177,20 +213,13 @@ module Expr {
 
             var filterParts = split["|"](watchParts.shift());
 
-            var args = split[" "](filterParts.shift());
+            this.value = new Value( filterParts.shift() );
 
-            this.keypath = parseKeypath( args.shift() );
+            this.value.addKeypaths( this.watches );
 
-            this.args = args.map(arg => { return new Value(arg); });
-
-            if ( watchParts.length > 0 ) {
-                this.watches = watchParts.map(token => {
-                    return parseKeypath(token);
-                });
-            }
-            else {
-                this.watches = [ this.keypath ];
-            }
+            watchParts.map(token => {
+                this.watches.push( parseKeypath(token) );
+            });
 
             this.filters = filterParts.map(filterExpr => {
                 var filter = parseFilter(filterExpr, config);
@@ -199,37 +228,15 @@ module Expr {
             });
         }
 
-        /** Creates a function that applies the arguments in this expression */
-        private applyArgs(
-            data: Data.Data,
-            value: (...values: any[]) => void
-        ): (...values: any[]) => void {
-
-            if ( this.args.length === 0 ) {
-                return value;
-            }
-
-            return () => {
-                var args = [].slice.call(arguments);
-                var exprArgs = this.args.map(arg => {
-                    return arg.interpret(data);
-                });
-                return value.apply(null, exprArgs.concat(args));
-            };
-        }
-
         /** Returns the value of this expression */
         resolve ( data: Data.Data, allowFuncs: boolean ): any {
             var value = this.filters.reduce(
                 (value, filter) => { return filter.read(data, value); },
-                data.get(this.keypath)
+                this.value.interpret(data)
             );
 
-            if ( typeof value === "function" ) {
-                value = this.applyArgs(data, value);
-                if ( !allowFuncs ) {
-                    value = value();
-                }
+            if ( !allowFuncs && typeof value === "function" ) {
+                value = value();
             }
 
             return value;
@@ -238,26 +245,37 @@ module Expr {
         /** Sets a value of this expression */
         set ( data: Data.Data, value: any ): void {
 
-            // Walk backwards through the filters and apply any
+            // Walk backwards through the filters and apply them
             for ( var i = this.filters.length - 1; i >= 0; i-- ) {
                 value = this.filters[i].publish(data, value);
             }
 
-            var obj = data.get(
-                this.keypath.slice(0, this.keypath.length - 1),
-                this.keypath[0]
-            );
+            var setter = this.value.interpret({
+                get: (keypath) => {
 
-            var key = this.keypath[this.keypath.length - 1];
+                    var obj = data.get( keypath.slice(0, -1), keypath[0] );
+                    var key = keypath[keypath.length - 1];
 
-            if ( typeof obj[key] === "function" ) {
-                this.applyArgs( data, obj[key] )( value );
-            }
-            else {
-                obj[key] = value;
+                    // By returning a function, it gets passed through the
+                    // binding logic of Expression.interpret, which hooks in
+                    // any extra arguments and attaches the correct 'this'
+                    // value
+                    return function setter ( ...args: any[] ) {
+                        if ( typeof obj[key] === "function" ) {
+                            obj[key].apply( obj, args );
+                        }
+                        else {
+                            obj[key] = value;
+                        }
+                    };
+                }
+            });
+
+            if ( typeof setter === "function" ) {
+                setter(value);
             }
         }
     }
 
-
 }
+
