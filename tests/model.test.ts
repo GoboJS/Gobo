@@ -101,5 +101,76 @@ Test.test('Model directives', (should) => {
 
         $.typeInto('field', "Lug ThickNeck");
     });
+
+    should('Bind to the root object when calling a shallow keypath').using(
+        `<input id='field' g-model='name'>`
+    ).in((done, $) => {
+
+        var data = {
+            name: function (value) {
+                assert.equal( this, data );
+                if ( arguments.length === 0 ) {
+                    return "Veal Steakface";
+                }
+                else {
+                    done();
+                }
+            }
+        };
+
+        new Gobo({ watch: WatchJS }).bind($.body, data);
+
+        assert.equal( $.fieldById('field').value, "Veal Steakface" );
+
+        $.typeInto('field', "Lug ThickNeck");
+    });
+
+    should('Bind to one the parent object in deep keypaths').using(
+        `<input id='field' g-model='person.name'>`
+    ).in((done, $) => {
+
+        var data = {
+            person: {
+                name: function (value) {
+                    assert.equal( this, data.person );
+                    if ( arguments.length === 0 ) {
+                        return "Veal Steakface";
+                    }
+                    else {
+                        done();
+                    }
+                }
+            }
+        };
+
+        new Gobo({ watch: WatchJS }).bind($.body, data);
+
+        assert.equal( $.fieldById('field').value, "Veal Steakface" );
+
+        $.typeInto('field', "Lug ThickNeck");
+    });
+
+    should('Bind to the parent when there are arguments').using(
+        `<input id='field' g-model='name "one" "two"'>`
+    ).in((done, $) => {
+
+        var data = {
+            name: function (one, two, value) {
+                assert.equal( this, data );
+                if ( arguments.length === 2 ) {
+                    return "Veal Steakface";
+                }
+                else {
+                    done();
+                }
+            }
+        };
+
+        new Gobo({ watch: WatchJS }).bind($.body, data);
+
+        assert.equal( $.fieldById('field').value, "Veal Steakface" );
+
+        $.typeInto('field', "Lug ThickNeck");
+    });
 });
 
