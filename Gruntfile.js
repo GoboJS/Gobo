@@ -110,6 +110,7 @@ module.exports = function(grunt) {
                     urls: [ 'http://localhost:8080' ],
                     build: process.env.CI_BUILD_NUMBER || Date.now(),
                     testname: 'Gobo unit tests',
+                    public: "public",
                     browsers: [
                         {
                             browserName: 'firefox',
