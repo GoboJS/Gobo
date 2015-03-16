@@ -149,12 +149,17 @@ module Expr {
             fn: Filters.FilterFunc,
             value: any,
             data: Data.Data
-        ): any[] {
-            var args = this.args.map(arg => {
-                return arg.interpret( data.get.bind(data) );
-            });
-            args.unshift(value);
-            return fn.apply(this.bind, args);
+        ): any {
+            if (fn) {
+                var args = this.args.map(arg => {
+                    return arg.interpret( data.get.bind(data) );
+                });
+                args.unshift(value);
+                return fn.apply(this.bind, args);
+            }
+            else {
+                return value;
+            }
         }
 
         /** Applies this filter when applying a value to a directive */

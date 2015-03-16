@@ -265,6 +265,30 @@ Test.test('Expressions', (should) => {
         done();
     });
 
+    should('Support publish only filters').using(
+        `<input id='value' g-model='value | one | two'>`
+    ).in((done, $) => {
+        var data = { value: "Veal", };
+        var gobo = new Gobo({ watch: WatchJS });
+
+        gobo.filters.one = {
+            publish: (value) => { return "one " + value; }
+        };
+        gobo.filters.two = {
+            publish: (value) => { return "two " + value; }
+        };
+
+        gobo.bind($.body, data);
+        assert.equal( $.fieldById('value').value, "Veal" );
+        assert.equal( data.value, "Veal" );
+
+        $.typeInto('value', "Lug");
+        assert.equal( $.fieldById('value').value, "one two Lug" );
+        assert.equal( data.value, "one two Lug" );
+
+        done();
+    });
+
     should('Watch for changes to filter arguments').using(
         `<div id='value' g-text='alpha | multiply beta gamma'></div>`
     ).in((done, $) => {
