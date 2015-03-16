@@ -16,7 +16,8 @@ module Expr {
         ".": splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^\.])+/g),
         "|": splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^\|])+/g),
         " ": splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^ ])+/g),
-        "<": splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^<])+/g)
+        "<": splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^<])+/g),
+        ">": splitter(/(?:(["'])(?:\\.|[^\1])*?\1|\\.|[^>])+/g)
     };
 
     /** Returns whether a value appears to contain quotes */
@@ -211,6 +212,9 @@ module Expr {
         /** The value to fetch when resolving an expression */
         private value: Value;
 
+        /** The value to which changes are published */
+        private publish: Value;
+
         /** A list of paths to monitor */
         public watches: Data.Keypath[] = [];
 
@@ -223,7 +227,19 @@ module Expr {
 
             var filterParts = split["|"](watchParts.shift());
 
-            this.value = new Value( filterParts.shift() );
+            var publishParts = split[">"](filterParts.shift());
+
+            this.value = new Value(publishParts.shift());
+
+            if ( publishParts.length === 0 ) {
+                this.publish = this.value;
+            }
+            else if ( publishParts.length === 1 ) {
+                this.publish = new Value(publishParts[0]);
+            }
+            else {
+                throw new Error("Cant publish to multiple places: " + expr);
+            }
 
             this.value.addKeypaths( this.watches );
 
@@ -260,7 +276,7 @@ module Expr {
                 value = this.filters[i].publish(data, value);
             }
 
-            var setter = this.value.interpret(keypath => {
+            var setter = this.publish.interpret(keypath => {
 
                 var obj = data.get( keypath.slice(0, -1), keypath[0] );
                 var key = keypath[keypath.length - 1];

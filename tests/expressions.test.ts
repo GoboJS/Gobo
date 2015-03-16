@@ -304,4 +304,49 @@ Test.test('Expressions', (should) => {
         done();
     });
 
+    should('Publish to alternate locations').using(
+        `<input id='field' g-model='name > other'>`
+    ).in((done, $) => {
+        var data = { name: "Veal Steakface", other: "Nothing" };
+        new Gobo({ watch: WatchJS }).bind($.body, data);
+
+        assert.equal( data.other, "Nothing" );
+        assert.equal( data.name, "Veal Steakface" );
+
+        $.typeInto('field', "Lug ThickNeck");
+
+        assert.equal( data.other, "Lug ThickNeck" );
+        assert.equal( data.name, "Veal Steakface" );
+
+        done();
+    });
+
+    should('Apply filters when publishing to an alternate location').using(
+        `<input id='field' g-model='name > other | one | two'>`
+    ).in((done, $) => {
+        var data = { name: "Veal Steakface", other: "Nothing" };
+        var gobo = new Gobo({ watch: WatchJS });
+
+        gobo.filters.one = {
+            read: (value) => { return value; },
+            publish: (value) => { return "one " + value; }
+        };
+        gobo.filters.two = {
+            read: (value) => { return value; },
+            publish: (value) => { return "two " + value; }
+        };
+
+        gobo.bind($.body, data);
+
+        assert.equal( data.other, "Nothing" );
+        assert.equal( data.name, "Veal Steakface" );
+
+        $.typeInto('field', "Lug ThickNeck");
+
+        assert.equal( data.other, "one two Lug ThickNeck" );
+        assert.equal( data.name, "Veal Steakface" );
+
+        done();
+    });
+
 });
