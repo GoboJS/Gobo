@@ -1,4 +1,4 @@
-Gobo [![Build Status](https://secure.travis-ci.org/Nycto/Gobo.png?branch=master)](http://travis-ci.org/Nycto/Gobo)
+Gobo [![Build Status](https://secure.travis-ci.org/GoboJS/Gobo.png?branch=master)](http://travis-ci.org/GoboJS/Gobo)
 ====
 
 Gobo projects your data onto your DOM. It's a small MVVM library for binding
