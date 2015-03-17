@@ -6,7 +6,7 @@ module Expr {
     /** Creates a function that splits a string */
     function splitter( regex: RegExp ): (input: string) => string[] {
         return (input) => {
-            return input.match(regex);
+            return input.match(regex).map(str => { return str.trim(); });
         };
     }
 

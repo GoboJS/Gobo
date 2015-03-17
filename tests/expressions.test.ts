@@ -373,4 +373,29 @@ Test.test('Expressions', (should) => {
         done();
     });
 
+    should('Ignore new lines').using(
+        `<input id='field' g-model='
+                keypath
+                    > destination
+                    | filter
+                        "Filter"
+                    < watch
+                '>`
+    ).in((done, $) => {
+        var data = { keypath: "Steakface", watch: 0, destination: null };
+        var gobo = new Gobo({ watch: WatchJS });
+
+        gobo.filters.filter = (arg, value) => { return arg + " " + value; };
+
+        gobo.bind($.body, data);
+
+        assert.equal( $.fieldById('field').value, "Steakface Filter" );
+
+        $.typeInto('field', "Lug");
+
+        assert.equal( data.destination, "Lug" );
+
+        done();
+    });
+
 });
