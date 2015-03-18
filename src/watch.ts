@@ -1,3 +1,5 @@
+/// <reference path="connect.ts"/>
+
 module Watch {
 
     /** A mechanism for observing a value on an object */
@@ -16,7 +18,7 @@ module Watch {
      * An ordered list of watchers. When one of the functions is triggered, it
      * automatically invalidates all of the watchers that come after it
      */
-    export class PathBinding {
+    export class PathBinding implements Connect.Connectable {
 
         /** The list of objects to which watchers have been bound */
         private watches: Array<any> = [];
@@ -24,7 +26,6 @@ module Watch {
         /** The handler to invoke when something changes */
         private handler = () => {
             this.connect();
-            this.trigger();
         };
 
         /**
@@ -36,14 +37,13 @@ module Watch {
         constructor(
             private watch: Watch,
             private each: (callback: Data.EachKeyCallback) => void,
-            public trigger: () => void
-        ) {
-            this.connect();
-        }
+            private trigger: () => void
+        ) {}
 
-        /** Hooks up watchers for objects that have changed */
+        /** @inheritDoc Connect#connect */
         public connect() {
             if ( !this.watch ) {
+                this.trigger();
                 return;
             }
 
@@ -66,9 +66,11 @@ module Watch {
 
                 i++;
             });
+
+            this.trigger();
         }
 
-        /** Detaches any watchers from this watch chain */
+        /** @inheritDoc Connect#disconnect */
         public disconnect() {
             if ( !this.watch ) {
                 return;

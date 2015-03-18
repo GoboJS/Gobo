@@ -11,21 +11,19 @@ module Parse {
     /** A section contains directives and blocks */
     export class Section implements Connect.Connectable {
 
-        /** Directives nested within this block */
-        public bindings: Array<Watch.PathBinding> = [];
-
         /** Directives and sections nested within this block */
-        public nested: Array<Connect.Connectable> = [];
+        private nested: Array<Connect.Connectable> = [];
 
         /** @constructor */
         constructor( public root: HTMLElement ) {}
 
+        /** Adds a connectable to this section */
+        push ( connectable: Connect.Connectable ) {
+            this.nested.push(connectable);
+        }
+
         /** @inheritDoc Connect#connect */
         connect(): void {
-            this.bindings.forEach((inner: Watch.PathBinding) => {
-                inner.connect();
-                inner.trigger();
-            });
             this.nested.forEach((inner) => {
                 if ( inner.connect ) {
                     inner.connect();
@@ -35,7 +33,6 @@ module Parse {
 
         /** @inheritDoc Connect#disconnect */
         disconnect(): void {
-            this.bindings.forEach((inner) => { inner.disconnect(); });
             this.nested.forEach((inner) => {
                 if ( inner.disconnect ) {
                     inner.disconnect();
@@ -47,7 +44,6 @@ module Parse {
         destroy(): void {
             this.disconnect();
             this.root.parentNode.removeChild(this.root);
-            this.bindings = null;
             this.nested = null;
         }
     }
@@ -118,7 +114,7 @@ module Parse {
             // multiple calls to connect/disconnect
             Connect.debounce(directive);
 
-            section.nested.push(directive);
+            section.push(directive);
 
             /**
              * Evalutes the expression and triggers the directive. This gets
@@ -138,7 +134,7 @@ module Parse {
                 // Hook up an observer so that any change to the
                 // keypath causes the directive to be re-rendered
                 expr.watches.forEach(watch => {
-                    section.bindings.push(new Watch.PathBinding(
+                    section.push(new Watch.PathBinding(
                         config.watch,
                         data.eachKey.bind(data, watch),
                         trigger
@@ -165,7 +161,7 @@ module Parse {
                 config, data
             );
 
-            section.nested.push( outerSection );
+            section.push( outerSection );
 
             // Grab the unprefix attributes and use them as variable masks
             var mask: { [key: string]: Expr.Value; } = {};
@@ -177,7 +173,7 @@ module Parse {
 
             // The inner section parses the content of the component. It gets
             // masked data depending on the attributes passed to it
-            outerSection.nested.push( parse(
+            outerSection.push( parse(
                 Traverse.Reader.create(config, replacement),
                 config, new Data.Mask(data, mask)
             ) );
