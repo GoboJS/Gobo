@@ -398,4 +398,26 @@ Test.test('Expressions', (should) => {
         done();
     });
 
+    should('Treat empty expressions as undefined').using(
+        `<ul>
+            <li g-test></li>
+            <li g-test=""></li>
+            <li g-test="   "></li>
+            <li g-test=" < monitor"></li>
+            <li g-test=" < "></li>
+            <li g-test=" > publish"></li>
+            <li g-test=" > "></li>
+        </ul>`
+    ).in((done, $) => {
+        var gobo = new Gobo();
+
+        gobo.directives.test = Gobo.directive(function (elem, value) {
+            assert.isUndefined(value);
+            this.publish("test");
+        });
+
+        gobo.bind($.body, {});
+        done();
+    });
+
 });

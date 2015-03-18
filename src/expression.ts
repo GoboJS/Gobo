@@ -6,7 +6,8 @@ module Expr {
     /** Creates a function that splits a string */
     function splitter( regex: RegExp ): (input: string) => string[] {
         return (input) => {
-            return input.match(regex).map(str => { return str.trim(); });
+            var split = (input || "").match(regex);
+            return split ? split.map(str => { return str.trim(); }) : [];
         };
     }
 
@@ -65,6 +66,7 @@ module Expr {
                 case "null":
                     this.value = null;
                     break;
+                case undefined:
                 case "undefined":
                     break;
                 default:
@@ -228,7 +230,7 @@ module Expr {
 
         /** @constructor */
         constructor( expr: string, config: Config.Config ) {
-            var watchParts = split["<"](expr);
+            var watchParts = split["<"](expr || "");
 
             var filterParts = split["|"](watchParts.shift());
 
