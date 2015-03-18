@@ -86,6 +86,8 @@ module Directives {
         function Custom( elem: HTMLElement, details: Directives.Details ) {
             this.elem = elem;
             this.param = details.param;
+            this.publish = details.publish;
+            this.data = details.data;
         }
 
         Custom.prototype.execute = function execute( value: any ) {
