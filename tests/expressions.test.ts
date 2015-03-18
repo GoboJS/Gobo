@@ -379,10 +379,10 @@ Test.test('Expressions', (should) => {
                     > destination
                     | filter
                         "Filter"
-                    < watch
+                    < monitor
                 '>`
     ).in((done, $) => {
-        var data = { keypath: "Steakface", watch: 0, destination: null };
+        var data = { keypath: "Steakface", monitor: 0, destination: null };
         var gobo = new Gobo({ watch: WatchJS });
 
         gobo.filters.filter = (arg, value) => { return arg + " " + value; };
