@@ -85,21 +85,59 @@ Test.test('Gobo', (should) => {
 
         gobo.directives.one = Gobo.directive({
             priority: 500,
-            execute: ( value: any ) => { assert.equal(0, count++); }
+            execute: ( value: any ) => { assert.equal(count++, 0); }
         });
 
         gobo.directives.two = Gobo.directive({
             priority: 250,
-            execute: ( value: any ) => { assert.equal(1, count++); }
+            execute: ( value: any ) => { assert.equal(count++, 1); }
         });
 
         gobo.directives.three = Gobo.directive({
             priority: 50,
-            execute: ( value: any ) => { assert.equal(2, count++); }
+            execute: ( value: any ) => { assert.equal(count++, 2); }
         });
 
         gobo.directives.final = Gobo.directive({
-            execute: ( value: any ) => { assert.equal(3, count++); }
+            execute: ( value: any ) => { assert.equal(count++, 3); }
+        });
+
+        gobo.bind( $.body, { junk: "blah" });
+
+        assert.equal(4, count);
+
+        done();
+    });
+
+    should('Respect priorities across different elements').using(
+        `<div g-three='junk'>
+            <div g-one='junk'>
+                <div g-final='junk'></div>
+            </div>
+            <div g-two='junk'></div>
+        </div>`
+    ).in((done, $) => {
+        var gobo = new Gobo();
+
+        var count = 0;
+
+        gobo.directives.one = Gobo.directive({
+            priority: 500,
+            execute: ( value: any ) => { assert.equal(count++, 0); }
+        });
+
+        gobo.directives.two = Gobo.directive({
+            priority: 250,
+            execute: ( value: any ) => { assert.equal(count++, 1); }
+        });
+
+        gobo.directives.three = Gobo.directive({
+            priority: 50,
+            execute: ( value: any ) => { assert.equal(count++, 2); }
+        });
+
+        gobo.directives.final = Gobo.directive({
+            execute: ( value: any ) => { assert.equal(count++, 3); }
         });
 
         gobo.bind( $.body, { junk: "blah" });

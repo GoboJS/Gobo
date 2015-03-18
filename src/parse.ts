@@ -9,34 +9,59 @@
 module Parse {
 
     /** A section contains directives and blocks */
-    export class Section implements Connect.Connectable {
+    export class Section {
+
+        /** A list of priorities that exist within this section */
+        private priorities: number[] = [];
 
         /** Directives and sections nested within this block */
-        private nested: Array<Connect.Connectable> = [];
+        private nested: { [priority: number]: Connect.Connectable[] } = {};
 
         /** @constructor */
         constructor( public root: HTMLElement ) {}
 
         /** Adds a connectable to this section */
-        push ( connectable: Connect.Connectable ) {
-            this.nested.push(connectable);
+        push ( priority: number, connectable: Connect.Connectable ) {
+            priority = priority || 0;
+
+            // If this specific priority has never been seen, register it
+            if ( !this.nested[priority] ) {
+                this.nested[priority] = [];
+                this.priorities.push(priority);
+                this.priorities.sort((a, b) => { return b - a; });
+            }
+
+            this.nested[priority].push(connectable);
+        }
+
+        /** Adds everything from another section to this section */
+        merge ( section: Section ) {
+            section.priorities.forEach(priority => {
+                section.nested[priority].forEach(connectable => {
+                    this.push(priority, connectable);
+                });
+            });
         }
 
         /** @inheritDoc Connect#connect */
         connect(): void {
-            this.nested.forEach((inner) => {
-                if ( inner.connect ) {
-                    inner.connect();
-                }
+            this.priorities.forEach(priority => {
+                this.nested[priority].forEach(inner => {
+                    if ( inner.connect ) {
+                        inner.connect();
+                    }
+                });
             });
         }
 
         /** @inheritDoc Connect#disconnect */
         disconnect(): void {
-            this.nested.forEach((inner) => {
-                if ( inner.disconnect ) {
-                    inner.disconnect();
-                }
+            this.priorities.forEach(priority => {
+                this.nested[priority].forEach(inner => {
+                    if ( inner.disconnect ) {
+                        inner.disconnect();
+                    }
+                });
             });
         }
 
@@ -114,7 +139,7 @@ module Parse {
             // multiple calls to connect/disconnect
             Connect.debounce(directive);
 
-            section.push(directive);
+            section.push(tuple.value.priority, directive);
 
             /**
              * Evalutes the expression and triggers the directive. This gets
@@ -128,13 +153,13 @@ module Parse {
             // which also means the triggering will never happen. So, we need
             // to make sure it gets triggered at least once
             if ( expr.watches.length === 0 ) {
-                trigger();
+                section.push(tuple.value.priority, { connect: trigger });
             }
             else {
                 // Hook up an observer so that any change to the
                 // keypath causes the directive to be re-rendered
                 expr.watches.forEach(watch => {
-                    section.push(new Watch.PathBinding(
+                    section.push(tuple.value.priority, new Watch.PathBinding(
                         config.watch,
                         data.eachKey.bind(data, watch),
                         trigger
@@ -161,8 +186,6 @@ module Parse {
                 config, data
             );
 
-            section.push( outerSection );
-
             // Grab the unprefix attributes and use them as variable masks
             var mask: { [key: string]: Expr.Value; } = {};
             [].slice.call(elem.attributes).forEach((attr) => {
@@ -173,10 +196,12 @@ module Parse {
 
             // The inner section parses the content of the component. It gets
             // masked data depending on the attributes passed to it
-            outerSection.push( parse(
+            outerSection.merge( parse(
                 Traverse.Reader.create(config, replacement),
                 config, new Data.Mask(data, mask)
             ) );
+
+            section.merge( outerSection );
         };
     }
 
