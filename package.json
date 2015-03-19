@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Nycto/Gobo.git"
+    "url": "https://github.com/GoboJS/Gobo.git"
   },
   "devDependencies": {
     "chai": "^2.1.0",
