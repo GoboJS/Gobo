@@ -202,6 +202,30 @@ Test.test('Components', (should) => {
         done();
     });
 
+    should('Bind functions screened through a mask').using(
+        `<div>
+            <g-widget person="people.guy"></g-widget>
+        </div>`
+    ).in((done, $) => {
+
+        var data = {
+            people: {
+                guy: {
+                    name: function (one, two) {
+                        assert.strictEqual(this, data.people.guy);
+                        assert.equal(one, 1);
+                        assert.equal(two, 2);
+                        done();
+                    }
+                }
+            }
+        };
+
+        var gobo = new Gobo();
+        gobo.components.widget = "<div g-text='person.name 1 2'></div>";
+        gobo.bind($.body, data);
+    });
+
 });
 
 

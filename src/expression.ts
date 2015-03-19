@@ -99,26 +99,18 @@ module Expr {
 
             var value = get(<Data.Keypath> this.value);
 
-            // Not a function? Just return it
-            if ( typeof value !== "function" ) {
+            // If it isn't a function, or there aren't any arguments that
+            // need to be applied, just return it
+            if ( !this.args || typeof value !== "function" ) {
                 return value;
-            }
-
-            // Otherwise, figure out what object it needs to be bound to
-            var binding = get( (<Data.Keypath> this.value).slice(0, -1) );
-
-            // If the value isn't a function, or there are no custom arguments,
-            // we don't need to do anything special
-            if ( !this.args ) {
-                return value.bind(binding);
             }
 
             // Otherwise, return a function that will interpret the predefined
             // arguments and combine them with any passed in args
             var args = this.args;
-            return function ( ...passed: any[] ): any {
+            return function prependArgs ( ...passed: any[] ): any {
                 var resolved = args.map(arg => { return arg.interpret(get); });
-                return value.apply( binding, resolved.concat(passed) );
+                return value.apply( null, resolved.concat(passed) );
             };
         }
 

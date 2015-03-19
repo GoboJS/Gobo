@@ -36,11 +36,22 @@ module Data {
 
         /** Returns the value given a path of keys */
         get ( keypath: Keypath, rootKey?: string ): any {
-            return keypath.reduce((obj, key) => {
+            var root = this.getRoot(rootKey || keypath[0]);
+
+            // While walking through the keypath below, we keep track of
+            // the trailing object so we can guarantee functions are always
+            // bound to their parent object
+            var binding;
+
+            // Walk through each key and extract the nested path
+            var value = keypath.reduce((obj, key) => {
+                binding = obj;
                 if ( obj !== null && obj !== undefined ) {
                     return obj[key];
                 }
-            }, this.getRoot(rootKey || keypath[0]));
+            }, root);
+
+            return typeof value === "function" ? value.bind(binding) : value;
         }
 
         /** Creates a new scope from this instance */
