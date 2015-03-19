@@ -72,9 +72,7 @@ module Directives {
 
         (<any> Custom).priority = obj.priority;
 
-        ["execute", "construct", "disconnect"].forEach((fn) => {
-            Custom.prototype[fn] = obj[fn];
-        });
+        Custom.prototype = obj;
 
         return <any> Custom;
     }

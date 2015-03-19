@@ -6,7 +6,39 @@ declare var require: (string) => any;
 var assert = require('chai').assert;
 var WatchJS = require("watchjs");
 
-Test.test('Default Directives', (should) => {
+Test.test('Directives', (should) => {
+
+    should('Call connect, execute and disconnect in a specific order').using(
+        `<ul g-if='enabled'>
+            <li g-test></li>
+        </ul>`
+    ).in((done, $) => {
+        var gobo = new Gobo({ watch: WatchJS });
+
+        var previous;
+        gobo.directives.test = Gobo.directive({
+            connect: () => {
+                assert.isUndefined(previous);
+                previous = "connect";
+            },
+            execute: () => {
+                assert.equal(previous, "connect");
+                previous = "execute";
+            },
+            disconnect: () => {
+                assert.equal(previous, "execute");
+                previous = "disconnect";
+            },
+        });
+
+        var data = { enabled: true };
+        gobo.bind($.body, data);
+        data.enabled = false;
+
+        assert.equal(previous, "disconnect");
+
+        done();
+    });
 
     should('bind values to text content').using(
         `<ul>
