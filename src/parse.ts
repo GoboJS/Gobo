@@ -45,24 +45,28 @@ module Parse {
 
         /** @inheritDoc Connect#connect */
         connect(): void {
-            this.priorities.forEach(priority => {
-                this.nested[priority].forEach(inner => {
+            for (var i = 0; i < this.priorities.length; i++) {
+                var priority = this.priorities[i];
+                for (var j = 0; j < this.nested[priority].length; j++) {
+                    var inner = this.nested[priority][j];
                     if ( inner.connect ) {
                         inner.connect();
                     }
-                });
-            });
+                }
+            }
         }
 
         /** @inheritDoc Connect#disconnect */
         disconnect(): void {
-            this.priorities.forEach(priority => {
-                this.nested[priority].forEach(inner => {
+            for (var i = 0; i < this.priorities.length; i++) {
+                var priority = this.priorities[i];
+                for (var j = 0; j < this.nested[priority].length; j++) {
+                    var inner = this.nested[priority][j];
                     if ( inner.disconnect ) {
                         inner.disconnect();
                     }
-                });
-            });
+                }
+            }
         }
 
         /** Disconnects this section and removes it */
