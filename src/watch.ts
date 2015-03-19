@@ -23,11 +23,6 @@ module Watch {
         /** The list of objects to which watchers have been bound */
         private watches: Array<any> = [];
 
-        /** The handler to invoke when something changes */
-        private handler = () => {
-            this.connect();
-        };
-
         /**
          * @constructor
          * @param watch The interface for setting up an observer
@@ -43,7 +38,6 @@ module Watch {
         /** @inheritDoc Connect#connect */
         public connect() {
             if ( !this.watch ) {
-                this.trigger();
                 return;
             }
 
@@ -53,21 +47,19 @@ module Watch {
                 // If the object at this depth has changed since the last
                 // iteration, we need to unbind from the old object
                 if ( this.watches[i] && this.watches[i] !== obj ) {
-                    this.watch.unwatch(this.watches[i], key, this.handler);
+                    this.watch.unwatch(this.watches[i], key, this.trigger);
                     this.watches[i] = null;
                 }
 
                 // If there is no watch at this level, or the watch was just
                 // cleared out, we need to add one
                 if ( !this.watches[i] && obj ) {
-                    this.watch.watch(obj, key, this.handler, 0);
+                    this.watch.watch(obj, key, this.trigger, 0);
                     this.watches[i] = obj;
                 }
 
                 i++;
             });
-
-            this.trigger();
         }
 
         /** @inheritDoc Connect#disconnect */
@@ -79,7 +71,7 @@ module Watch {
             var i = 0;
             this.each((_, key) => {
                 if ( this.watches[i] ) {
-                    this.watch.unwatch(this.watches[i], key, this.handler);
+                    this.watch.unwatch(this.watches[i], key, this.trigger);
                     this.watches[i] = null;
                 }
                 i++;

@@ -188,7 +188,13 @@ Test.test('Expressions', (should) => {
     ).in((done, $) => {
 
         var i = 0;
-        var data = { value: function () { return i++; }, alternate: 0 };
+        var data = {
+            value: () => {
+                i++;
+                return i;
+            },
+            alternate: 0
+        };
 
         new Gobo({ watch: WatchJS }).bind($.body, data);
 
@@ -200,6 +206,21 @@ Test.test('Expressions', (should) => {
         data.alternate += 1;
         assert.equal( $.cleanup($.textById('value')), "3" );
 
+        done();
+    });
+
+    should('Only trigger once when connecting').using(
+        `<ul>
+            <li g-test="path arg < monitor"></li>
+        </ul>`
+    ).in((done, $) => {
+        var gobo = new Gobo();
+
+        var calls = 0;
+        gobo.directives.test = Gobo.directive(() => { calls++; });
+        gobo.bind( $.body, {});
+
+        assert.equal(calls, 1);
         done();
     });
 
