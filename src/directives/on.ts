@@ -29,7 +29,7 @@ module Directives {
 
             this.handler = (evt) => {
                 evt.preventDefault();
-                value();
+                value(evt);
             };
 
             this.connect();

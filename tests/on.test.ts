@@ -11,7 +11,17 @@ Test.test('On-event directives', (should) => {
     should('call functions').using(
         `<a href='#' id='link' g-on-click='execute'>Click me</a>`
     ).in((done, $) => {
-        var data = { execute: done };
+        var data = {
+            execute: (evt) => {
+
+                // Try to loosely confirm that we received an event object
+                assert.isObject(evt);
+                assert.isDefined(evt.type);
+                assert.isDefined(evt.target);
+
+                done();
+            }
+        };
         new Gobo({ watch: WatchJS }).bind($.body, data);
         $.clickById('link');
     });
