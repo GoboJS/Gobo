@@ -94,5 +94,21 @@ Test.test('Filters', (should) => {
         done();
     });
 
+    should('Allow event filtering by keycode').using(
+        `<input id='value' g-on-keyup='callback | key "enter"'>`
+    ).in((done, $) => {
+        new Gobo().bind($.body, {
+            callback: function (event) {
+                assert.equal(event.keyCode, 13);
+                done();
+            }
+        });
+
+        $.keyup("value", 65);
+        $.keyup("value", 66);
+        $.keyup("value", 67);
+        $.keyup("value", 13);
+    });
+
 });
 

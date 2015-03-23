@@ -84,6 +84,31 @@ module Test {
         public isVisible ( id: string ): boolean {
             return this.fieldById(id).style.display !== "none";
         }
+
+        /** Triggers a 'keyup' event */
+        public keyup ( id: string, keyCode: number ): void {
+            var event = this.document.createEvent("KeyboardEvent");
+
+            var init = (<any> event).initKeyboardEvent ||
+                (<any> event).initKeyEvent ||
+                (<any> event).initEvent;
+
+            init.call(event,
+                "keyup", true, true, null,
+                false, false, false, false,
+                keyCode, keyCode
+            );
+
+            // This hack is needed to make Chromium pick up the keycode.
+            // Otherwise, keyCode will always be zero
+            Object.defineProperty(event, 'keyCode', {
+                get : function() {
+                    return keyCode;
+                }
+            });
+
+            this.fieldById(id).dispatchEvent(event);
+        }
     }
 
     /** The function for executing a test */

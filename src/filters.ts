@@ -84,8 +84,31 @@ module Filters {
         /** Assert that a value is greater than or equal to another value */
         gte: function gteFilter (value: any, other: any): boolean {
             return value >= other;
-        }
+        },
 
+        /** Wraps a keyboard event handler and filters by key code */
+        key: function keyFilter (
+            callback: (event: KeyboardEvent, ...args: any[]) => any,
+            key: string
+        ): (event: KeyboardEvent, ...args: any[]) => any {
+            var keyCodes = {
+                enter: 13,
+                tab: 9,
+                delete: 46,
+                up: 38,
+                left: 37,
+                right: 39,
+                down: 40,
+                escape: 27
+            };
+
+            var code = keyCodes[key] ? keyCodes[key] : parseInt(key, 10);
+            return function keyFilterHandler (event: KeyboardEvent): any {
+                if (event.keyCode === code) {
+                    return callback.apply(this, arguments);
+                }
+            };
+        }
     };
 
 }
