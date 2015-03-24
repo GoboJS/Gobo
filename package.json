@@ -22,6 +22,7 @@
     "grunt-typescript": "^0.6.1",
     "handlebars": "^3.0.0",
     "jsdom": "3.x",
+    "q": "^1.2.0",
     "tslint": "^2.1.1",
     "typescript": "^1.4.1",
     "watchjs": "0.0.0"

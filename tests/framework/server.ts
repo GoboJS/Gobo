@@ -6,6 +6,7 @@ declare var process: any;
 
 var fs = require('fs');
 var Handlebars = require("handlebars");
+var Q = require("q");
 
 /** Loads fresh test data */
 function load () {
@@ -47,12 +48,23 @@ function htmlTemplate(res: any, path: string, data: any) {
 }
 
 /** Serves a javascript file */
-function serveJS (path: string) {
+function serveJS (paths: string[]) {
     return (req, res) => {
-        readFile(res, path, (data) => {
-            res.set('Content-Type', 'application/javascript');
-            res.send(data);
-        });
+        Q.all(
+            paths.map(path => {
+                return Q.nfcall(fs.readFile, path, "utf-8")
+            })
+        ).then(
+            (content: string[]) => {
+                res.set('Content-Type', 'application/javascript');
+                content.forEach(data => { res.write(data); });
+                res.end();
+            },
+            (err) => {
+                res.sendStatus(500);
+                res.send(err);
+            }
+        );
     };
 }
 
@@ -106,15 +118,18 @@ class Server {
             }
         });
 
-        // Serve up the required JS files
-        server.get('/lib/gobo.js', serveJS('build/gobo.debug.js'));
-        server.get('/lib/chai.js', serveJS('node_modules/chai/chai.js'));
-        server.get('/lib/watch.js',
-            serveJS('node_modules/watchjs/src/watch.js'));
-        server.get('/lib/test-framework.js',
-            serveJS('build/private/test-framework.js'));
-        server.get('/lib/test-harness.js',
-            serveJS('build/private/test-harness.js'));
+        // The JS needed for running all the tests
+        server.get('/lib/test-harness.js', serveJS([
+            'build/private/test-harness.js'
+        ]));
+
+        // The JS needed to run an individual test
+        server.get('/lib/test.js', serveJS([
+            'node_modules/chai/chai.js',
+            'build/private/test-framework.js',
+            'node_modules/watchjs/src/watch.js',
+            'build/gobo.debug.js'
+        ]));
 
         // Serve an HTML file with a specific test
         server.get('/:suite/:test', (req, res) => {
