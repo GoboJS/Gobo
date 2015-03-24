@@ -108,6 +108,14 @@ module Filters {
                     return callback.apply(this, arguments);
                 }
             };
+        },
+
+        /** Calls a function */
+        invoke: function invokeFilter (
+            callback: (...args: any[]) => any,
+            ...args: any[]
+        ): any {
+            return callback.apply(null, args);
         }
     };
 

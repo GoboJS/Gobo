@@ -110,5 +110,27 @@ Test.test('Filters', (should) => {
         $.keyup("value", 13);
     });
 
+    should('Invoke functions').using(
+        `<ul>
+            <li id='withoutArgs' g-text='func1 | invoke'></li>
+            <li id='withArgs' g-text='func2 | invoke 1 2 "three"'></li>
+        </ul>`
+    ).in((done, $) => {
+        new Gobo().bind($.body, {
+            func1: function () {
+                assert.equal(arguments.length, 0);
+                return "Func1 result";
+            },
+            func2: function () {
+                assert.deepEqual( [].slice.call(arguments), [1, 2, "three"] );
+                return "Func2 result";
+            }
+        });
+
+        assert.equal( $.cleanup($.textById('withoutArgs')), "Func1 result" );
+        assert.equal( $.cleanup($.textById('withArgs')), "Func2 result" );
+        done();
+    });
+
 });
 
