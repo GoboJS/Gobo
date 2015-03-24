@@ -132,5 +132,26 @@ Test.test('Filters', (should) => {
         done();
     });
 
+    should('Set a value').using(
+        `<div>
+            <a id='clickOne' g-on-click='obj | set "key" "value"'></li>
+            <a id='clickTwo' g-on-click='obj | set "key" "other value"'></li>
+        </div>`
+    ).in((done, $) => {
+        var data: any = { obj: {} };
+
+        new Gobo().bind($.body, data);
+
+        assert.isUndefined( data.obj.key );
+
+        $.clickById("clickOne");
+        assert.equal( data.obj.key, "value" );
+
+        $.clickById("clickTwo");
+        assert.equal( data.obj.key, "other value" );
+
+        done();
+    });
+
 });
 

@@ -116,6 +116,13 @@ module Filters {
             ...args: any[]
         ): any {
             return callback.apply(null, args);
+        },
+
+        /** Returns a function that sets a value on an object */
+        set: function setFilter ( obj: any, key: any, value: any ): any {
+            return function setFilterHandler() {
+                obj[key] = value;
+            };
         }
     };
 
