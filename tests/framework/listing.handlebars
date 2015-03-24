@@ -29,6 +29,9 @@
     </head>
     <body>
 
+        <ul id='failures'>
+        </ul>
+
         <h1>Tests</h1>
         <ul>
             {{#each suites}}
@@ -49,9 +52,27 @@
         </ul>
 
         <script>
-            Harness.start(function (results) {
-                window.global_test_results = results;
-            });
+            Harness.start(
+                function onComplete (results) {
+                    window.global_test_results = results;
+                },
+                function onError (result, url) {
+                    var link = document.createElement("a");
+                    link.textContent = result.name;
+                    link.href = url;
+                    link.className = "failure";
+
+                    var message = document.createElement("div");
+                    message.textContent = result.message;
+                    message.className = "error";
+
+                    var container = document.createElement("li");
+                    container.appendChild(link);
+                    container.appendChild(message);
+
+                    document.getElementById("failures").appendChild(container);
+                }
+            );
         </script>
     </body>
 </html>

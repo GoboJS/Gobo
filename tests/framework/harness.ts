@@ -71,10 +71,15 @@ module Harness {
         /** @constructor */
         constructor ( private elem: HTMLElement ) {}
 
+        /** Returns the URL for this test case */
+        url(): string {
+            return this.elem.getAttribute('href');
+        }
+
         /** Runs this test */
         run ( id: string ): void {
             var iframe = document.createElement("iframe");
-            iframe.src = this.elem.getAttribute('href') + "?" + id;
+            iframe.src = this.url() + "?" + id;
             this.elem.parentNode.insertBefore(iframe, null);
         }
 
@@ -130,7 +135,10 @@ module Harness {
     }
 
     /** Starts test execution */
-    export function start( onComplete: (result: SuiteResult) => void ) {
+    export function start(
+        onComplete: (result: SuiteResult) => void,
+        onFailure: (result: TestResult, url: string) => void = null
+    ) {
 
         var tests =
             [].slice.call(document.querySelectorAll("[test-case]"))
@@ -160,6 +168,10 @@ module Harness {
                 };
                 test.report(result);
                 results.report(result);
+
+                if ( !result.result ) {
+                    onFailure(result, test.url());
+                }
 
                 // Run the next test
                 next();
