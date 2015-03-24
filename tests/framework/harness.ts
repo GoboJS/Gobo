@@ -180,7 +180,7 @@ module Harness {
             test.run(id);
         }
 
-        for ( var i = 0; i < 4; i++ ) {
+        for ( var i = 0; i < 6; i++ ) {
             next();
         }
     };
