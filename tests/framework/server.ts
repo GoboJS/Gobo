@@ -48,7 +48,7 @@ function htmlTemplate(res: any, path: string, data: any) {
 }
 
 /** Serves a javascript file */
-function serveJS (paths: string[]) {
+function serveJS (cache: boolean, paths: string[]) {
     return (req, res) => {
         Q.all(
             paths.map(path => {
@@ -57,6 +57,7 @@ function serveJS (paths: string[]) {
         ).then(
             (content: string[]) => {
                 res.set('Content-Type', 'application/javascript');
+                res.set('Cache-Control', 'public, max-age=300');
                 content.forEach(data => { res.write(data); });
                 res.end();
             },
@@ -91,6 +92,17 @@ function serveSuiteList ( res: any, suites: Test.SuiteSet ) {
     );
 }
 
+/** Given a list of file paths, returns the time of the most recent change */
+function newestMTime ( paths: string[] ): number {
+    return paths.reduce((maxTime: number, path: string) => {
+        var stat = fs.statSync(path);
+        if ( !stat ) {
+            throw new Error("Could not stat " + path);
+        }
+        return Math.max(maxTime, stat.mtime);
+    }, 0);
+}
+
 /** Starts a local server that serves up test code */
 class Server {
 
@@ -119,17 +131,19 @@ class Server {
         });
 
         // The JS needed for running all the tests
-        server.get('/lib/test-harness.js', serveJS([
+        server.get('/lib/test-harness.js', serveJS(false, [
             'build/private/test-harness.js'
         ]));
 
-        // The JS needed to run an individual test
-        server.get('/lib/test.js', serveJS([
+        // The JS files needed to run an individual test
+        var testJS = [
             'node_modules/chai/chai.js',
             'build/private/test-framework.js',
             'node_modules/watchjs/src/watch.js',
             'build/gobo.debug.js'
-        ]));
+        ];
+
+        server.get('/lib/*/test.js', serveJS(true, testJS));
 
         // Serve an HTML file with a specific test
         server.get('/:suite/:test', (req, res) => {
@@ -141,7 +155,8 @@ class Server {
             if ( bundle ) {
                 htmlTemplate(res, "./tests/framework/test.handlebars", {
                     html: bundle.html,
-                    logic: bundle.logic.toString()
+                    logic: bundle.logic.toString(),
+                    jsHash: newestMTime(testJS)
                 });
             }
             else {
