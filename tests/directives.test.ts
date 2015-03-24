@@ -40,6 +40,23 @@ Test.test('Directives', (should) => {
         done();
     });
 
+    should('Allow "allowFunc" to be set').using(
+        `<div g-test='func'></div>`
+    ).in((done, $) => {
+        var gobo = new Gobo();
+
+        gobo.directives.test = Gobo.directive({
+            allowFuncs: true,
+            execute: (value) => {
+                assert.isFunction(value);
+                done();
+            }
+        });
+
+        var data = { func: () => { return "Should be a function"; } };
+        gobo.bind($.body, data);
+    });
+
     should('bind values to text content').using(
         `<ul>
             <li>

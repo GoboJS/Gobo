@@ -48,6 +48,7 @@ module Directives {
     /** Used to define custom directives from simple plain objects */
     export interface CustomDirectiveObj {
         priority?: number;
+        allowFuncs?: boolean;
         construct?: (elem: HTMLElement, details: Directives.Details) => void;
         execute: (value: any) => void;
         connect?: () => void;
@@ -71,6 +72,7 @@ module Directives {
         }
 
         (<any> Custom).priority = obj.priority;
+        (<any> Custom).allowFuncs = obj.allowFuncs;
 
         Custom.prototype = obj;
 
