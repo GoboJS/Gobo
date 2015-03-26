@@ -139,11 +139,13 @@ class Server {
         var testJS = [
             'node_modules/chai/chai.js',
             'build/private/test-framework.js',
-            'node_modules/watchjs/src/watch.js',
-            'build/gobo.debug.js'
+            'node_modules/watchjs/src/watch.js'
         ];
-
         server.get('/lib/*/test.js', serveJS(true, testJS));
+
+        // Serve the Gobo JS separately to make it easier to debug
+        var goboJS = ['build/gobo.debug.js'];
+        server.get('/lib/*/gobo.js', serveJS(true, goboJS));
 
         // Serve an HTML file with a specific test
         server.get('/:suite/:test', (req, res) => {
@@ -156,7 +158,7 @@ class Server {
                 htmlTemplate(res, "./tests/framework/test.handlebars", {
                     html: bundle.html,
                     logic: bundle.logic.toString(),
-                    jsHash: newestMTime(testJS)
+                    jsHash: newestMTime( testJS.concat(goboJS) )
                 });
             }
             else {

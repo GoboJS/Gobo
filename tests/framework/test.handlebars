@@ -90,16 +90,21 @@
                 // Load the javascript test harness
                 loadJS(
                     '/lib/{{jsHash}}/test.js',
-                    done.bind(null, false, "JavaScript lib failed to load"),
-                    function onLoad () {
-                        window.assert = chai.assert;
+                    done.bind(null, false, "JS Test lib failed to load"),
+                    loadJS.bind(null,
+                        '/lib/{{jsHash}}/gobo.js',
+                        done.bind(null, false, "Gobo JS failed to load"),
+                        function onLoad () {
 
-                        // Run the test
-                        logic(
-                            done.bind(null, true, "Passed"),
-                            new Test.DocReader(document)
-                        );
-                    }
+                            window.assert = window.chai.assert;
+
+                            // Run the test
+                            logic(
+                                done.bind(null, true, "Passed"),
+                                new Test.DocReader(document)
+                            );
+                        }
+                    )
                 );
             }(
                 {{{logic}}}
