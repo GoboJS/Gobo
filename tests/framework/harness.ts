@@ -158,14 +158,24 @@ module Harness {
 
             var id: string = "test-" + ids++;
             var start: number = Date.now();
+            var done = false;
 
-            Messages.subscribe(id, data => {
+            /** Reports on the results of this test */
+            function report( passed: boolean, message: string ) {
+
+                if ( done ) {
+                    return;
+                }
+
+                done = true;
+
                 var result: TestResult = {
                     name: test.name(),
-                    result: !!data.result,
-                    message: data.message ? data.message : "",
+                    result: passed,
+                    message: message,
                     duration: Date.now() - start
                 };
+
                 test.report(result);
                 results.report(result);
 
@@ -175,9 +185,18 @@ module Harness {
 
                 // Run the next test
                 next();
+            }
+
+            // Add a subscriber to listen for the test to finish
+            Messages.subscribe(id, data => {
+                report(!!data.result, data.message ? data.message : "");
             });
 
+            // Run the test and report an error if it fails to load
             test.run(id);
+
+            // Move on if the test takes too long to load
+            setTimeout( report.bind(null, false, "Timeout"), 5000 );
         }
 
         for ( var i = 0; i < 6; i++ ) {
