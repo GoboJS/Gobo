@@ -124,7 +124,7 @@ module Parse {
                 return;
             }
 
-            var expr = new Expr.Expression( attr.value, config );
+            var expr = new Expr.Expression( attr.value, config, elem );
 
             // Instantiate the directive itself
             var directive = new tuple.value(elem, {
@@ -189,7 +189,10 @@ module Parse {
             var mask: { [key: string]: Expr.Value; } = {};
             [].slice.call(elem.attributes).forEach((attr) => {
                 if ( !config.isPrefixed(attr.name) ) {
-                    mask[attr.name] = new Expr.Value(attr.value || attr.name);
+                    mask[attr.name] = new Expr.Value(
+                        attr.value || attr.name,
+                        replacement
+                    );
                 }
             });
 

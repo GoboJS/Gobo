@@ -441,4 +441,35 @@ Test.test('Expressions', (should) => {
         done();
     });
 
+    should('Allow references to the bound element').using(
+        `<ul>
+            <li id='args' g-text="checkArgs $elem | filter $elem"></li>
+            <li id='directive' g-test="$elem"></li>
+            <g-widget g-text="checkWidget $elem" />
+        </ul>`
+    ).in((done, $) => {
+        var gobo = new Gobo()
+
+        gobo.directives.test = Gobo.directive(function (elem, value) {
+            assert.equal( value, $.byId('directive') );
+        });
+
+        gobo.filters.filter = (_, elem) => {
+            assert.equal( elem, $.byId('args') );
+        };
+
+        gobo.components.widget = "<li id='widget'></li>";
+
+        gobo.bind($.body, {
+            checkArgs: (elem) => {
+                assert.equal( elem, $.byId('args') );
+            },
+            checkWidget: (elem) => {
+                assert.equal( elem, $.byId('widget') );
+            }
+        });
+
+        done();
+    });
+
 });

@@ -49,13 +49,13 @@ module Expr {
     export class Value {
 
         /** The raw value */
-        private value: boolean | Data.Keypath | number | string;
+        private value: boolean | Data.Keypath | number | string | HTMLElement;
 
         /** Any arguments to be passed to this value if it is a function */
         private args: Value[];
 
         /** @constructor */
-        constructor ( token: any ) {
+        constructor ( token: any, elem: HTMLElement ) {
             switch ( token ) {
                 case "true":
                     this.value = true;
@@ -69,6 +69,9 @@ module Expr {
                 case undefined:
                 case "undefined":
                     break;
+                case "$elem":
+                    this.value = elem;
+                    break;
                 default:
                     if ( isQuoted(token) ) {
                         this.value = token.substr(1, token.length - 2);
@@ -81,7 +84,7 @@ module Expr {
                         this.value = parseKeypath( parts.shift() );
                         if ( parts.length > 0 ) {
                             this.args = parts.map(part => {
-                                return new Value(part);
+                                return new Value(part, elem);
                             });
                         }
                     }
@@ -191,7 +194,11 @@ module Expr {
     }
 
     /** Parses a filter expression */
-    function parseFilter( expr: string, config: Config.Config ): FilterCall {
+    function parseFilter(
+        expr: string,
+        config: Config.Config,
+        elem: HTMLElement
+    ): FilterCall {
         var tokens = split[" "](expr);
 
         var filterName = tokens.shift().trim();
@@ -201,7 +208,7 @@ module Expr {
 
         return new FilterCall(
             config.filters[filterName],
-            tokens.map(token => { return new Value(token); })
+            tokens.map(token => { return new Value(token, elem); })
         );
     }
 
@@ -221,20 +228,20 @@ module Expr {
         public filters: FilterCall[];
 
         /** @constructor */
-        constructor( expr: string, config: Config.Config ) {
+        constructor( expr: string, config: Config.Config, elem: HTMLElement ) {
             var watchParts = split["<"](expr || "");
 
             var filterParts = split["|"](watchParts.shift());
 
             var publishParts = split[">"](filterParts.shift());
 
-            this.value = new Value(publishParts.shift());
+            this.value = new Value(publishParts.shift(), elem);
 
             if ( publishParts.length === 0 ) {
                 this.publish = this.value;
             }
             else if ( publishParts.length === 1 ) {
-                this.publish = new Value(publishParts[0]);
+                this.publish = new Value(publishParts[0], elem);
             }
             else {
                 throw new Error("Cant publish to multiple places: " + expr);
@@ -247,7 +254,7 @@ module Expr {
             });
 
             this.filters = filterParts.map(filterExpr => {
-                var filter = parseFilter(filterExpr, config);
+                var filter = parseFilter(filterExpr, config, elem);
                 filter.addKeypaths( this.watches );
                 return filter;
             });
