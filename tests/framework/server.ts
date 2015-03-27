@@ -111,6 +111,9 @@ class Server {
 
         var server = require('express')();
 
+        // enable gzip compression
+        server.use( require('compression')() );
+
         // At the root level, list out all of the tests
         server.get('/', (req, res) => {
             serveSuiteList(res, load());
