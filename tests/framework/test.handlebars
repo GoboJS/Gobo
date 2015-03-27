@@ -27,6 +27,16 @@
         <script>
             (function (logic) {
 
+                // Returns a function that will invoke the given callback
+                // after it has been called a specific number of times
+                function after( count, callback ) {
+                    return function afterHandler () {
+                        if ( --count === 0 ) {
+                            callback();
+                        }
+                    };
+                }
+
                 // Load a JavaScript file onto the page
                 function loadJS( src, onError, onLoad ) {
                     var tag = document.createElement('script');
@@ -38,7 +48,7 @@
                     document.head.appendChild(tag);
                 }
 
-                // Reports a result back up te chain
+                // Reports a result back up the chain
                 function report ( result, message ) {
                     parent.postMessage( JSON.stringify({
                         result: result,
@@ -87,24 +97,29 @@
                 // Time the test
                 setTimeout(done.bind(null, false, "Timeout"), 1000);
 
+                // Executes the tests
+                var executeTest = after(2, function runTests() {
+                    window.assert = window.chai.assert;
+
+                    // Run the test
+                    logic(
+                        done.bind(null, true, "Passed"),
+                        new Test.DocReader(document)
+                    );
+                });
+
                 // Load the javascript test harness
                 loadJS(
                     '/lib/{{jsHash}}/test.js',
                     done.bind(null, false, "JS Test lib failed to load"),
-                    loadJS.bind(null,
-                        '/lib/{{jsHash}}/gobo.js',
-                        done.bind(null, false, "Gobo JS failed to load"),
-                        function onLoad () {
+                    executeTest
+                );
 
-                            window.assert = window.chai.assert;
-
-                            // Run the test
-                            logic(
-                                done.bind(null, true, "Passed"),
-                                new Test.DocReader(document)
-                            );
-                        }
-                    )
+                // Load the js library being tested
+                loadJS(
+                    '/lib/{{jsHash}}/gobo.js',
+                    done.bind(null, false, "Gobo JS failed to load"),
+                    executeTest
                 );
             }(
                 {{{logic}}}
