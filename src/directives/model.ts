@@ -6,9 +6,6 @@ module Directives {
     /** Attaches an observer */
     export class ModelStatement implements Directive {
 
-        /** The form element */
-        private elem: HTMLInputElement;
-
         /** The event to monitor */
         private event: string;
 
@@ -19,18 +16,24 @@ module Directives {
          * @constructor
          * @inheritDoc Directive#constructor
          */
-        constructor( elem: HTMLElement, details: Details ) {
-            this.elem = <HTMLInputElement> elem;
-            this.event = elem.tagName === "SELECT" ? "change" : "input";
+        constructor( private elem: HTMLInputElement, details: Details ) {
+            this.event =
+                elem.tagName === "SELECT" || elem.type === "checkbox" ?
+                "change" : "input";
 
             this.handler = function modelHandler() {
-                details.publish( (<HTMLInputElement> elem).value );
+                details.publish(
+                    elem.type === "checkbox" ? elem.checked : elem.value
+                );
             };
         }
 
         /** @inheritDoc Directive#execute */
         execute ( value: any ): void {
-            if ( this.elem.tagName !== "SELECT" ) {
+            if ( this.elem.type === "checkbox" ) {
+                this.elem.checked = !!value;
+            }
+            else if ( this.elem.tagName !== "SELECT" ) {
                 if ( this.elem.value !== value ) {
                     this.elem.value = value;
                 }

@@ -109,6 +109,15 @@ module Test {
 
             this.fieldById(id).dispatchEvent(event);
         }
+
+        /** Changes the state of a checkbox */
+        public setCheckbox ( elem: HTMLInputElement, checked: boolean ): void {
+            elem.checked = checked;
+
+            var event = this.document.createEvent("HTMLEvents");
+            event.initEvent("change", false, true);
+            elem.dispatchEvent(event);
+        }
     }
 
     /** The function for executing a test */

@@ -172,5 +172,32 @@ Test.test('Model directives', (should) => {
 
         $.typeInto('field', "Lug ThickNeck");
     });
+
+    should('Bind to checkboxes').using(
+        `<input id='field' type='checkbox' g-model='active'>`
+    ).in((done, $) => {
+
+        var data: any = {};
+
+        new Gobo({ watch: WatchJS }).bind($.body, data);
+
+        var elem = $.fieldById('field');
+        assert.isFalse( elem.checked );
+
+        data.active = true;
+        assert.isTrue( elem.checked );
+
+        data.active = false;
+        assert.isFalse( elem.checked );
+
+        $.setCheckbox( elem, true );
+        assert.isTrue( data.active );
+
+        $.setCheckbox( elem, false );
+        assert.isFalse( data.active );
+
+        done();
+    });
+
 });
 
