@@ -59,7 +59,9 @@ module Harness {
                     failed: this.failed,
                     total: this.total,
                     duration: Date.now() - this.created,
-                    tests: this.tests
+                    tests: this.tests.filter(test => {
+                        return !test.result;
+                    })
                 });
             }
         }
