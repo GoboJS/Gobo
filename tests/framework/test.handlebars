@@ -94,11 +94,15 @@
                 // If an error is thrown, report a failure
                 window.onerror = done.bind(null, false);
 
-                // Time the test
-                setTimeout(done.bind(null, false, "Timeout"), 1000);
+                // Overall 5 second timout
+                setTimeout(done.bind(null, false, "Overall Timeout"), 5000);
 
                 // Executes the tests
                 var executeTest = after(2, function runTests() {
+
+                    // 500ms timeout for running the test
+                    setTimeout(done.bind(null, false, "Test Timeout"), 500);
+
                     window.assert = window.chai.assert;
 
                     // Run the test
