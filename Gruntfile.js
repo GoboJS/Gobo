@@ -164,9 +164,14 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.registerTask('test-server', function() {
+    grunt.registerTask('test-server:cached', function() {
         console.log("Starting server");
-        require('./build/private/test-server.js')().start();
+        require('./build/private/test-server.js')().start(true);
+    });
+
+    grunt.registerTask('test-server:uncached', function() {
+        console.log("Starting server");
+        require('./build/private/test-server.js')().start(false);
     });
 
     // Plugins
@@ -183,9 +188,10 @@ module.exports = function(grunt) {
     grunt.registerTask('default',
         ['typescript', 'import', 'tslint', 'mochaTest', 'uglify', 'bytesize']);
 
-    grunt.registerTask('dev', ['typescript', 'import', 'test-server', 'watch']);
+    grunt.registerTask('dev',
+        ['typescript', 'import', 'test-server:uncached', 'watch']);
 
     grunt.registerTask('release',
-        ['default', 'test-server', 'saucelabs-custom']);
+        ['default', 'test-server:cached', 'saucelabs-custom']);
 };
 

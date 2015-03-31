@@ -56,8 +56,10 @@ function serveJS (cache: boolean, paths: string[]) {
             })
         ).then(
             (content: string[]) => {
-                res.set('Content-Type', 'application/javascript');
-                res.set('Cache-Control', 'public, max-age=300');
+                if ( cache ) {
+                    res.set('Content-Type', 'application/javascript');
+                    res.set('Cache-Control', 'public, max-age=300');
+                }
                 content.forEach(data => { res.write(data); });
                 res.end();
             },
@@ -107,7 +109,7 @@ function newestMTime ( paths: string[] ): number {
 class Server {
 
     /** Start a new server */
-    start(): void {
+    start( enableCache: boolean ): void {
 
         var server = require('express')();
 
@@ -144,11 +146,11 @@ class Server {
             'build/private/test-framework.js',
             'node_modules/watchjs/src/watch.js'
         ];
-        server.get('/lib/*/test.js', serveJS(true, testJS));
+        server.get('/lib/*/test.js', serveJS(enableCache, testJS));
 
         // Serve the Gobo JS separately to make it easier to debug
         var goboJS = ['build/gobo.debug.js'];
-        server.get('/lib/*/gobo.js', serveJS(true, goboJS));
+        server.get('/lib/*/gobo.js', serveJS(enableCache, goboJS));
 
         // Serve an HTML file with a specific test
         server.get('/:suite/:test', (req, res) => {
@@ -161,7 +163,9 @@ class Server {
                 htmlTemplate(res, "./tests/framework/test.handlebars", {
                     html: bundle.html,
                     logic: bundle.logic.toString(),
-                    jsHash: newestMTime( testJS.concat(goboJS) )
+                    jsHash: enableCache ?
+                        newestMTime(testJS.concat(goboJS)) :
+                        "-"
                 });
             }
             else {
