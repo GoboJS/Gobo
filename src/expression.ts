@@ -1,5 +1,6 @@
 /// <reference path="data.ts"/>
 /// <reference path="filters.ts"/>
+/// <reference path="watch.ts"/>
 
 module Expr {
 
@@ -45,264 +46,347 @@ module Expr {
         return !isNaN(parseFloat(str)) && isFinite(<any> str);
     }
 
-    /** A value can be a boolean, null, a string, number or keypath */
-    export class Value {
+    /** Reads the values from an array of atoms */
+    function readAtoms( atoms: Atom[] ): any[] {
+        return atoms.map(atom => { return atom.read(); });
+    }
 
-        /** The raw value */
-        private value: boolean | Data.Keypath | number | string | HTMLElement;
-
-        /** Any arguments to be passed to this value if it is a function */
-        private args: Value[];
-
-        /** @constructor */
-        constructor ( token: any, elem: HTMLElement ) {
-            switch ( token ) {
-                case "true":
-                    this.value = true;
-                    break;
-                case "false":
-                    this.value = false;
-                    break;
-                case "null":
-                    this.value = null;
-                    break;
-                case undefined:
-                case "undefined":
-                    break;
-                case "$elem":
-                    this.value = elem;
-                    break;
-                default:
-                    if ( isQuoted(token) ) {
-                        this.value = token.substr(1, token.length - 2);
-                    }
-                    else if ( isNumeric(token) ) {
-                        this.value = parseFloat(token);
-                    }
-                    else {
-                        var parts = split[" "](token);
-                        this.value = parseKeypath( parts.shift() );
-                        if ( parts.length > 0 ) {
-                            this.args = parts.map(part => {
-                                return new Value(part, elem);
-                            });
-                        }
-                    }
-            }
-        }
+    /**
+     * An atom represents a single value in an expression. For example, in
+     * the expression 'person.name | substr 5', the following are atoms:
+     * - person.name
+     * - substr
+     * - 5
+     */
+    export interface Atom {
 
         /** Interpret and return the value */
-        interpret ( get: (keypath: Data.Keypath) => any ): any {
-            // Since there is no syntax for writing out arrays, we can use the
-            // fact that value is an array as an indication that it was parsed
-            // as a keypath
-            if ( !Array.isArray(this.value) ) {
-                return this.value;
-            }
+        read(): any;
 
-            var value = get(<Data.Keypath> this.value);
+        /** Sets the value of this atom */
+        publish( value: any ): void;
 
-            // If it isn't a function, or there aren't any arguments that
-            // need to be applied, just return it
+        /** Executes a callback for every binding in this expression */
+        eachBinding( callback: Data.WatchCallback ): void;
+    }
+
+    /** An atom representing a primitive value */
+    class PrimitiveAtom implements Atom {
+        /** @constructor */
+        constructor (
+            private value: boolean | number | string | HTMLElement
+        ) {}
+
+        /** @inheritDoc Atom#read */
+        read (): any {
+            return this.value;
+        }
+
+        /** @inheritDoc Atom#publish */
+        publish( value: any ): void {
+            // Empty because you can't set the value of a primitive
+        }
+
+        /** @inheritDoc Atom#eachBinding */
+        eachBinding( callback: Data.WatchCallback ): void {
+            // Empty because you can't bind to a static value
+        }
+    }
+
+    /** An atom representing a keypath */
+    class KeypathAtom implements Atom {
+        /** @constructor */
+        constructor (
+            private data: Data.Data,
+            private keypath: Data.Keypath,
+            private args?: Atom[]
+        ) {}
+
+        /** @inheritDoc Atom#read */
+        read (): any {
+            var value = this.data.get( this.keypath );
+
             if ( !this.args || typeof value !== "function" ) {
                 return value;
             }
 
-            // Otherwise, return a function that will interpret the predefined
-            // arguments and combine them with any passed in args
             var args = this.args;
             return function prependArgs ( ...passed: any[] ): any {
-                var resolved = args.map(arg => { return arg.interpret(get); });
-                return value.apply( null, resolved.concat(passed) );
+                return value.apply(null, readAtoms(args).concat(passed));
             };
         }
 
-        /** Adds any keypaths referenced by this value to an array */
-        addKeypaths( keypaths: Data.Keypath[] ): void {
-            // By actually interpretting the argument, we weed out the list
-            // of primitives from actual keypath references. Then, we hijack
-            // the call to get
-            var add = keypaths.push.bind(keypaths);
-
-            this.interpret(add);
-
-            if ( this.args ) {
-                this.args.forEach(arg => { arg.interpret(add); });
+        /** @inheritDoc Atom#publish */
+        publish( value: any ): void {
+            var existing = this.read();
+            if ( typeof existing === "function" ) {
+                existing(value);
             }
+            else {
+                this.data.set( this.keypath, value );
+            }
+        }
+
+        /** @inheritDoc Atom#eachBinding */
+        eachBinding( callback: Data.WatchCallback ): void {
+            this.data.eachBinding( this.keypath, callback );
+        }
+    }
+
+    /** Reads from one atom, publishes to another */
+    class PublishAtom implements Atom {
+        /** @constructor */
+        constructor ( private reader: Atom, private publisher: Atom ) {}
+
+        /** @inheritDoc Atom#read */
+        read (): any {
+            return this.reader.read();
+        }
+
+        /** @inheritDoc Atom#publish */
+        publish( value: any ): void {
+            this.publisher.publish(value);
+        }
+
+        /** @inheritDoc Atom#eachBinding */
+        eachBinding( callback: Data.WatchCallback ): void {
+            this.reader.eachBinding(callback);
         }
     }
 
     /** A call to a filter */
-    class FilterCall {
+    class FilterAtom implements Atom {
 
         /** The value to bind this filter to when calling */
         private bind: any = {};
 
         /** @constructor */
-        constructor(private filter: Filters.Filter, private args: Value[]) {}
+        constructor(
+            private inner: Atom,
+            private filter: Filters.Filter,
+            private args: Atom[]
+        ) {}
 
-        /** Calculates the arguments for this filter call */
+        /** Invokes the read or publish function for this filter */
         private invoke(
-            fn: Filters.FilterFunc,
-            value: any,
-            data: Data.Data
+            fn: (...args: any[]) => any,
+            value: any
         ): any {
-            if (fn) {
-                var args = this.args.map(arg => {
-                    return arg.interpret( data.get.bind(data) );
-                });
-                args.unshift(value);
-                return fn.apply(this.bind, args);
-            }
-            else {
+            if (!fn) {
                 return value;
             }
+
+            var args = readAtoms(this.args);
+            args.unshift(value);
+            return fn.apply(this.bind, args);
         }
 
-        /** Applies this filter when applying a value to a directive */
-        read( data: Data.Data, value: any ): any {
+        /** @inheritDoc Atom#read */
+        read (): any {
             var filter = typeof this.filter === "function" ?
                 <Filters.FilterFunc> this.filter :
                 (<Filters.FilterObj> this.filter).read;
 
-            return this.invoke(filter, value, data);
+            return this.invoke( filter, this.inner.read() );
         }
 
-        /** Applies this filter when applying a value to a directive */
-        publish( data: Data.Data, value: any ): any {
+        /** @inheritDoc Atom#publish */
+        publish( value: any ): void {
             // Don't apply simple filters on the publish step
-            if ( typeof this.filter === "function" ) {
-                return value;
+            this.inner.publish(
+                typeof this.filter === "function" ?
+                    value :
+                    this.invoke(
+                        (<Filters.FilterObj>this.filter).publish,
+                        value
+                    )
+            );
+        }
+
+        /** @inheritDoc Atom#eachBinding */
+        eachBinding( callback: Data.WatchCallback ): void {
+            this.inner.eachBinding(callback);
+            this.args.forEach(arg => { arg.eachBinding(callback); });
+        }
+    }
+
+    /** A watch atom adds additional watches */
+    class WatchAtom implements Atom {
+        /** @constructor */
+        constructor(
+            private inner: Atom,
+            private watches: Atom[]
+        ) {}
+
+        /** @inheritDoc Atom#read */
+        read (): any {
+            return this.inner.read();
+        }
+
+        /** @inheritDoc Atom#publish */
+        publish( value: any ): void {
+            return this.inner.publish(value);
+        }
+
+        /** @inheritDoc Atom#eachBinding */
+        eachBinding( callback: Data.WatchCallback ): void {
+            this.inner.eachBinding(callback);
+            this.watches.forEach(watch => {
+                watch.eachBinding(callback);
+            });
+        }
+    }
+
+
+    /** A mapping of keywords to their values */
+    var keywords = {
+        "true": true,
+        "false": false,
+        "null": null,
+        "undefined": undefined
+    };
+
+    /** Parses the various parts of an expression */
+    export class Parser {
+
+        /**
+         * @constructor
+         * @param config Overall app config
+         * @param data The context from which to pull keypaths
+         * @param elem The element to use if they reference the '$elem' keyword
+         */
+        constructor(
+            private config: Config.Config,
+            private data: Data.Data,
+            private elem: HTMLElement
+        ) {}
+
+        /** Parses an atom from a string */
+        private parseAtom( token: string, args?: Atom[] ): Atom {
+
+            if ( keywords.hasOwnProperty(token) ) {
+                return new PrimitiveAtom( keywords[token] );
+            }
+            else if ( token === undefined ) {
+                return new PrimitiveAtom( undefined );
+            }
+            else if ( token === "$elem" ) {
+                return new PrimitiveAtom( this.elem );
+            }
+            else if ( isQuoted(token) ) {
+                return new PrimitiveAtom( token.substr(1, token.length - 2) );
+            }
+            else if ( isNumeric(token) ) {
+                return new PrimitiveAtom( parseFloat(token) );
             }
             else {
-                return this.invoke(
-                    (<Filters.FilterObj>this.filter).publish,
-                    value,
-                    data
+                return new KeypathAtom( this.data, parseKeypath(token), args );
+            }
+        }
+
+        /**
+         * Parses a list of atoms
+         * @param tokens The list of expressions to parse
+         */
+        private parseAtomList( exprs: string[] ): Atom[] {
+            return exprs.map(expr => {
+                return this.parseAtom(expr);
+            });
+        }
+
+        /**
+         * Parses a core expression, which is basically the keypath on which the
+         * whole shinding is operating.
+         * @param expr The expression to parse
+         */
+        private parseCore( expr: string ): Atom {
+            var tokens = split[" "](expr);
+            var primary = tokens.shift();
+            return this.parseAtom( primary, this.parseAtomList(tokens) );
+        }
+
+        /** Adds watch expressions to another atom */
+        private parseWatches( watchExprs: string[], inner: Atom ): Atom {
+            if ( watchExprs.length === 0 ) {
+                return inner;
+            }
+            else {
+                return new WatchAtom(
+                    inner,
+                    watchExprs.map(watch => {
+                        return new KeypathAtom(
+                            this.data,
+                            parseKeypath(watch)
+                        );
+                    })
                 );
             }
         }
 
-        /** Adds any keypaths referenced by this filter to an array */
-        addKeypaths( keypaths: Data.Keypath[] ): void {
-            // By actually interpretting the argument, we weed out the list
-            // of primitives from actual keypath references. Then, we hijack
-            // the call to get
-            var add = keypaths.push.bind(keypaths);
-            this.args.forEach(arg => { arg.interpret(add); });
-        }
-    }
-
-    /** Parses a filter expression */
-    function parseFilter(
-        expr: string,
-        config: Config.Config,
-        elem: HTMLElement
-    ): FilterCall {
-        var tokens = split[" "](expr);
-
-        var filterName = tokens.shift().trim();
-        if ( !config.filters[filterName] ) {
-            throw new Error("Filter does not exist: '" + filterName + "'");
-        }
-
-        return new FilterCall(
-            config.filters[filterName],
-            tokens.map(token => { return new Value(token, elem); })
-        );
-    }
-
-    /** A parsed expression */
-    export class Expression {
-
-        /** The value to fetch when resolving an expression */
-        private value: Value;
-
-        /** The value to which changes are published */
-        private publish: Value;
-
-        /** A list of paths to monitor */
-        public watches: Data.Keypath[] = [];
-
-        /** Filters to apply */
-        public filters: FilterCall[];
-
-        /** @constructor */
-        constructor( expr: string, config: Config.Config, elem: HTMLElement ) {
-            var watchParts = split["<"](expr || "");
-
-            var filterParts = split["|"](watchParts.shift());
-
-            var publishParts = split[">"](filterParts.shift());
-
-            this.value = new Value(publishParts.shift(), elem);
-
-            if ( publishParts.length === 0 ) {
-                this.publish = this.value;
+        /** Splits the publish from the read of an atom if necessary */
+        private parsePublisher( publishExpr: string[], inner: Atom ): Atom {
+            if ( publishExpr.length === 0 ) {
+                return inner;
             }
-            else if ( publishParts.length === 1 ) {
-                this.publish = new Value(publishParts[0], elem);
+            else if ( publishExpr.length === 1 ) {
+                return new PublishAtom(
+                    inner,
+                    this.parseCore(publishExpr[0])
+                );
             }
             else {
-                throw new Error("Cant publish to multiple places: " + expr);
+                throw new Error("Cant publish to multiple places");
             }
-
-            this.value.addKeypaths( this.watches );
-
-            watchParts.map(token => {
-                this.watches.push( parseKeypath(token) );
-            });
-
-            this.filters = filterParts.map(filterExpr => {
-                var filter = parseFilter(filterExpr, config, elem);
-                filter.addKeypaths( this.watches );
-                return filter;
-            });
         }
 
-        /** Returns the value of this expression */
-        resolve ( data: Data.Data, allowFuncs: boolean ): any {
-            var value = this.filters.reduce(
-                (value, filter) => { return filter.read(data, value); },
-                this.value.interpret( data.get.bind(data) )
+        /**
+         * Parses a filter expression
+         * @param core The atom to read from and publish to
+         * @param filters The list of filter expressions to parse
+         */
+        private parseFilters( exprs: string[], core: Atom ): Atom {
+            return exprs.reduce((inner: Atom, expr: string) => {
+
+                var tokens = split[" "](expr);
+
+                var filterName = tokens.shift().trim();
+                if ( !this.config.filters[filterName] ) {
+                    throw new Error(
+                        "Filter does not exist: '" + filterName + "'"
+                    );
+                }
+
+                return new FilterAtom(
+                    inner,
+                    this.config.filters[filterName],
+                    this.parseAtomList(tokens)
+                );
+            }, core);
+        }
+
+        /** Parses a full expression */
+        public parse( expr: string ): Atom {
+            // Basic expression syntax:
+            // CORE ARG > PUBLISH | FILTER ARG | FILTER ARG < WATCH < WATCH
+
+            var watchExprs = split["<"](expr || "");
+
+            var filterExprs = split["|"](watchExprs.shift());
+
+            var publishExpr = split[">"](filterExprs.shift());
+
+            var coreExpr = publishExpr.shift();
+
+            return this.parseWatches(
+                watchExprs,
+                this.parseFilters(
+                    filterExprs,
+                    this.parsePublisher(
+                        publishExpr,
+                        this.parseCore( coreExpr )
+                    )
+                )
             );
-
-            if ( !allowFuncs && typeof value === "function" ) {
-                value = value();
-            }
-
-            return value;
-        }
-
-        /** Sets a value of this expression */
-        set ( data: Data.Data, value: any ): void {
-
-            // Walk backwards through the filters and apply them
-            for ( var i = this.filters.length - 1; i >= 0; i-- ) {
-                value = this.filters[i].publish(data, value);
-            }
-
-            var setter = this.publish.interpret(keypath => {
-
-                var obj = data.get( keypath.slice(0, -1), keypath[0] );
-                var key = keypath[keypath.length - 1];
-
-                // By returning a function, it gets passed through the binding
-                // logic of Expression.interpret, which hooks in any extra
-                // arguments and attaches the correct 'this' value
-                return function setter ( ...args: any[] ) {
-                    if ( typeof obj[key] === "function" ) {
-                        obj[key].apply( obj, args );
-                    }
-                    else {
-                        obj[key] = value;
-                    }
-                };
-            });
-
-            if ( typeof setter === "function" ) {
-                setter(value);
-            }
         }
     }
 

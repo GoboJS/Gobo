@@ -1,4 +1,5 @@
 /// <reference path="connect.ts"/>
+/// <reference path="data.ts"/>
 
 module Watch {
 
@@ -14,6 +15,9 @@ module Watch {
         unwatch( obj: any, key: string, callback: () => void ): void;
     }
 
+    /** The callback used for iterating over the keys of a data chain */
+    export type EachKeyCallback = (obj: any, key: string) => void;
+
     /**
      * An ordered list of watchers. When one of the functions is triggered, it
      * automatically invalidates all of the watchers that come after it
@@ -21,7 +25,7 @@ module Watch {
     export class PathBinding implements Connect.Connectable {
 
         /** The list of objects to which watchers have been bound */
-        private watches: Array<any> = [];
+        private roots: Array<any> = [];
 
         /**
          * @constructor
@@ -31,9 +35,20 @@ module Watch {
          */
         constructor(
             private watch: Watch,
-            private each: (callback: Data.EachKeyCallback) => void,
+            private getRoot: () => any,
+            private keypath: Data.Keypath,
             private trigger: () => void
         ) {}
+
+        /** Applies a callback to each object/key in a chain */
+        private eachKey ( callback: EachKeyCallback ): void {
+            return this.keypath.reduce((obj, key) => {
+                callback(obj, key);
+                if ( obj !== null && obj !== undefined ) {
+                    return obj[key];
+                }
+            }, this.getRoot());
+        }
 
         /** @inheritDoc Connect#connect */
         public connect() {
@@ -42,20 +57,20 @@ module Watch {
             }
 
             var i = 0;
-            this.each((obj, key) => {
+            this.eachKey((obj, key) => {
 
                 // If the object at this depth has changed since the last
                 // iteration, we need to unbind from the old object
-                if ( this.watches[i] && this.watches[i] !== obj ) {
-                    this.watch.unwatch(this.watches[i], key, this.trigger);
-                    this.watches[i] = null;
+                if ( this.roots[i] && this.roots[i] !== obj ) {
+                    this.watch.unwatch(this.roots[i], key, this.trigger);
+                    this.roots[i] = null;
                 }
 
                 // If there is no watch at this level, or the watch was just
                 // cleared out, we need to add one
-                if ( !this.watches[i] && obj ) {
+                if ( !this.roots[i] && obj ) {
                     this.watch.watch(obj, key, this.trigger, 0);
-                    this.watches[i] = obj;
+                    this.roots[i] = obj;
                 }
 
                 i++;
@@ -69,10 +84,10 @@ module Watch {
             }
 
             var i = 0;
-            this.each((_, key) => {
-                if ( this.watches[i] ) {
-                    this.watch.unwatch(this.watches[i], key, this.trigger);
-                    this.watches[i] = null;
+            this.eachKey((_, key) => {
+                if ( this.roots[i] ) {
+                    this.watch.unwatch(this.roots[i], key, this.trigger);
+                    this.roots[i] = null;
                 }
                 i++;
             });

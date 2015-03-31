@@ -12,47 +12,57 @@ module Data {
         reduce<T>( callback: (accum: T, key: string) => T, initial: T ): T;
     }
 
-    /** The callback used for iterating over the keys of a data chain */
-    export type EachKeyCallback = (obj: any, key: string) => void;
+    /** The callback for setting up watch bindings on an expression */
+    export type WatchCallback =
+        ( getRoot: () => any, keypath: Data.Keypath ) => void;
+
+    /** Read a keypath from a root object */
+    function readKeypath ( root: any, keypath: Keypath ): any {
+
+        // While walking through the keypath below, we keep track of
+        // the trailing object so we can guarantee functions are always
+        // bound to their parent object
+        var binding;
+
+        // Walk through each key and extract the nested path
+        var value = keypath.reduce((obj, key) => {
+            binding = obj;
+            if ( obj !== null && obj !== undefined ) {
+                return obj[key];
+            }
+        }, root);
+
+        return typeof value === "function" ? value.bind(binding) : value;
+    }
+
+    /** Sets the value of a keypth on an object */
+    function setKeypath ( root: any, keypath: Keypath, value: any ): void {
+        var obj = keypath.length > 1 ?
+            readKeypath( root, keypath.slice(0, -1) ) :
+            root;
+
+        var key = keypath[keypath.length - 1];
+        obj[key] = value;
+    }
+
+    /** Returns a temporary object with the given key set */
+    function tempObj ( key: any, value: any ): any {
+        var temp = {};
+        temp[key] = value;
+        return temp;
+    }
 
     /** Data being bound to the html */
     export class Data {
 
-        /**
-         * Returns the root object on which a given key exists. Note that this
-         * isn't the value of that key, but where to find the key
-         */
-        getRoot: ( key: string ) => any;
-
-        /** Applies a callback to each object/key in a chain */
-        eachKey ( keypath: Keypath, callback: EachKeyCallback ): void {
-            return keypath.reduce((obj, key) => {
-                callback(obj, key);
-                if ( obj !== null && obj !== undefined ) {
-                    return obj[key];
-                }
-            }, this.getRoot(keypath[0]));
-        }
+        /** Executes a function for each binding needed for a keypath */
+        eachBinding: ( keypath: Keypath, callback: WatchCallback ) => void;
 
         /** Returns the value given a path of keys */
-        get ( keypath: Keypath, rootKey?: string ): any {
-            var root = this.getRoot(rootKey || keypath[0]);
+        get: ( keypath: Keypath ) => any;
 
-            // While walking through the keypath below, we keep track of
-            // the trailing object so we can guarantee functions are always
-            // bound to their parent object
-            var binding;
-
-            // Walk through each key and extract the nested path
-            var value = keypath.reduce((obj, key) => {
-                binding = obj;
-                if ( obj !== null && obj !== undefined ) {
-                    return obj[key];
-                }
-            }, root);
-
-            return typeof value === "function" ? value.bind(binding) : value;
-        }
+        /** Sets a value for a specific keypath */
+        set: ( keypath: Keypath, value: any ) => void;
 
         /** Creates a new scope from this instance */
         scope ( key: string, value: any ): Data {
@@ -66,19 +76,23 @@ module Data {
         /** @constructor */
         constructor( private data: any ) {}
 
-        /** @inheritDoc Data#getRoot */
-        getRoot ( key: string ): any {
-            return this.data;
-        }
-
-        /** @inheritDoc Data#eachKey */
-        eachKey: ( keypath: Keypath, callback: EachKeyCallback ) => void;
-
         /** @inheritDoc Data#get */
-        get: ( keypath: Keypath, rootKey?: string ) => any;
+        get ( keypath: Keypath ): any {
+            return readKeypath( this.data, keypath );
+        }
 
         /** @inheritDoc Data#scope */
         scope: ( key: string, value: any ) => Data;
+
+        /** @inheritDoc Data#eachBinding */
+        eachBinding( keypath: Keypath, callback: WatchCallback ): void {
+            callback( () => { return this.data; }, keypath );
+        }
+
+        /** Sets a value for a specific keypath */
+        set ( keypath: Keypath, value: any ): void {
+            setKeypath( this.data, keypath, value );
+        }
     }
 
     /** Creates a new data scope with a specific key and value */
@@ -91,26 +105,41 @@ module Data {
             private value: any
         ) {}
 
-        /** @inheritDoc Data#getRoot */
-        getRoot ( key: string ): any {
-            if ( key === this.key ) {
-                var result = {};
-                result[key] = this.value;
-                return result;
+        /** @inheritDoc Data#get */
+        get ( keypath: Keypath ): any {
+            if ( keypath[0] === this.key ) {
+                return readKeypath( tempObj(this.key, this.value), keypath );
             }
             else {
-                return this.parent.getRoot(key);
+                return this.parent.get( keypath );
             }
         }
 
-        /** @inheritDoc Data#eachKey */
-        eachKey: ( keypath: Keypath, callback: EachKeyCallback ) => void;
-
-        /** @inheritDoc Data#get */
-        get: ( keypath: Keypath, rootKey?: string ) => any;
-
         /** @inheritDoc Data#scope */
         scope: ( key: string, value: any ) => Data;
+
+        /** @inheritDoc Data#eachBinding */
+        eachBinding( keypath: Keypath, callback: WatchCallback ): void {
+            if ( keypath[0] === this.key ) {
+                callback(
+                    tempObj.bind(null, this.key, this.value),
+                    keypath
+                );
+            }
+            else {
+                this.parent.eachBinding( keypath, callback );
+            }
+        }
+
+        /** Sets a value for a specific keypath */
+        set ( keypath: Keypath, value: any ): void {
+            if ( keypath[0] === this.key ) {
+                setKeypath( this, keypath, value );
+            }
+            else {
+                this.parent.set( keypath, value );
+            }
+        }
     }
 
     /** Creates a scope that maps certain keys and denies all other values */
@@ -119,42 +148,50 @@ module Data {
         /** @constructor */
         constructor(
             private parent: Data,
-            private mapping: { [key: string]: Expr.Value; }
+            private mapping: { [key: string]: Expr.Atom; }
         ) {}
 
-        /** @inheritDoc Data#getRoot */
-        getRoot ( key: string ): any {
-            return this.parent.getRoot(key);
-        }
-
-        /** Resolves a mapped keypath */
-        private withKeypath<T> (
-            keypath: Keypath,
-            fn: (resolved: Keypath) => T
-        ): T {
-            if ( this.mapping[keypath[0]] ) {
-                return <T> this.mapping[keypath[0]].interpret(resolved => {
-                    return fn( resolved.concat(keypath.slice(1)) );
-                });
-            }
-        }
-
-        /** @inheritDoc Data#eachKey */
-        eachKey ( keypath: Keypath, callback: EachKeyCallback ): void {
-            this.withKeypath(keypath, resolved => {
-                this.parent.eachKey( resolved, callback );
-            });
-        }
-
         /** @inheritDoc Data#get */
-        get ( keypath: Keypath, rootKey?: string ): any {
-            return this.withKeypath(keypath, resolved => {
-                return this.parent.get( resolved );
-            });
+        get ( keypath: Keypath ): any {
+            var key = keypath[0];
+            if ( this.mapping[key] ) {
+                return readKeypath(
+                    tempObj(key, this.mapping[key].read()),
+                    keypath
+                );
+            }
         }
 
         /** @inheritDoc Data#scope */
         scope: ( key: string, value: any ) => Data;
+
+        /** @inheritDoc Data#eachBinding */
+        eachBinding( keypath: Keypath, callback: WatchCallback ): void {
+            var key = keypath[0];
+
+            if ( this.mapping[key] ) {
+                callback(
+                    () => { return tempObj(key, this.mapping[key].read()); },
+                    keypath
+                );
+
+                this.mapping[key].eachBinding(callback);
+            }
+        }
+
+        /** Sets a value for a specific keypath */
+        set ( keypath: Keypath, value: any ): void {
+            var key = keypath[0];
+
+            if ( this.mapping[key] ) {
+                if ( keypath.length === 1 ) {
+                    this.mapping[key].publish(value);
+                }
+                else {
+                    setKeypath( this.mapping[key].read(), keypath, value );
+                }
+            }
+        }
     }
 
     // Apply the default data implementations to the child classes

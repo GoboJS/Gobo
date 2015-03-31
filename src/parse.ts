@@ -124,7 +124,7 @@ module Parse {
                 return;
             }
 
-            var expr = new Expr.Expression( attr.value, config, elem );
+            var expr = new Expr.Parser(config, data, elem).parse(attr.value);
 
             // Instantiate the directive itself
             var directive = new tuple.value(elem, {
@@ -136,7 +136,8 @@ module Parse {
                 cloneable: function parseCloneable(): Cloneable {
                     return cloneable(traverse.nested(elem), config);
                 },
-                publish: expr.set.bind(expr, data)
+                expression: expr,
+                publish: expr.publish.bind(expr)
             });
 
             // Wrap the directive in a Debouncer to automatically manage
@@ -150,17 +151,23 @@ module Parse {
              * called any time the data changes.
              */
             function trigger () {
-                directive.execute(expr.resolve(data, tuple.value.allowFuncs));
+                var value = expr.read();
+                directive.execute(
+                    !tuple.value.allowFuncs && typeof value === "function" ?
+                        value() :
+                        value
+                );
             }
 
             // Hook up an observer so that any change to the
             // keypath causes the directive to be re-rendered
-            expr.watches.forEach(watch => {
-                section.push(tuple.value.priority, new Watch.PathBinding(
-                    config.watch,
-                    data.eachKey.bind(data, watch),
-                    trigger
-                ));
+            expr.eachBinding((getRoot, keypath) => {
+                section.push(
+                    tuple.value.priority,
+                    new Watch.PathBinding(
+                        config.watch, getRoot, keypath, trigger
+                    )
+                );
             });
 
             // Make sure we do an initial trigger whenever connecting
@@ -185,13 +192,14 @@ module Parse {
                 config, data
             );
 
+            var exprParser = new Expr.Parser(config, data, replacement);
+
             // Grab the unprefix attributes and use them as variable masks
-            var mask: { [key: string]: Expr.Value; } = {};
+            var mask: { [key: string]: Expr.Atom; } = {};
             [].slice.call(elem.attributes).forEach((attr) => {
                 if ( !config.isPrefixed(attr.name) ) {
-                    mask[attr.name] = new Expr.Value(
-                        attr.value || attr.name,
-                        replacement
+                    mask[attr.name] = exprParser.parse(
+                        attr.value || attr.name
                     );
                 }
             });
