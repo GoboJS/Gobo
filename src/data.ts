@@ -52,26 +52,32 @@ module Data {
         return temp;
     }
 
+    /** Implementation of the 'scope' function for the Data objections */
+    function scope ( key: string, value: any ): Data {
+        return new Scoped(this, key, value);
+    }
+
     /** Data being bound to the html */
-    export class Data {
+    export interface Data {
 
         /** Executes a function for each binding needed for a keypath */
-        eachBinding: ( keypath: Keypath, callback: WatchCallback ) => void;
+        eachBinding( keypath: Keypath, callback: WatchCallback ): void;
 
         /** Returns the value given a path of keys */
-        get: ( keypath: Keypath ) => any;
+        get( keypath: Keypath ): any;
 
         /** Sets a value for a specific keypath */
-        set: ( keypath: Keypath, value: any ) => void;
+        set( keypath: Keypath, value: any ): void;
 
         /** Creates a new scope from this instance */
-        scope ( key: string, value: any ): Data {
-            return new Scoped(this, key, value);
-        }
+        scope ( key: string, value: any ): Data;
     }
 
     /** The root lookup table for data */
     export class Root implements Data {
+
+        /** @inheritDoc Data#scope */
+        public scope = scope;
 
         /** @constructor */
         constructor( private data: any ) {}
@@ -80,9 +86,6 @@ module Data {
         get ( keypath: Keypath ): any {
             return readKeypath( this.data, keypath );
         }
-
-        /** @inheritDoc Data#scope */
-        scope: ( key: string, value: any ) => Data;
 
         /** @inheritDoc Data#eachBinding */
         eachBinding( keypath: Keypath, callback: WatchCallback ): void {
@@ -97,6 +100,9 @@ module Data {
 
     /** Creates a new data scope with a specific key and value */
     export class Scoped implements Data {
+
+        /** @inheritDoc Data#scope */
+        public scope = scope;
 
         /** @constructor */
         constructor(
@@ -114,9 +120,6 @@ module Data {
                 return this.parent.get( keypath );
             }
         }
-
-        /** @inheritDoc Data#scope */
-        scope: ( key: string, value: any ) => Data;
 
         /** @inheritDoc Data#eachBinding */
         eachBinding( keypath: Keypath, callback: WatchCallback ): void {
@@ -145,6 +148,9 @@ module Data {
     /** Creates a scope that maps certain keys and denies all other values */
     export class Mask implements Data {
 
+        /** @inheritDoc Data#scope */
+        public scope = scope;
+
         /** @constructor */
         constructor(
             private parent: Data,
@@ -161,9 +167,6 @@ module Data {
                 );
             }
         }
-
-        /** @inheritDoc Data#scope */
-        scope: ( key: string, value: any ) => Data;
 
         /** @inheritDoc Data#eachBinding */
         eachBinding( keypath: Keypath, callback: WatchCallback ): void {
@@ -193,16 +196,6 @@ module Data {
             }
         }
     }
-
-    // Apply the default data implementations to the child classes
-    Object.getOwnPropertyNames(Data.prototype).forEach(name => {
-        Root.prototype[name] = Data.prototype[name];
-        Scoped.prototype[name] = Data.prototype[name];
-
-        if (!Mask.prototype[name]) {
-            Mask.prototype[name] = Data.prototype[name];
-        }
-    });
 
 }
 
