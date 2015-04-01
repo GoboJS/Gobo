@@ -1,5 +1,6 @@
 /// <reference path="../data.ts"/>
 /// <reference path="../connect.ts"/>
+/// <reference path="../expression.ts"/>
 
 module Directives {
 
@@ -16,11 +17,14 @@ module Directives {
         /** The wildcard parameter from the directive name */
         param?: string;
 
+        /** The expression feeding the value of a directive */
+        expression: Expr.Atom;
+
         /** Access to the data */
         data: Data.Data;
 
         /** A function for parsing the nested values from a directive */
-        parse(): Parse.Section;
+        parse( scope?: Data.Data ): Parse.Section;
 
         /** A function for parsing the nested values from a directive */
         cloneable(): Parse.Cloneable;

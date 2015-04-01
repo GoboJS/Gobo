@@ -25,7 +25,7 @@ module Directives {
     export class EachStatement implements Directive {
 
         /** @inheritDoc DirectiveBuilder#priority */
-        public static priority = 200;
+        public static priority = 300;
 
         /**
          * Marks the final position of the list so new elements can quickly

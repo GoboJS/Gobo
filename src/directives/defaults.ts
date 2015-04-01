@@ -3,6 +3,7 @@
 /// <reference path="each.ts"/>
 /// <reference path="on.ts"/>
 /// <reference path="model.ts"/>
+/// <reference path="with.ts"/>
 
 module Directives {
 
@@ -30,6 +31,9 @@ module Directives {
 
         /** Attaches an event */
         "on-*": Directives.OnStatement,
+
+        /** Sets a variable */
+        "with-*": Directives.WithStatement,
 
         /** Binds to a field value */
         model: Directives.ModelStatement,

@@ -130,8 +130,8 @@ module Parse {
             var directive = new tuple.value(elem, {
                 param: tuple.tail,
                 data: data,
-                parse: function parseNested(): Section {
-                    return parse(traverse.nested(elem), config, data);
+                parse: function parseNested( scoped?: Data.Data ): Section {
+                    return parse(traverse.nested(elem), config, scoped || data);
                 },
                 cloneable: function parseCloneable(): Cloneable {
                     return cloneable(traverse.nested(elem), config);

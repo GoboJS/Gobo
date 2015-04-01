@@ -71,7 +71,7 @@ module Expr {
     }
 
     /** An atom representing a primitive value */
-    export class PrimitiveAtom implements Atom {
+    class PrimitiveAtom implements Atom {
         /** @constructor */
         constructor (
             private value: boolean | number | string | HTMLElement
@@ -234,6 +234,16 @@ module Expr {
             this.watches.forEach(watch => {
                 watch.eachBinding(callback);
             });
+        }
+    }
+
+    /** Makes sure a value is an atom */
+    export function asAtom( obj: any ): Atom {
+        if ( obj.read && obj.publish && obj.eachBinding ) {
+            return obj;
+        }
+        else {
+            return new PrimitiveAtom(obj);
         }
     }
 

@@ -54,7 +54,7 @@ module Data {
 
     /** Implementation of the 'scope' function for the Data objections */
     function scope ( key: string, value: any ): Data {
-        return new Scoped(tempObj(key, new Expr.PrimitiveAtom(value)), this);
+        return new Scoped( tempObj(key, Expr.asAtom(value)), this );
     }
 
     /** Data being bound to the html */
