@@ -92,7 +92,7 @@ module Data {
             callback( () => { return this.data; }, keypath );
         }
 
-        /** Sets a value for a specific keypath */
+        /** @inheritDoc Data#set */
         set ( keypath: Keypath, value: any ): void {
             setKeypath( this.data, keypath, value );
         }
@@ -134,7 +134,7 @@ module Data {
             }
         }
 
-        /** Sets a value for a specific keypath */
+        /** @inheritDoc Data#set */
         set ( keypath: Keypath, value: any ): void {
             if ( keypath[0] === this.key ) {
                 setKeypath( this, keypath, value );
@@ -182,7 +182,7 @@ module Data {
             }
         }
 
-        /** Sets a value for a specific keypath */
+        /** @inheritDoc Data#set */
         set ( keypath: Keypath, value: any ): void {
             var key = keypath[0];
 
