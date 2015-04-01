@@ -167,5 +167,28 @@ Test.test('Filters', (should) => {
         done();
     });
 
+    should('Pluralize words').using(
+        `<ul id='strings'>
+            <li data-expect="word" g-text='"word" | pluralize 1'></li>
+            <li data-expect="words" g-text='"word" | pluralize 0'></li>
+            <li data-expect="words" g-text='"word" | pluralize 2'></li>
+            <li data-expect="words" g-text='"word" | pluralize -1'></li>
+            <li data-expect="ladies" g-text='"lady" | pluralize 2'></li>
+            <li data-expect="trolleys" g-text='"trolley" | pluralize 2'></li>
+            <li data-expect="witches" g-text='"witch" | pluralize 2'></li>
+            <li data-expect="boxes" g-text='"box" | pluralize 2'></li>
+            <li data-expect="gases" g-text='"gas" | pluralize 2'></li>
+            <li data-expect="we" g-text='"I" | pluralize 2 "we"'></li>
+        </ul>`
+    ).in((done, $) => {
+        new Gobo().bind($.body, {});
+
+        [].slice.call( $.byId('strings').children ).forEach((elem) => {
+            assert.equal( elem.textContent, elem.getAttribute("data-expect") );
+        });
+
+        done();
+    });
+
 });
 

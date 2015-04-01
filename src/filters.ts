@@ -21,6 +21,32 @@ module Filters {
         [key: string]: Filter;
     }
 
+
+    /** Builds a function that applies a pluralizing rule if it applies */
+    function pluralRule(
+        test: RegExp,
+        replacement: string
+    ): (string) => string {
+        return function testPlural(str) {
+            if ( test.test(str) ) {
+                return str.replace(test, replacement);
+            }
+        };
+    }
+
+    // Simple patterns for pluralizing singular words
+    var pluralRules = [
+        // Witch => witches, box => boxes, gas to gases
+        pluralRule(/(ch|x|s)$/i, "$1es"),
+
+        // Lady => Ladies (But not trolley to trolleys)
+        pluralRule(/([^aeiou])y/i, "$1ies"),
+
+        // Catch all for anything that didn't match above
+        pluralRule(/$/, "s")
+    ];
+
+
     DefaultFilters.prototype = {
 
         /** Invert a value */
@@ -139,6 +165,34 @@ module Filters {
             ...prefixes: string[]
         ): string {
             return prefixes.join("") + str;
+        },
+
+        /** Attempts to pluralize a word */
+        pluralize: function pluralizeFilter(
+            str: string,
+            count: number,
+            pluralForm?: string
+        ): string {
+            // Yes, yes -- This is very simplistic and english centric.
+            // Apologies for that. However, it's just a convenience. A robust
+            // pluralizer would be weighty; most projects don't need anything
+            // more than this. And since adding new filters is easy, anyone
+            // that needs something more can include it themselves.
+
+            if ( count !== 1 ) {
+                if ( pluralForm ) {
+                    return pluralForm;
+                }
+
+                for ( var i = 0; i < pluralRules.length; i++ ) {
+                    var plural = pluralRules[i](str);
+                    if ( plural ) {
+                        return plural;
+                    }
+                }
+            }
+
+            return str;
         }
     };
 
