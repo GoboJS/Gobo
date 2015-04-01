@@ -71,7 +71,7 @@ module Expr {
     }
 
     /** An atom representing a primitive value */
-    class PrimitiveAtom implements Atom {
+    export class PrimitiveAtom implements Atom {
         /** @constructor */
         constructor (
             private value: boolean | number | string | HTMLElement

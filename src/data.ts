@@ -54,7 +54,7 @@ module Data {
 
     /** Implementation of the 'scope' function for the Data objections */
     function scope ( key: string, value: any ): Data {
-        return new Scoped(this, key, value);
+        return new Scoped(tempObj(key, new Expr.PrimitiveAtom(value)), this);
     }
 
     /** Data being bound to the html */
@@ -98,7 +98,7 @@ module Data {
         }
     }
 
-    /** Creates a new data scope with a specific key and value */
+    /** Creates a scope that maps certain keys and denies all other values */
     export class Scoped implements Data {
 
         /** @inheritDoc Data#scope */
@@ -106,55 +106,8 @@ module Data {
 
         /** @constructor */
         constructor(
-            private parent: Data,
-            private key: string,
-            private value: any
-        ) {}
-
-        /** @inheritDoc Data#get */
-        get ( keypath: Keypath ): any {
-            if ( keypath[0] === this.key ) {
-                return readKeypath( tempObj(this.key, this.value), keypath );
-            }
-            else {
-                return this.parent.get( keypath );
-            }
-        }
-
-        /** @inheritDoc Data#eachBinding */
-        eachBinding( keypath: Keypath, callback: WatchCallback ): void {
-            if ( keypath[0] === this.key ) {
-                callback(
-                    tempObj.bind(null, this.key, this.value),
-                    keypath
-                );
-            }
-            else {
-                this.parent.eachBinding( keypath, callback );
-            }
-        }
-
-        /** @inheritDoc Data#set */
-        set ( keypath: Keypath, value: any ): void {
-            if ( keypath[0] === this.key ) {
-                setKeypath( this, keypath, value );
-            }
-            else {
-                this.parent.set( keypath, value );
-            }
-        }
-    }
-
-    /** Creates a scope that maps certain keys and denies all other values */
-    export class Mask implements Data {
-
-        /** @inheritDoc Data#scope */
-        public scope = scope;
-
-        /** @constructor */
-        constructor(
-            private parent: Data,
-            private mapping: { [key: string]: Expr.Atom; }
+            private mapping: { [key: string]: Expr.Atom; },
+            private parent?: Data
         ) {}
 
         /** @inheritDoc Data#get */
@@ -165,6 +118,9 @@ module Data {
                     tempObj(key, this.mapping[key].read()),
                     keypath
                 );
+            }
+            else if ( this.parent ) {
+                return this.parent.get(keypath);
             }
         }
 
@@ -180,6 +136,9 @@ module Data {
 
                 this.mapping[key].eachBinding(callback);
             }
+            else if ( this.parent ) {
+                this.parent.eachBinding(keypath, callback);
+            }
         }
 
         /** @inheritDoc Data#set */
@@ -193,6 +152,9 @@ module Data {
                 else {
                     setKeypath( this.mapping[key].read(), keypath, value );
                 }
+            }
+            else if ( this.parent ) {
+                this.parent.set(keypath, value);
             }
         }
     }

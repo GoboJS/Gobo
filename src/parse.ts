@@ -208,7 +208,7 @@ module Parse {
             // masked data depending on the attributes passed to it
             outerSection.merge( parse(
                 Traverse.Reader.create(config, replacement),
-                config, new Data.Mask(data, mask)
+                config, new Data.Scoped(mask)
             ) );
 
             section.merge( outerSection );
