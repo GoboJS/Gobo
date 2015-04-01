@@ -150,7 +150,11 @@ module Data {
                     this.mapping[key].publish(value);
                 }
                 else {
-                    setKeypath( this.mapping[key].read(), keypath, value );
+                    setKeypath(
+                        this.mapping[key].read(),
+                        keypath.slice(1),
+                        value
+                    );
                 }
             }
             else if ( this.parent ) {

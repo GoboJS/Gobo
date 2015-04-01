@@ -61,5 +61,38 @@ Test.test('With directives', (should) => {
         done();
     });
 
+    should('Publish through a scope').using(
+        `<div>
+            <div g-with-name='person.name' g-publish='name'></div>
+            <div g-with-lug='person' g-publish='lug.title'></div>
+            <div g-with-name='robot.name | knight' g-publish='name'></div>
+        </div>`
+    ).in((done, $) => {
+        var data = {
+            person: {
+                name: "Lug ThickNeck",
+                title: "Esq."
+            },
+            robot: {
+                name: "Crow"
+            }
+        };
+
+        var gobo = new Gobo();
+
+        gobo.directives.publish = Gobo.directive(function (elem, value) {
+            this.publish( value.toUpperCase() );
+        });
+
+        gobo.filters.knight = { publish: (name) => { return "Sir " + name; } };
+
+        gobo.bind($.body, data);
+
+        assert.equal( data.person.name, "LUG THICKNECK" );
+        assert.equal( data.person.title, "ESQ." );
+        assert.equal( data.robot.name, "Sir CROW" );
+
+        done();
+    });
 });
 
