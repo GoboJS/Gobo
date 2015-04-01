@@ -123,6 +123,22 @@ module Filters {
             return function setFilterHandler() {
                 obj[key] = value;
             };
+        },
+
+        /** Appends a string */
+        append: function appendFilter(
+            str: string,
+            ...suffixes: string[]
+        ): string {
+            return str + suffixes.join("");
+        },
+
+        /** Prepends a string */
+        prepend: function prependFilter(
+            str: string,
+            ...prefixes: string[]
+        ): string {
+            return prefixes.join("") + str;
         }
     };
 

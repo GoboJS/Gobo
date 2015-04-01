@@ -153,5 +153,19 @@ Test.test('Filters', (should) => {
         done();
     });
 
+    should('Prepend and append values').using(
+        `<div>
+            <div id='prepend' g-text='name | prepend "one" "two"'></div>
+            <div id='apppend' g-text='name | append "one" "two"'></div>
+        </div>`
+    ).in((done, $) => {
+        new Gobo().bind($.body, { name: "Lug ThickNeck" });
+
+        assert.equal( $.cleanup($.textById('prepend')), "onetwoLug ThickNeck" );
+        assert.equal( $.cleanup($.textById('apppend')), "Lug ThickNeckonetwo" );
+
+        done();
+    });
+
 });
 
