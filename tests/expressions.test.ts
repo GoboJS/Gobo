@@ -472,4 +472,19 @@ Test.test('Expressions', (should) => {
         done();
     });
 
+    should('allow the root object to be referenced with a single dot').using(
+        `<div g-test="."></div>`
+    ).in((done, $) => {
+        var data = {};
+
+        var gobo = new Gobo();
+
+        gobo.directives.test = Gobo.directive(function (elem, value) {
+            assert.strictEqual(value, data);
+            done();
+        });
+
+        gobo.bind($.body, data);
+    });
+
 });
