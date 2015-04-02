@@ -111,8 +111,8 @@ module.exports = function(grunt) {
                     build: process.env.CI_BUILD_NUMBER || Date.now(),
                     testname: 'Gobo unit tests',
                     public: "public",
-                    pollInterval: 5,
-                    statusCheckAttempts: 18,
+                    pollInterval: 5000,
+                    statusCheckAttempts: 36,
                     'max-duration': 90,
                     maxRetries: 1,
                     browsers: [
