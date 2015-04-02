@@ -46,6 +46,20 @@ module Filters {
         pluralRule(/$/, "s")
     ];
 
+    /** Returns whether a value contains another value */
+    function contains( haystack: any, needle: any ): boolean {
+        if ( typeof haystack === "object" && !!haystack ) {
+            for (var key in haystack) {
+                if ( contains(haystack[key], needle) ) {
+                    return true;
+                }
+            }
+        }
+        else if ( haystack !== null ) {
+            return haystack.toString().toLowerCase().indexOf(needle) !== -1;
+        }
+    }
+
 
     DefaultFilters.prototype = {
 
@@ -61,6 +75,22 @@ module Filters {
                         if ( calls < limit ) {
                             fn(value);
                             calls++;
+                        }
+                    });
+                }
+            };
+        },
+
+        /** Filters an array based on whether it contains a value */
+        filter: function filterBy(
+            haystack: Directives.Eachable, needle: any, field?: string
+        ): Directives.Eachable {
+            return {
+                forEach: function filterByForEach (fn: (value: any) => void) {
+                    haystack.forEach(value => {
+                        var root = field ? value[field] : value;
+                        if ( contains(root, needle) ) {
+                            fn(value);
                         }
                     });
                 }

@@ -190,5 +190,64 @@ Test.test('Filters', (should) => {
         done();
     });
 
+    should('Filter a list of strings by a search term').using(
+        `<ul id='values'>
+            <li g-each-item="items | filter 'cup'" g-text='item'></li>
+        </ul>`
+    ).in((done, $) => {
+        new Gobo().bind($.body, {
+            items: [
+                "1 cup butter ",
+                "2 cups milk ",
+                "3 tbsp sugar "
+            ]
+        });
+
+        assert.equal(
+            $.cleanup($.textById('values')),
+            "1 cup butter 2 cups milk"
+        );
+
+        done();
+    });
+
+    should('Filter a list of objects by a search term').using(
+        `<ul id='values'>
+            <li g-each-item="items | filter 'cup'" g-text='item.name'></li>
+        </ul>`
+    ).in((done, $) => {
+        new Gobo().bind($.body, {
+            items: [
+                { amount: 1, measure: "pinch", name: "salt " },
+                { amount: 2, measure: "cup", name: "butter " },
+                { amount: 3, measure: "tbsp", name: "sugar " },
+                { amount: 4, measure: "cups", name: "milk " }
+            ]
+        });
+
+        assert.equal( $.cleanup($.textById('values')), "butter milk" );
+
+        done();
+    });
+
+    should('Filter a list of objects by a search term in a field').using(
+        `<ul id='values'>
+            <li g-each-item="items | filter 'u' 'name'" g-text='item.name'></li>
+        </ul>`
+    ).in((done, $) => {
+        new Gobo().bind($.body, {
+            items: [
+                { amount: 1, measure: "pinch", name: "salt " },
+                { amount: 2, measure: "cup", name: "butter " },
+                { amount: 3, measure: "tbsp", name: "sugar " },
+                { amount: 4, measure: "cups", name: "milk " }
+            ]
+        });
+
+        assert.equal( $.cleanup($.textById('values')), "butter sugar" );
+
+        done();
+    });
+
 });
 
