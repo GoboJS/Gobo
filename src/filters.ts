@@ -200,7 +200,7 @@ module Filters {
         /** Attempts to pluralize a word */
         pluralize: function pluralizeFilter(
             str: string,
-            count: number,
+            count: any,
             pluralForm?: string
         ): string {
             // Yes, yes -- This is very simplistic and english centric.
@@ -208,6 +208,8 @@ module Filters {
             // pluralizer would be weighty; most projects don't need anything
             // more than this. And since adding new filters is easy, anyone
             // that needs something more can include it themselves.
+
+            count = typeof count === "function" ? count() : parseInt(count, 10);
 
             if ( count !== 1 ) {
                 if ( pluralForm ) {
