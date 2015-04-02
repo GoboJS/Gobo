@@ -112,7 +112,7 @@ module.exports = function(grunt) {
                     testname: 'Gobo unit tests',
                     public: "public",
                     pollInterval: 5000,
-                    statusCheckAttempts: 36,
+                    statusCheckAttempts: 48,
                     'max-duration': 90,
                     maxRetries: 1,
                     browsers: [
