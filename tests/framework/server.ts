@@ -1,4 +1,5 @@
 /// <reference path="framework.ts"/>
+/// <reference path="es6-promise.d.ts"/>
 
 declare var require: (string) => any;
 declare var module: any;
@@ -38,12 +39,44 @@ function readFile(
     });
 }
 
-/** Sends back a chunk of HTML */
-function htmlTemplate(res: any, path: string, data: any) {
-    readFile(res, path, (html) => {
-        var template = Handlebars.compile(html);
-        res.set('Content-Type', 'text/html');
-        res.send( template(data) );
+/** Given a list of file paths, returns the time of the most recent change */
+function newestMTime ( paths: string[] ): number {
+    return paths.reduce((maxTime: number, path: string) => {
+        var stat = fs.statSync(path);
+        if ( !stat ) {
+            throw new Error("Could not stat " + path);
+        }
+        return Math.max(maxTime, stat.mtime);
+    }, 0);
+}
+
+// The JS files needed to run an individual test
+var testJS = [
+    'node_modules/chai/chai.js',
+    'build/private/test-framework.js',
+    'node_modules/watchjs/src/watch.js'
+];
+
+// The library JS, served separately to make debugging easier
+var goboJS = ['build/gobo.debug.js'];
+
+/** Returns a future containing the HTML of a test */
+function getTestHTML(
+    enableCache: boolean,
+    bundle: Test.Bundle
+): Promise<string> {
+
+    return Q.nfcall(
+        fs.readFile,
+        "./tests/framework/test.handlebars",
+        "utf-8"
+    ).then(content => {
+        var template = Handlebars.compile(content);
+        return template({
+            html: bundle.html,
+            logic: bundle.logic.toString(),
+            jsHash: enableCache ?  newestMTime(testJS.concat(goboJS)) : "-"
+        });
     });
 }
 
@@ -72,7 +105,7 @@ function serveJS (cache: boolean, paths: string[]) {
 }
 
 /** Serves a map of test suites */
-function serveSuiteList ( res: any, suites: Test.SuiteSet ) {
+function serveSuiteList ( res: any, suites: Test.SuiteSet ): void {
     var data = Object.keys(suites).map(suite => {
         return {
             suite: suite,
@@ -87,22 +120,11 @@ function serveSuiteList ( res: any, suites: Test.SuiteSet ) {
         };
     });
 
-    htmlTemplate(
-        res,
-        "./tests/framework/listing.handlebars",
-        { suites: data }
-    );
-}
-
-/** Given a list of file paths, returns the time of the most recent change */
-function newestMTime ( paths: string[] ): number {
-    return paths.reduce((maxTime: number, path: string) => {
-        var stat = fs.statSync(path);
-        if ( !stat ) {
-            throw new Error("Could not stat " + path);
-        }
-        return Math.max(maxTime, stat.mtime);
-    }, 0);
+    readFile(res, "./tests/framework/listing.handlebars", (html) => {
+        var template = Handlebars.compile(html);
+        res.set('Content-Type', 'text/html');
+        res.send( template({ suites: data }) );
+    });
 }
 
 /** Starts a local server that serves up test code */
@@ -140,16 +162,9 @@ class Server {
             'build/private/test-harness.js'
         ]));
 
-        // The JS files needed to run an individual test
-        var testJS = [
-            'node_modules/chai/chai.js',
-            'build/private/test-framework.js',
-            'node_modules/watchjs/src/watch.js'
-        ];
         server.get('/lib/*/test.js', serveJS(enableCache, testJS));
 
         // Serve the Gobo JS separately to make it easier to debug
-        var goboJS = ['build/gobo.debug.js'];
         server.get('/lib/*/gobo.js', serveJS(enableCache, goboJS));
 
         // Serve an HTML file with a specific test
@@ -160,12 +175,12 @@ class Server {
                 suites[req.params.suite][req.params.test];
 
             if ( bundle ) {
-                htmlTemplate(res, "./tests/framework/test.handlebars", {
-                    html: bundle.html,
-                    logic: bundle.logic.toString(),
-                    jsHash: enableCache ?
-                        newestMTime(testJS.concat(goboJS)) :
-                        "-"
+                getTestHTML(enableCache, bundle).then((html) => {
+                    res.set('Content-Type', 'text/html');
+                    res.send(html);
+                }, (err) => {
+                    res.sendStatus(500);
+                    res.send(err);
                 });
             }
             else {
