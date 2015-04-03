@@ -3,25 +3,27 @@
     <head>
         <script src='/lib/{{jsHash}}/test.js'></script>
         <script src='/lib/{{jsHash}}/gobo.js'></script>
-        <style>
-            body.success:before {
-                background: #e6efc2;
-                color: #264409;
-                content: "Test Passed";
-            }
+        {{#stylize}}
+            <style>
+                body.success:before {
+                    background: #e6efc2;
+                    color: #264409;
+                    content: "Test Passed";
+                }
 
-            .failure {
-                background: #fbe3e4;
-                color: #8a1f11;
-            }
+                .failure {
+                    background: #fbe3e4;
+                    color: #8a1f11;
+                }
 
-            body.success:before,
-            .failure {
-                display: block;
-                padding: 0.8em;
-                margin-bottom: 0.8em;
-            }
-        </style>
+                body.success:before,
+                .failure {
+                    display: block;
+                    padding: 0.8em;
+                    margin-bottom: 0.8em;
+                }
+            </style>
+        {{/stylize}}
     </head>
     <body>
         {{{html}}}

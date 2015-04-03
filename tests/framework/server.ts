@@ -75,6 +75,7 @@ function getTestHTML(
         var template = Handlebars.compile(content);
         return template({
             testId: testId,
+            stylize: testId === 0,
             html: bundle.html,
             logic: bundle.logic.toString(),
             jsHash: enableCache ?  newestMTime(testJS.concat(goboJS)) : "-"
