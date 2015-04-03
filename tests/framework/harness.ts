@@ -5,6 +5,34 @@
 
 module Harness {
 
+    /** Unescapes strings to/from HTML interpolation. */
+    var unescape: (string) => string = (function() {
+
+        // List of HTML entities for escaping.
+        var map = {
+            '&amp;':  '&',
+            '&lt;':   '<',
+            '&gt;':   '>',
+            '&quot;': '"',
+            '&#x27;': "'",
+            '&#x60;': '`'
+        };
+
+        // A callback used by the regex replacer to replace entities
+        function escapeCallback(match: string): string {
+            return map[match];
+        }
+
+        // Regexes for identifying a key that needs to be escaped
+        var source = '(?:' + Object.keys(map).join('|') + ')';
+        var regex = new RegExp(source, 'g');
+
+        return function unescape(str: string): string {
+            return str.replace(regex, escapeCallback);
+        };
+    }());
+
+
     /** The result of a test pass */
     interface TestResult {
         name: string;
@@ -73,21 +101,45 @@ module Harness {
         /** @constructor */
         constructor ( private elem: HTMLElement ) {}
 
-        /** Returns the URL for this test case */
+        /** Returns the URL for loading this specific test on its own */
         url(): string {
-            return this.elem.getAttribute('href');
+            return this.elem.getAttribute("test-url");
+        }
+
+        /** Returns the ID of this test case */
+        id(): string {
+            return this.elem.getAttribute("test-case");
         }
 
         /** Runs this test */
-        run ( id: string ): void {
+        run (): void {
             var iframe = document.createElement("iframe");
-            iframe.src = this.url() + "?" + id;
+
+            var content = unescape(this.elem.textContent.trim());
+
+            ///iframe.src = this.url() + "?" + this.id();
+
             this.elem.parentNode.insertBefore(iframe, null);
+
+            if ( iframe.hasOwnProperty('srcdoc') ) {
+                (<any> iframe).srcdoc = content;
+            }
+            else {
+                // IE support. Apparently setting the content of an iframe
+                // is a security issue, so they block it.
+                (<any> iframe).contentWindow.contents = content;
+                iframe.src = 'javascript:window.contents';
+            }
         }
 
         /** Reports a result back to this test case */
         report ( outcome: TestResult ): void {
-            this.elem.className += outcome.result ? " success" : " failure";
+
+            var report = <HTMLElement> document.querySelector(
+                '[test-report="' + this.id() + '"]');
+
+            report.className += outcome.result ? " success" : " failure";
+
             if ( !outcome.result && outcome.message ) {
                 var error = document.createElement("div");
                 error.classList.add("error");
@@ -98,8 +150,7 @@ module Harness {
 
         /** Returns the name of this test case */
         name(): string {
-            return this.elem.getAttribute("test-suite") + ": " +
-                this.elem.textContent.trim();
+            return this.elem.getAttribute("test-name");
         }
     }
 
@@ -148,8 +199,6 @@ module Harness {
 
         var results = new ResultBuilder(tests.length, onComplete);
 
-        var ids = 0;
-
         /** Runs the next test */
         function next() {
             var test = tests.shift();
@@ -158,7 +207,6 @@ module Harness {
                 return;
             }
 
-            var id: string = "test-" + ids++;
             var start: number = Date.now();
             var done = false;
 
@@ -190,12 +238,12 @@ module Harness {
             }
 
             // Add a subscriber to listen for the test to finish
-            Messages.subscribe(id, data => {
+            Messages.subscribe(test.id(), data => {
                 report(!!data.result, data.message ? data.message : "");
             });
 
             // Run the test and report an error if it fails to load
-            test.run(id);
+            test.run();
 
             // Move on if the test takes too long to load
             setTimeout( report.bind(null, false, "Timeout"), 5000 );

@@ -9,7 +9,7 @@ var WatchJS = require("watchjs");
 Test.test('On-event directives', (should) => {
 
     should('call functions').using(
-        `<a href='#' id='link' g-on-click='execute'>Click me</a>`
+        `<a id='link' g-on-click='execute'>Click me</a>`
     ).in((done, $) => {
         var data = {
             execute: (evt) => {
@@ -28,7 +28,7 @@ Test.test('On-event directives', (should) => {
 
     should('Disable events when disabled').using(
         `<div g-if='active'>
-            <a href='#' id='link' g-on-click='execute'>Click me</a>
+            <a id='link' g-on-click='execute'>Click me</a>
         </div>`
     ).in((done, $) => {
 

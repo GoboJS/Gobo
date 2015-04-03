@@ -63,7 +63,8 @@ var goboJS = ['build/gobo.debug.js'];
 /** Returns a future containing the HTML of a test */
 function getTestHTML(
     enableCache: boolean,
-    bundle: Test.Bundle
+    bundle: Test.Bundle,
+    testId: number = 0
 ): Promise<string> {
 
     return Q.nfcall(
@@ -73,6 +74,7 @@ function getTestHTML(
     ).then(content => {
         var template = Handlebars.compile(content);
         return template({
+            testId: testId,
             html: bundle.html,
             logic: bundle.logic.toString(),
             jsHash: enableCache ?  newestMTime(testJS.concat(goboJS)) : "-"
@@ -105,25 +107,45 @@ function serveJS (cache: boolean, paths: string[]) {
 }
 
 /** Serves a map of test suites */
-function serveSuiteList ( res: any, suites: Test.SuiteSet ): void {
-    var data = Object.keys(suites).map(suite => {
-        return {
-            suite: suite,
-            url: "/" + encodeURIComponent(suite),
-            tests: Object.keys(suites[suite]).map(test => {
+function serveSuiteList (
+    enableCache: boolean,
+    res: any,
+    suites: Test.SuiteSet
+): void {
+
+    var autoinc = 0;
+
+    var suitePromise = Q.all( Object.keys(suites).map(suite => {
+
+        var testPromises = Object.keys(suites[suite]).map(test => {
+            var bundle = suites[suite][test];
+            var testId = ++autoinc;
+            return getTestHTML(enableCache, bundle, testId).then(html => {
                 return {
                     test: test,
                     url: "/" + encodeURIComponent(suite) +
-                        "/" + encodeURIComponent(test)
+                        "/" + encodeURIComponent(test),
+                    content: html,
+                    testId: testId
                 };
-            })
-        };
-    });
+            });
+        });
+
+        return Q.all(testPromises).then(testList => {
+            return {
+                suite: suite,
+                url: "/" + encodeURIComponent(suite),
+                tests: testList
+            };
+        });
+    }) );
 
     readFile(res, "./tests/framework/listing.handlebars", (html) => {
-        var template = Handlebars.compile(html);
-        res.set('Content-Type', 'text/html');
-        res.send( template({ suites: data }) );
+        suitePromise.then(data => {
+            var template = Handlebars.compile(html);
+            res.set('Content-Type', 'text/html');
+            res.send( template({ suites: data }) );
+        });
     });
 }
 
@@ -140,7 +162,7 @@ class Server {
 
         // At the root level, list out all of the tests
         server.get('/', (req, res) => {
-            serveSuiteList(res, load());
+            serveSuiteList(enableCache, res, load());
         });
 
         //Serve a single test suite
@@ -150,7 +172,7 @@ class Server {
             if ( suites[req.params.suite] ) {
                 var single: Test.SuiteSet = {};
                 single[req.params.suite] = suites[req.params.suite];
-                serveSuiteList(res, single);
+                serveSuiteList(enableCache, res, single);
             }
             else {
                 res.sendStatus(404);

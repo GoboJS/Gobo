@@ -52,7 +52,7 @@
                 function report ( result, message ) {
                     parent.postMessage( JSON.stringify({
                         result: result,
-                        id: document.location.search.substr(1),
+                        id: {{testId}} || document.location.search.substr(1),
                         message: message
                     }), "*" );
 
