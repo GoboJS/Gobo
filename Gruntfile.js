@@ -35,9 +35,9 @@ module.exports = function(grunt) {
                     basePath: 'tests'
                 }
             },
-            'test-framework': {
-                src: ['tests/framework/framework.ts'],
-                dest: 'build/private/test-framework.js',
+            'test-runner': {
+                src: [ 'tests/framework/runner.ts' ],
+                dest: 'build/private/test-runner.js',
                 options: {
                     module: 'commonjs',
                     target: 'es5',

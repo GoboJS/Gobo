@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Gobo Test</title>
+        <script src='/lib/{{jsHash}}/test.js'></script>
+        <script src='/lib/{{jsHash}}/gobo.js'></script>
         <style>
             body.success:before {
                 background: #e6efc2;
@@ -24,111 +25,7 @@
     </head>
     <body>
         {{{html}}}
-        <script>
-            (function (logic) {
-
-                // Returns a function that will invoke the given callback
-                // after it has been called a specific number of times
-                function after( count, callback ) {
-                    return function afterHandler () {
-                        if ( --count === 0 ) {
-                            callback();
-                        }
-                    };
-                }
-
-                // Load a JavaScript file onto the page
-                function loadJS( src, onError, onLoad ) {
-                    var tag = document.createElement('script');
-                    tag.type = 'text/javascript';
-                    tag.async = true;
-                    tag.addEventListener('error', onError);
-                    tag.addEventListener('load', onLoad);
-                    tag.src = src;
-                    document.head.appendChild(tag);
-                }
-
-                // Reports a result back up the chain
-                function report ( result, message ) {
-                    parent.postMessage( JSON.stringify({
-                        result: result,
-                        id: {{testId}} || document.location.search.substr(1),
-                        message: message
-                    }), "*" );
-
-                    if ( result ) {
-                        document.body.className += " success";
-                    }
-                    else {
-                        var report = document.createElement("div");
-                        report.className = "failure";
-                        report.textContent = message;
-                        document.body.insertBefore(
-                            report, document.body.firstChild);
-                    }
-                }
-
-                // Logic for reporting the result of the test
-                var complete;
-                function done ( result, message ) {
-                    if ( !complete ) {
-                        complete = { result: result, message: message };
-
-                        // Delaying the report allows errors to be caught that
-                        // happen after 'done' is invoked
-                        setTimeout(function () {
-                            report( complete.result, complete.message );
-                        }, 0);
-                    }
-                    else if ( !result ) {
-                        complete = { result: result, message: message };
-                    }
-                    else {
-                        complete = {
-                            result: false,
-                            message: "'done' called multiple times"
-                        };
-                    }
-                }
-
-                // If an error is thrown, report a failure
-                window.onerror = done.bind(null, false);
-
-                // Overall 5 second timout
-                setTimeout(done.bind(null, false, "Overall Timeout"), 5000);
-
-                // Executes the tests
-                var executeTest = after(2, function runTests() {
-
-                    // 500ms timeout for running the test
-                    setTimeout(done.bind(null, false, "Test Timeout"), 500);
-
-                    window.assert = window.chai.assert;
-
-                    // Run the test
-                    logic(
-                        done.bind(null, true, "Passed"),
-                        new Test.DocReader(document)
-                    );
-                });
-
-                // Load the javascript test harness
-                loadJS(
-                    '/lib/{{jsHash}}/test.js',
-                    done.bind(null, false, "JS Test lib failed to load"),
-                    executeTest
-                );
-
-                // Load the js library being tested
-                loadJS(
-                    '/lib/{{jsHash}}/gobo.js',
-                    done.bind(null, false, "Gobo JS failed to load"),
-                    executeTest
-                );
-            }(
-                {{{logic}}}
-            ));
-        </script>
+        <script>Test.run({{testId}}, {{{logic}}});</script>
     </body>
 </html>
 

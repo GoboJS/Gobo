@@ -53,7 +53,7 @@ function newestMTime ( paths: string[] ): number {
 // The JS files needed to run an individual test
 var testJS = [
     'node_modules/chai/chai.js',
-    'build/private/test-framework.js',
+    'build/private/test-runner.js',
     'node_modules/watchjs/src/watch.js'
 ];
 
