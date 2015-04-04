@@ -21,7 +21,7 @@ module Connect {
 
         if ( obj.connect ) {
             var originalConnect = obj.connect.bind(obj);
-            obj.connect = function connect () {
+            obj.connect = function debounceConnect () {
                 if ( !obj.connected ) {
                     obj.connected = true;
                     originalConnect();
@@ -31,7 +31,7 @@ module Connect {
 
         if ( obj.disconnect ) {
             var originalDisconnect = obj.disconnect.bind(obj);
-            obj.disconnect = function disconnect () {
+            obj.disconnect = function debounceDisconnect () {
                 if ( obj.connected ) {
                     obj.connected = false;
                     originalDisconnect();
