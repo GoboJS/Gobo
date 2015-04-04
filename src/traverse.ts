@@ -1,4 +1,3 @@
-/// <reference path="browser.d.ts"/>
 /// <reference path="config.ts"/>
 
 module Traverse {
