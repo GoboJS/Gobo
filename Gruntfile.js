@@ -8,7 +8,7 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
 
         typescript: {
-            base: {
+            src: {
                 src: ['src/**/*.ts'],
                 dest: 'build/private/gobo.js',
                 options: {
@@ -88,8 +88,32 @@ module.exports = function(grunt) {
         },
 
         watch: {
-            files: ['src/**/*', 'Gruntfile.js', 'tests/**/*.ts'],
-            tasks: ['default']
+            gruntfile: {
+                files: ['Gruntfile.js'],
+                tasks: ['default']
+            },
+            src: {
+                files: ['src/**/*'],
+                tasks: [
+                    'typescript:src', 'import', 'tslint',
+                    'typescript:tests-local', 'mochaTest', 'uglify', 'bytesize'
+                ]
+            },
+            tests: {
+                files: ['tests/*.ts'],
+                tasks: [
+                    'typescript:tests-local',
+                    'typescript:test-data',
+                    'mochaTest'
+                ]
+            },
+            testFramework: {
+                files: ['tests/framework/*.ts'],
+                tasks: [
+                    'typescript:test-data', 'typescript:test-runner',
+                    'typescript:test-server', 'typescript:test-harness'
+                ]
+            }
         },
 
         bytesize: {
