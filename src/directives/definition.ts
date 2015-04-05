@@ -31,6 +31,9 @@ module Directives {
 
         /** Sets the value of the expression that fed the directive */
         publish( value: any ): void;
+
+        /** Parses an expression */
+        parseExpr( value: string, trigger: (value: any) => void ): void;
     }
 
     /** Defines the interface for instantiating a Directive */

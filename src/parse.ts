@@ -34,6 +34,25 @@ module Parse {
             this.nested[priority].push(connectable);
         }
 
+        /** Adds an expression to this section */
+        pushExpr(
+            priority: number, watch: Watch.Watch,
+            expr: Expr.Atom, trigger: () => void
+        ): void {
+
+            // Hook up an observer so that any change to the
+            // keypath causes the trigger to be re-executed
+            expr.eachBinding((getRoot, keypath) => {
+                this.push(
+                    priority,
+                    new Watch.PathBinding(watch, getRoot, keypath, trigger)
+                );
+            });
+
+            // Make sure we do an initial trigger whenever connecting
+            this.push(priority, { connect: trigger });
+        }
+
         /** Adds everything from another section to this section */
         merge ( section: Section ) {
             section.priorities.forEach(priority => {
@@ -124,7 +143,9 @@ module Parse {
                 return;
             }
 
-            var expr = new Expr.Parser(config, data, elem).parse(attr.value);
+            var exprParser = new Expr.Parser(config, data, elem);
+
+            var expr = exprParser.parse(attr.value);
 
             // Instantiate the directive itself
             var directive = new tuple.value(elem, {
@@ -137,7 +158,20 @@ module Parse {
                     return cloneable(traverse.nested(elem), config);
                 },
                 expression: expr,
-                publish: expr.publish.bind(expr)
+                publish: expr.publish.bind(expr),
+                parseExpr: function parseExpr (
+                    expression: string, trigger: (value: any) => void
+                ): void {
+                    var parsed = exprParser.parse(expression);
+                    section.pushExpr(
+                        tuple.value.priority,
+                        config.watch,
+                        parsed,
+                        function triggerParsedExpr () {
+                            trigger( parsed.read() );
+                        }
+                    );
+                }
             });
 
             // Wrap the directive in a Debouncer to automatically manage
@@ -150,28 +184,19 @@ module Parse {
              * Evalutes the expression and triggers the directive. This gets
              * called any time the data changes.
              */
-            function trigger () {
-                var value = expr.read();
-                directive.execute(
-                    !tuple.value.allowFuncs && typeof value === "function" ?
-                        value() :
-                        value
-                );
-            }
-
-            // Hook up an observer so that any change to the
-            // keypath causes the directive to be re-rendered
-            expr.eachBinding((getRoot, keypath) => {
-                section.push(
-                    tuple.value.priority,
-                    new Watch.PathBinding(
-                        config.watch, getRoot, keypath, trigger
-                    )
-                );
-            });
-
-            // Make sure we do an initial trigger whenever connecting
-            section.push(tuple.value.priority, { connect: trigger });
+            section.pushExpr(
+                tuple.value.priority,
+                config.watch,
+                expr,
+                function triggerDirective () {
+                    var value = expr.read();
+                    directive.execute(
+                        !tuple.value.allowFuncs && typeof value === "function" ?
+                            value() :
+                            value
+                    );
+                }
+            );
         };
     }
 

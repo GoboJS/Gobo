@@ -4,6 +4,7 @@
 /// <reference path="on.ts"/>
 /// <reference path="model.ts"/>
 /// <reference path="with.ts"/>
+/// <reference path="interpret.ts"/>
 
 module Directives {
 
@@ -37,6 +38,9 @@ module Directives {
 
         /** Binds to a field value */
         model: Directives.ModelStatement,
+
+        /** Pareses expressions in text nodes directly within an element */
+        interpret: Directives.InterpretStatement,
 
         /** Sets the text content of an element */
         text: Directives.directive(function text (elem, value) {
