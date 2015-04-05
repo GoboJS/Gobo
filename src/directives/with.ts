@@ -27,11 +27,6 @@ module Directives {
             this.connect = section.connect.bind(section);
             this.disconnect = section.disconnect.bind(section);
         }
-
-        /** @inheritDoc Directive#execute */
-        execute ( value: any ): void {
-            // With directives are strictly parse time, so nothing to do here
-        }
     }
 }
 

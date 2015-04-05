@@ -8,7 +8,7 @@ module Directives {
     export interface Directive extends Connect.Connectable {
 
         /** Executes this directive against an element with a value */
-        execute ( value: any ): void;
+        execute?: ( value: any ) => void;
     }
 
     /** Detailed info about how a directive is constructed */

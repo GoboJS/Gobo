@@ -180,23 +180,25 @@ module Parse {
 
             section.push(tuple.value.priority, directive);
 
-            /**
-             * Evalutes the expression and triggers the directive. This gets
-             * called any time the data changes.
-             */
-            section.pushExpr(
-                tuple.value.priority,
-                config.watch,
-                expr,
-                function triggerDirective () {
-                    var value = expr.read();
-                    directive.execute(
-                        !tuple.value.allowFuncs && typeof value === "function" ?
-                            value() :
-                            value
-                    );
-                }
-            );
+            if ( directive.execute ) {
+
+                // Evalutes the expression and triggers the directive. This
+                // gets called any time the data changes.
+                section.pushExpr(
+                    tuple.value.priority,
+                    config.watch,
+                    expr,
+                    function triggerDirective () {
+                        var value = expr.read();
+                        directive.execute(
+                            !tuple.value.allowFuncs &&
+                                typeof value === "function" ?
+                                value() :
+                                value
+                        );
+                    }
+                );
+            }
         };
     }
 

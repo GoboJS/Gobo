@@ -43,11 +43,6 @@ module Directives {
                 }
             }
         }
-
-        /** @inheritDoc Directive#execute */
-        execute ( value: any ): void {
-            // Nothing to see here. Interpret statements are purely parse time
-        }
     }
 }
 
