@@ -19,6 +19,7 @@ Test.test('Components', (should) => {
 
         gobo.bind($.body, {});
         assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
+        assert.equal($.selectorCount("g-widget"), 0);
         done();
     });
 
@@ -50,6 +51,8 @@ Test.test('Components', (should) => {
 
         assert.equal( $.cleanup($.textById('container')), "Lug ThickNeck" );
 
+        assert.equal($.selectorCount("g-widget"), 0);
+
         done();
     });
 
@@ -74,6 +77,8 @@ Test.test('Components', (should) => {
         data.active = false;
         assert.isFalse( $.hasClass($.byId('container'), "highlight") );
 
+        assert.equal($.selectorCount("g-widget"), 0);
+
         done();
     });
 
@@ -86,6 +91,7 @@ Test.test('Components', (should) => {
         gobo.components.widget = $.create("div", "Veal Steakface");
         gobo.bind($.body, {});
         assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
+        assert.equal($.selectorCount("g-widget"), 0);
         done();
     });
 
@@ -120,6 +126,8 @@ Test.test('Components', (should) => {
 
         assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
 
+        assert.equal($.selectorCount("g-widget"), 0);
+
         done();
     });
 
@@ -145,6 +153,8 @@ Test.test('Components', (should) => {
             "Veal Steakface Lug ThickNeck"
         );
 
+        assert.equal($.selectorCount("g-widget"), 0);
+
         done();
     });
 
@@ -168,6 +178,8 @@ Test.test('Components', (should) => {
         data.fake.people.veal = { name: "Veal LugNut" };
         assert.equal( $.cleanup($.textById('container')), "Veal LugNut" );
 
+        assert.equal($.selectorCount("g-widget"), 0);
+
         done();
     });
 
@@ -182,6 +194,8 @@ Test.test('Components', (should) => {
         gobo.bind($.body, { person: { name: "Veal Steakface" } });
 
         assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
+
+        assert.equal($.selectorCount("g-widget"), 0);
 
         done();
     });
@@ -198,6 +212,8 @@ Test.test('Components', (should) => {
         gobo.bind($.body, {});
 
         assert.equal( $.cleanup($.textById('container')), "Veal Steakface" );
+
+        assert.equal($.selectorCount("g-widget"), 0);
 
         done();
     });

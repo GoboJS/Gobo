@@ -118,6 +118,11 @@ module Test {
             event.initEvent("change", false, true);
             elem.dispatchEvent(event);
         }
+
+        /** Returns the number of results found by a selector */
+        public selectorCount ( selector: string ): number {
+            return this.body.querySelectorAll(selector).length;
+        }
     }
 
     /** The function for executing a test */
