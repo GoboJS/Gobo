@@ -8,3 +8,5 @@ env:
         - secure: dSNVNjQEF6IxpL4xg02iwbuZsCX1h68FUOPJboNOQWD0lO2vEOXbO8bo6LuprBoGgeICYSOaUzLkuLvSo2OpmmT9wRBFkqg9/lFondgR7bGSqHt33xQjHNbPEdmmYvFfeIxY3gdgl2TgMJci7Ufhyh4iENehH6t04JJPbHPHZEA=
         - secure: kO7sEZP/+N2eyHlfkkhX7hTbPMQsxrWvapLe0/Qt450qS1Y5FF9RjCtCUGWKSqvt1ekm7FiVmHs506No0/x9dJ0lEhzccmCnOnVtOD/cJQNPZvVqMdZMzOBFYc9ce1LJYo9r5LFh+XVoR/aW5vee0vrJeBxojrX0ynhxghAnvnE=
 sudo: false
+addons:
+    sauce_connect: true
