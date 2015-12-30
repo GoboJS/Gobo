@@ -96,7 +96,10 @@ function serveJS (cache: boolean, paths: string[]) {
                     res.set('Content-Type', 'application/javascript');
                     res.set('Cache-Control', 'public, max-age=300');
                 }
-                content.forEach(data => { res.write(data); });
+                content.forEach(data => {
+                    res.write(data);
+                    res.write("\n");
+                });
                 res.end();
             },
             (err) => {

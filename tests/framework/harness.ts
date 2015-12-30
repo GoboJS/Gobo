@@ -15,7 +15,8 @@ module Harness {
             '&gt;':   '>',
             '&quot;': '"',
             '&#x27;': "'",
-            '&#x60;': '`'
+            '&#x60;': '`',
+            '&#x3D;': '=',
         };
 
         // A callback used by the regex replacer to replace entities

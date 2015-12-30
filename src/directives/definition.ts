@@ -38,7 +38,7 @@ module Directives {
 
     /** Defines the interface for instantiating a Directive */
     export interface DirectiveBuilder {
-        new( elem: HTMLElement, details: Details ): Directive
+        new( elem: HTMLElement, details: Details ): Directive;
 
         /**
          * The priority of this directive relative to other directives. When

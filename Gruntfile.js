@@ -7,10 +7,10 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
-        typescript: {
+        ts: {
             src: {
                 src: ['src/**/*.ts'],
-                dest: 'build/private/gobo.js',
+                out: 'build/private/gobo.js',
                 options: {
                     module: 'commonjs',
                     target: 'es5',
@@ -19,7 +19,7 @@ module.exports = function(grunt) {
             },
             'tests-local': {
                 src: ['tests/framework/local.ts', 'tests/*.test.ts'],
-                dest: 'build/private/local-test.js',
+                out: 'build/private/local-test.js',
                 options: {
                     module: 'commonjs',
                     target: 'es5',
@@ -28,7 +28,7 @@ module.exports = function(grunt) {
             },
             'test-data': {
                 src: ['tests/framework/data.ts', 'tests/*.test.ts'],
-                dest: 'build/private/test-data.js',
+                out: 'build/private/test-data.js',
                 options: {
                     module: 'commonjs',
                     target: 'es5',
@@ -37,7 +37,7 @@ module.exports = function(grunt) {
             },
             'test-runner': {
                 src: [ 'tests/framework/runner.ts' ],
-                dest: 'build/private/test-runner.js',
+                out: 'build/private/test-runner.js',
                 options: {
                     module: 'commonjs',
                     target: 'es5',
@@ -46,7 +46,7 @@ module.exports = function(grunt) {
             },
             'test-server': {
                 src: ['tests/framework/server.ts'],
-                dest: 'build/private/test-server.js',
+                out: 'build/private/test-server.js',
                 options: {
                     module: 'commonjs',
                     target: 'es5',
@@ -55,7 +55,7 @@ module.exports = function(grunt) {
             },
             'test-harness': {
                 src: ['tests/framework/harness.ts'],
-                dest: 'build/private/test-harness.js',
+                out: 'build/private/test-harness.js',
                 options: {
                     module: 'commonjs',
                     target: 'es5',
@@ -95,23 +95,23 @@ module.exports = function(grunt) {
             src: {
                 files: ['src/**/*'],
                 tasks: [
-                    'typescript:src', 'import', 'tslint',
-                    'typescript:tests-local', 'mochaTest', 'uglify', 'bytesize'
+                    'ts:src', 'import', 'tslint',
+                    'ts:tests-local', 'mochaTest', 'uglify', 'bytesize'
                 ]
             },
             tests: {
                 files: ['tests/*.ts'],
                 tasks: [
-                    'typescript:tests-local',
-                    'typescript:test-data',
+                    'ts:tests-local',
+                    'ts:test-data',
                     'mochaTest'
                 ]
             },
             testFramework: {
                 files: ['tests/framework/*.ts'],
                 tasks: [
-                    'typescript:test-data', 'typescript:test-runner',
-                    'typescript:test-server', 'typescript:test-harness'
+                    'ts:test-data', 'ts:test-runner',
+                    'ts:test-server', 'ts:test-harness'
                 ]
             }
         },
@@ -206,7 +206,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-bytesize');
-    grunt.loadNpmTasks('grunt-typescript');
+    grunt.loadNpmTasks('grunt-ts');
     grunt.loadNpmTasks('grunt-import');
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-tslint');
@@ -214,10 +214,10 @@ module.exports = function(grunt) {
 
     // Default task(s).
     grunt.registerTask('default',
-        ['typescript', 'import', 'tslint', 'mochaTest', 'uglify', 'bytesize']);
+        ['ts', 'import', 'tslint', 'mochaTest', 'uglify', 'bytesize']);
 
     grunt.registerTask('dev',
-        ['typescript', 'import', 'test-server:uncached', 'watch']);
+        ['ts', 'import', 'test-server:uncached', 'watch']);
 
     grunt.registerTask('release',
         ['default', 'test-server:cached', 'saucelabs-custom']);

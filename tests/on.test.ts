@@ -15,7 +15,7 @@ Test.test('On-event directives', (should) => {
             execute: (evt) => {
 
                 // Try to loosely confirm that we received an event object
-                assert.isObject(evt);
+                assert.equal(typeof evt, "object");
                 assert.isDefined(evt.type);
                 assert.isDefined(evt.target);
 
