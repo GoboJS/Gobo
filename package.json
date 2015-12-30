@@ -23,6 +23,7 @@
     "grunt-tslint": "^3.0.1",
     "handlebars": "^4.0.5",
     "jsdom": "7.x",
+    "mocha": "^2.3.4",
     "q": "^1.4.1",
     "tslint": "^3.2.1",
     "watchjs": "0.0.0"
